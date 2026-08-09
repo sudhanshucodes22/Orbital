@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#04050a;color:#e9ebf2;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#e9ebf2;text-decoration:none}
+a:hover{color:#8fe3ff}
+::selection{background:rgba(120,225,255,.28)}
+@keyframes drift{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(0,-28px,0)}}
+@keyframes pulseRing{0%{transform:scale(1);opacity:.55}70%{transform:scale(1.9);opacity:0}100%{transform:scale(1.9);opacity:0}}
+@keyframes bar{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+@keyframes sweep{0%{transform:translateY(-100%)}100%{transform:translateY(320%)}}
+@keyframes dash{to{stroke-dashoffset:-120}}
+@keyframes caret{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes spinSlow{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+
+<div style="position:relative;min-height:100vh;isolation:isolate">
+
+<canvas ref="{{ starRef }}" style="position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none"></canvas>
+<div style="position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(1100px 620px at 78% 14%, rgba(88,190,255,.16), transparent 62%), radial-gradient(900px 700px at 8% 82%, rgba(150,120,255,.13), transparent 65%)"></div>
+
+<header style="position:fixed;top:0;left:0;right:0;z-index:60;display:flex;justify-content:center;padding:16px 20px">
+<nav style="display:flex;align-items:center;gap:26px;width:100%;max-width:1240px;padding:11px 14px 11px 18px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(10,12,20,.62);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 10px 40px rgba(0,0,0,.45)">
+<a href="#top" style="display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:-.01em;font-size:15px">
+<span style="display:block;width:16px;height:16px;border-radius:5px;background:conic-gradient(from 140deg,#7ce6ff,#a48bff,#7ce6ff);box-shadow:0 0 18px rgba(124,230,255,.55)"></span>
+Orbital
+</a>
+<span style="flex:1"></span>
+<div style="display:flex;gap:22px;font-size:13.5px;color:rgba(233,235,242,.62)">
+<a href="#how" style="color:inherit" style-hover="color:#fff">How it works</a>
+<a href="#demo" style="color:inherit" style-hover="color:#fff">Demo</a>
+<a href="#features" style="color:inherit" style-hover="color:#fff">Capabilities</a>
+<a href="#workspace" style="color:inherit" style-hover="color:#fff">Workspace</a>
+<a href="#compare" style="color:inherit" style-hover="color:#fff">Compare</a>
+<a href="#pricing" style="color:inherit" style-hover="color:#fff">Pricing</a>
+</div>
+<a href="#demo" style="font-size:13.5px;padding:9px 16px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05)" style-hover="background:rgba(255,255,255,.11)">Sign in</a>
+<a href="#demo" style="font-size:13.5px;font-weight:500;padding:9px 17px;border-radius:11px;color:#04060c;background:linear-gradient(180deg,#bff0ff,#7ad6ff);box-shadow:0 6px 22px rgba(122,214,255,.35)" style-hover="filter:brightness(1.08)">Start building</a>
+</nav>
+</header>
+
+<main style="position:relative;z-index:10">
+
+<section id="top" style="position:relative;min-height:100vh;display:flex;align-items:center;padding:150px 28px 90px;overflow:hidden">
+<canvas ref="{{ globeRef }}" style="position:absolute;top:50%;right:-4%;transform:translateY(-50%);width:min(1080px,58vw);height:min(1080px,58vw);z-index:0;opacity:.97;pointer-events:none"></canvas>
+<div style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,#04050a 0%,rgba(4,5,10,.92) 32%,rgba(4,5,10,.55) 55%,transparent 78%)"></div>
+<canvas ref="{{ cometRef }}" style="position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none"></canvas>
+<div style="position:relative;z-index:3;width:100%;max-width:1240px;margin:0 auto">
+<div style="max-width:790px">
+<div style="display:inline-flex;align-items:center;gap:10px;padding:6px 12px 6px 7px;border:1px solid rgba(255,255,255,.11);border-radius:100px;background:rgba(255,255,255,.045);font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:rgba(233,235,242,.72)">
+<span style="position:relative;display:block;width:7px;height:7px;border-radius:50%;background:#7ce6ff;margin-left:4px"><span style="position:absolute;inset:0;border-radius:50%;background:#7ce6ff;animation:pulseRing 2.4s ease-out infinite"></span></span>
+The world's first multimodal AI website engineer
+</div>
+<h1 style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:clamp(46px,7.2vw,96px);line-height:.96;letter-spacing:-.035em;margin:28px 0 0;text-wrap:balance">
+From sketch to<br>production <span style="font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;background:linear-gradient(92deg,#bdf1ff,#9fb4ff 55%,#d5b9ff);-webkit-background-clip:text;background-clip:text;color:transparent">website.</span>
+</h1>
+<p style="margin:30px 0 0;max-width:520px;font-size:18.5px;line-height:1.6;color:rgba(233,235,242,.66);text-wrap:pretty">
+Every other tool asks what you want to build. We ask how you'd like to explain it — draw it, show it, say it, scribble on a napkin. One upload is enough.
+</p>
+<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:38px">
+<a href="#demo" style="display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border-radius:14px;font-size:15px;font-weight:500;color:#04060c;background:linear-gradient(180deg,#c8f2ff,#7ad6ff);box-shadow:0 12px 40px rgba(122,214,255,.32)" style-hover="filter:brightness(1.07);transform:translateY(-1px)">Start building <span style="font-family:'IBM Plex Mono',monospace">→</span></a>
+<a href="#demo" style="display:inline-flex;align-items:center;gap:11px;padding:14px 22px;border-radius:14px;font-size:15px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.04)" style-hover="background:rgba(255,255,255,.09)">
+<span style="display:block;width:22px;height:22px;border-radius:50%;border:1px solid rgba(255,255,255,.3);position:relative"><span style="position:absolute;left:8px;top:6px;width:0;height:0;border-left:6px solid rgba(255,255,255,.8);border-top:5px solid transparent;border-bottom:5px solid transparent"></span></span>
+Watch the 90s film</a>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:26px;margin-top:52px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:rgba(233,235,242,.36)">
+<span>No prompts</span><span>No coding</span><span>No design experience</span><span>Ships real React</span>
+</div>
+</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:180px;background:linear-gradient(180deg,transparent,#04050a);pointer-events:none"></div>
+</section>
+
+<section style="position:relative;padding:0 28px 110px">
+<div style="max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:14px">
+<sc-for list="{{ modalities }}" as="m" hint-placeholder-count="6">
+<div style="padding:20px 18px 22px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.015));backdrop-filter:blur(14px)" style-hover="border-color:rgba(150,225,255,.35);background:linear-gradient(180deg,rgba(150,225,255,.09),rgba(255,255,255,.02))">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(233,235,242,.35);letter-spacing:.08em">{{ m.k }}</div>
+<div style="margin-top:26px;font-family:'Space Grotesk',sans-serif;font-size:16px;letter-spacing:-.01em">{{ m.t }}</div>
+<div style="margin-top:6px;font-size:13px;line-height:1.5;color:rgba(233,235,242,.5)">{{ m.d }}</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section id="how" style="position:relative;padding:20px 28px 130px">
+<div style="max-width:1240px;margin:0 auto">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap;margin-bottom:56px">
+<h2 style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:clamp(32px,4vw,52px);letter-spacing:-.03em;line-height:1.02;margin:0;max-width:560px">Five steps. None of them<br>are called "write a prompt".</h2>
+<p style="margin:0;max-width:380px;font-size:15.5px;line-height:1.6;color:rgba(233,235,242,.55)">The pipeline runs continuously — the moment the pen moves, the page moves with it.</p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0;border-top:1px solid rgba(255,255,255,.1)">
+<sc-for list="{{ steps }}" as="s" hint-placeholder-count="5">
+<div style="position:relative;padding:30px 26px 40px 0" style-hover="background:rgba(255,255,255,.02)">
+<div style="position:absolute;top:-4px;left:0;width:7px;height:7px;border-radius:50%;background:#7ce6ff;box-shadow:0 0 14px rgba(124,230,255,.8)"></div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(124,230,255,.75);letter-spacing:.1em">{{ s.n }}</div>
+<div style="margin-top:16px;font-family:'Space Grotesk',sans-serif;font-size:20px;letter-spacing:-.02em">{{ s.t }}</div>
+<div style="margin-top:9px;font-size:13.5px;line-height:1.6;color:rgba(233,235,242,.5);max-width:230px">{{ s.d }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section id="demo" style="position:relative;padding:0 28px 140px">
+<div style="max-width:1240px;margin:0 auto">
+<div style="text-align:center;margin-bottom:44px">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(124,230,255,.7)">Interactive demo</div>
+<h2 style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:clamp(32px,4.4vw,56px);letter-spacing:-.03em;margin:16px 0 0">Watch paper become product.</h2>
+</div>
+
+<div style="border:1px solid rgba(255,255,255,.1);border-radius:26px;background:rgba(10,13,22,.6);backdrop-filter:blur(26px);box-shadow:0 40px 120px rgba(0,0,0,.6);overflow:hidden">
+<div style="display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.08)">
+<span style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.16)"></span>
+<span style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.16)"></span>
+<span style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.16)"></span>
+<div style="flex:1;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(233,235,242,.4)">orbital.engineer / session · {{ stepLabel }}</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(124,230,255,.8)">{{ stepClock }}</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:0;min-height:440px">
+<div style="position:relative;padding:28px;border-right:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.03),transparent)">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(233,235,242,.4)">Input · paper</div>
+<div style="position:relative;margin-top:18px;aspect-ratio:4/3;border-radius:16px;background:repeating-linear-gradient(0deg,rgba(255,255,255,.045) 0 1px,transparent 1px 26px),rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);overflow:hidden">
+<div style="position:absolute;inset:26px;display:flex;flex-direction:column;gap:12px">
+<div style="height:26px;border:1.6px dashed rgba(233,235,242,.42);border-radius:6px"></div>
+<div style="flex:1;border:1.6px dashed rgba(233,235,242,.42);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(233,235,242,.35)">hero</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;height:74px">
+<div style="border:1.6px dashed rgba(233,235,242,.42);border-radius:8px"></div>
+<div style="border:1.6px dashed rgba(233,235,242,.42);border-radius:8px"></div>
+<div style="border:1.6px dashed rgba(233,235,242,.42);border-radius:8px"></div>
+</div>
+</div>
+<div style="position:absolute;left:0;right:0;top:0;height:44%;background:linear-gradient(180deg,transparent,rgba(124,230,255,.16));border-bottom:1px solid rgba(124,230,255,.5);animation:sweep 3.4s ease-in-out infinite"></div>
+<div style="position:absolute;left:12px;bottom:12px;padding:5px 9px;border-radius:8px;background:rgba(4,6,12,.7);border:1px solid rgba(124,230,255,.35);font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:rgba(190,240,255,.9)">{{ detectLabel }}</div>
+</div>
+<div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:8px">
+<sc-for list="{{ handNotes }}" as="h" hint-placeholder-count="3">
+<span style="padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.04);font-family:'Instrument Serif',serif;font-size:15px;color:rgba(233,235,242,.8)">{{ h }}</span>
+</sc-for>
+</div>
+<div style="margin-top:14px;font-size:12.5px;line-height:1.5;color:rgba(233,235,242,.42)">Handwriting on the page is read as design instruction, not content.</div>
+</div>
+
+<div style="position:relative;padding:28px;display:flex;flex-direction:column">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(233,235,242,.4)">Output · live</div>
+<div style="display:flex;gap:6px">
+<sc-for list="{{ viewports }}" as="v" hint-placeholder-count="3">
+<span style="padding:4px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.11);font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:rgba(233,235,242,.55)">{{ v }}</span>
+</sc-for>
+</div>
+</div>
+<div style="position:relative;flex:1;margin-top:18px;border-radius:16px;border:1px solid rgba(255,255,255,.09);background:linear-gradient(160deg,rgba(124,230,255,.07),rgba(164,139,255,.05));overflow:hidden;min-height:270px">
+<div style="position:absolute;inset:0;padding:18px;display:flex;flex-direction:column;gap:14px;opacity:{{ siteOpacity }};transition:opacity .6s ease">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09)">
+<span style="width:12px;height:12px;border-radius:4px;background:linear-gradient(140deg,#7ce6ff,#a48bff)"></span>
+<span style="width:52px;height:6px;border-radius:3px;background:rgba(255,255,255,.28)"></span>
+<span style="flex:1"></span>
+<span style="width:34px;height:6px;border-radius:3px;background:rgba(255,255,255,.16)"></span>
+<span style="width:34px;height:6px;border-radius:3px;background:rgba(255,255,255,.16)"></span>
+<span style="width:52px;height:20px;border-radius:7px;background:linear-gradient(180deg,#cbf3ff,#7ad6ff)"></span>
+</div>
+<div style="flex:1;border-radius:13px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:22px;display:flex;flex-direction:column;justify-content:center;gap:11px">
+<span style="width:64%;height:13px;border-radius:5px;background:rgba(255,255,255,.42)"></span>
+<span style="width:44%;height:13px;border-radius:5px;background:rgba(255,255,255,.26)"></span>
+<span style="width:30%;height:9px;border-radius:5px;background:rgba(255,255,255,.14);margin-top:6px"></span>
+<span style="width:88px;height:26px;border-radius:9px;background:linear-gradient(180deg,#cbf3ff,#7ad6ff);margin-top:10px"></span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;height:78px">
+<div style="border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)"></div>
+<div style="border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)"></div>
+<div style="border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)"></div>
+</div>
+</div>
+<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(233,235,242,.45);opacity:{{ thinkingOpacity }};transition:opacity .5s ease">
+<span style="display:inline-flex;align-items:center;gap:10px"><span style="display:block;width:9px;height:9px;border-radius:50%;background:#7ce6ff;animation:pulseRing 1.4s ease-out infinite"></span>{{ thinkingText }}</span>
+</div>
+</div>
+<div style="margin-top:16px;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04)">
+<span style="display:flex;align-items:flex-end;gap:2.5px;height:20px">
+<span style="width:2.5px;height:100%;border-radius:2px;background:#7ce6ff;animation:bar 1s ease-in-out infinite"></span>
+<span style="width:2.5px;height:100%;border-radius:2px;background:#7ce6ff;animation:bar 1s ease-in-out .12s infinite"></span>
+<span style="width:2.5px;height:100%;border-radius:2px;background:#a48bff;animation:bar 1s ease-in-out .24s infinite"></span>
+<span style="width:2.5px;height:100%;border-radius:2px;background:#7ce6ff;animation:bar 1s ease-in-out .36s infinite"></span>
+<span style="width:2.5px;height:100%;border-radius:2px;background:#a48bff;animation:bar 1s ease-in-out .48s infinite"></span>
+</span>
+<span style="font-size:14px;color:rgba(233,235,242,.85)">{{ voiceLine }}<span style="display:inline-block;width:7px;height:15px;margin-left:2px;vertical-align:-2px;background:#7ce6ff;animation:caret 1s step-end infinite"></span></span>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:8px;padding:16px 18px;border-top:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02)">
+<sc-for list="{{ demoSteps }}" as="d" hint-placeholder-count="5">
+<button onClick="{{ d.go }}" style="flex:1;min-width:150px;text-align:left;cursor:pointer;padding:11px 14px;border-radius:12px;border:1px solid {{ d.border }};background:{{ d.bg }};color:inherit;font-family:'IBM Plex Sans',sans-serif" style-hover="border-color:rgba(150,225,255,.4)">
+<span style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(233,235,242,.4)">{{ d.n }}</span>
+<span style="display:block;margin-top:5px;font-size:13.5px">{{ d.t }}</span>
+</button>
+</sc-for>
+</div>
+</div>
+</div>
+</section>
+
+<section id="features" style="position:relative;padding:0 28px 130px">
+<div style="max-width:1240px;margin:0 auto">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap;margin-bottom:48px">
+<h2 style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:clamp(32px,4.4vw,54px);letter-spacing:-.03em;line-height:1.02;margin:0">The engineering layer,<br>not the prompt box.</h2>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(233,235,242,.4);letter-spacing:.08em">26 CAPABILITIES · 13 SHOWN</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+<sc-for list="{{ features }}" as="f" hint-placeholder-count="9">
+<div style="position:relative;padding:26px 24px 28px;border:1px solid rgba(255,255,255,.08);border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.014));backdrop-filter:blur(16px);overflow:hidden" style-hover="border-color:rgba(150,225,255,.3);transform:translateY(-3px)">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(124,230,255,.8);letter-spacing:.1em">{{ f.n }}</span>
+<span style="width:9px;height:9px;border-radius:3px;background:linear-gradient(140deg,#7ce6ff,#a48bff)"></span>
+</div>
+<h3 style="margin:22px 0 0;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:21px;letter-spacing:-.02em">{{ f.t }}</h3>
+<p style="margin:10px 0 0;font-size:14px;line-height:1.62;color:rgba(233,235,242,.56);text-wrap:pretty">{{ f.d }}</p>
+<div style="margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07);font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(233,235,242,.4)">{{ f.k }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section id="workspace" style="position:relative;padding:0 28px 130px">
+<div style="max-width:1240px;margin:0 auto">
+<div style="text-align:center;margin-bottom:44px">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(164,139,255,.8)">The workspace</div>
+<h2 style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:clamp(32px,4.4vw,56px);letter-spacing:-.03em;margin:16px 0 0">An operating system for building sites.</h2>
+</div>
+<div style="border:1px solid rgba(255,255,255,.1);border-radius:24px;background:rgba(8,10,18,.72);backdrop-filter:blur(26px);box-shadow:0 40px 120px rgba(0,0,0,.6);overflow:hidden">
+<div style="display:grid;grid-template-columns:216px minmax(0,1fr) 320px;min-height:560px">
+
+<aside style="border-right:1px solid rgba(255,255,255,.08);padding:20px 14px;display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.018)">
+<div style="display:flex;align-items:center;gap:9px;padding:6px 10px 16px">
+<span style="width:15px;height:15px;border-radius:5px;background:conic-gradient(from 140deg,#7ce6ff,#a48bff,#7ce6ff)"></span>
+<span style="font-family:'Space Grotesk',sans-serif;font-size:14px">Aurora Labs</span>
+</div>
+<sc-for list="{{ navItems }}" as="n" hint-placeholder-count="9">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-radius:10px;font-size:13.5px;color:{{ n.color }};background:{{ n.bg }};cursor:pointer" style-hover="background:rgba(255,255,255,.06)">
+<span>{{ n.t }}</span>
+<span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:rgba(233,235,242,.32)">{{ n.c }}</span>
+</div>
+</sc-for>
+<span style="flex:1"></span>
+<div style="padding:13px;border-radius:13px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03)">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:rgba(233,235,242,.4);letter-spacing:.08em">AI DESIGN SCORE</div>
+<div style="display:flex;align-items:baseline;gap:6px;margin-top:8px"><span style="font-family:'Space Grotesk',sans-serif;font-size:30px;letter-spacing:-.03em">94</span><span style="font-size:12px;color:rgba(233,235,242,.4)">/ 100</span></div>
+<div style="margin-top:10px;height:4px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden"><span style="display:block;width:94%;height:100%;background:linear-gradient(90deg,#7ce6ff,#a48bff)"></span></div>
+</div>
+</aside>
+
+<div style="display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.08)">
+<span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(233,235,242,.45)">aurora.studio / home</span>
+<span style="flex:1"></span>
+<sc-for list="{{ deviceTabs }}" as="t" hint-placeholder-count="3">
+<span style="padding:5px 11px;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.color }}">{{ t.t }}</span>
+</sc-for>
+</div>
+<div style="flex:1;padding:26px;display:flex;align-items:stretch;justify-content:center;background:radial-gradient(600px 300px at 50% 0%,rgba(124,230,255,.07),transparent 70%)">
+<div style="width:100%;border-radius:16px;border:1px solid rgba(255,255,255,.09);background:linear-gradient(170deg,rgba(255,255,255,.055),rgba(255,255,255,.015));padding:20px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:center;gap:10px">
+<span style="width:13px;height:13px;border-radius:4px;background:linear-gradient(140deg,#7ce6ff,#a48bff)"></span>
+<span style="width:60px;height:6px;border-radius:3px;background:rgba(255,255,255,.3)"></span><span style="flex:1"></span>
+<span style="width:40px;height:6px;border-radius:3px;background:rgba(255,255,255,.15)"></span>
+<span style="width:40px;height:6px;border-radius:3px;background:rgba(255,255,255,.15)"></span>
+<span style="width:64px;height:22px;border-radius:8px;background:linear-gradient(180deg,#cbf3ff,#7ad6ff)"></span>
+</div>
+<div style="flex:1;display:grid;grid-template-columns:1.15fr .85fr;gap:16px">
+<div style="border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:24px;display:flex;flex-direction:column;justify-content:center;gap:12px;position:relative">
+<span style="position:absolute;top:10px;right:10px;padding:3px 8px;border-radius:7px;border:1px dashed rgba(124,230,255,.6);font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(190,240,255,.9)">Hero · selected</span>
+<span style="width:76%;height:15px;border-radius:5px;background:rgba(255,255,255,.45)"></span>
+<span style="width:52%;height:15px;border-radius:5px;background:rgba(255,255,255,.26)"></span>
+<span style="width:100px;height:28px;border-radius:9px;background:linear-gradient(180deg,#cbf3ff,#7ad6ff);margin-top:8px"></span>
+</div>
+<div style="border-radius:14px;border:1px solid rgba(255,255,255,.08);background:repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0 8px,rgba(255,255,255,.02) 8px 16px);display:flex;align-items:flex-end;padding:12px">
+<span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:rgba(233,235,242,.45)">product shot</span>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;height:64px">
+<div style="border-radius:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)"></div>
+<div style="border-radius:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)"></div>
+<div style="border-radius:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)"></div>
+<div style="border-radius:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)"></div>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;padding:14px 18px;border-top:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025)">
+<sc-for list="{{ dock }}" as="k" hint-placeholder-count="6">
+<span style="display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border-radius:11px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);font-size:12.5px;color:rgba(233,235,242,.75);cursor:pointer" style-hover="border-color:rgba(150,225,255,.4);background:rgba(150,225,255,.09)">
+<span style="width:7px;height:7px;border-radius:2px;background:{{ k.dot }}"></span>{{ k.t }}</span>
+</sc-for>
+</div>
+</div>
+
+<aside style="border-left:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;background:rgba(255,255,255,.018)">
+<div style="padding:15px 18px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:9px">
+<span style="width:8px;height:8px;border-radius:50%;background:#7ce6ff;box-shadow:0 0 12px rgba(124,230,255,.8)"></span>
+<span style="font-size:13.5px">AI Engineer</span><span style="flex:1"></span>
+<span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:rgba(233,235,242,.35)">live</span>
+</div>
+<div style="flex:1;padding:16px;display:flex;flex-direction:column;gap:12px;overflow:hidden">
+<sc-for list="{{ chat }}" as="c" hint-placeholder-count="5">
+<div style="align-self:{{ c.align }};max-width:88%;padding:11px 13px;border-radius:14px;border:1px solid {{ c.border }};background:{{ c.bg }};font-size:13px;line-height:1.55;color:{{ c.color }}">{{ c.t }}</div>
+</sc-for>
+</div>
+<div style="padding:14px;border-top:1px solid rgba(255,255,255,.08)">
+<div style="display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);font-size:13px;color:rgba(233,235,242,.42)">Say or type an edit…<span style="flex:1"></span><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:rgba(124,230,255,.8)">⌘K</span></div>
+</div>
+</aside>
+</div>
+</div>
+</div>
+</section>
+
+<section style="position:relative;padding:0 28px 130px">
+<div style="max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px">
+
+<div style="grid-column:span 2;min-width:0;padding:30px;border:1px solid rgba(255,255,255,.09);border-radius:22px;background:linear-gradient(150deg,rgba(124,230,255,.09),rgba(255,255,255,.02));backdrop-filter:blur(18px)">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(124,230,255,.8)">FEATURE 20 · PRODUCT INTELLIGENCE</div>
+<h3 style="margin:16px 0 0;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:28px;letter-spacing:-.025em">It recognises a product — then asks what a store needs.</h3>
+<p style="margin:10px 0 0;max-width:620px;font-size:14.5px;line-height:1.6;color:rgba(233,235,242,.58)">Drop in a photo of a watch and the AI doesn't place an image. It proposes the commerce surface around it, and builds whatever you accept.</p>
+<div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:22px">
+<sc-for list="{{ productOffers }}" as="p" hint-placeholder-count="8">
+<span style="padding:9px 14px;border-radius:11px;border:1px solid {{ p.border }};background:{{ p.bg }};font-size:13px;color:{{ p.color }};cursor:pointer" style-hover="border-color:rgba(150,225,255,.5)">{{ p.t }}</span>
+</sc-for>
+</div>
+<div style="margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+<div style="aspect-ratio:1;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:repeating-linear-gradient(135deg,rgba(255,255,255,.055) 0 9px,rgba(255,255,255,.02) 9px 18px);display:flex;align-items:flex-end;padding:12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:rgba(233,235,242,.45)">product photo</div>
+<div style="aspect-ratio:1;border-radius:16px;border:1px solid rgba(124,230,255,.35);background:radial-gradient(circle at 50% 45%,rgba(124,230,255,.2),rgba(255,255,255,.02) 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+<span style="width:74px;height:74px;border-radius:50%;border:1px dashed rgba(124,230,255,.6);animation:spinSlow 14s linear infinite"></span>
+<span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:rgba(190,240,255,.85)">3D viewer · drag to rotate</span>
+</div>
+<div style="aspect-ratio:1;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);padding:14px;display:flex;flex-direction:column;gap:9px">
+<span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:rgba(233,235,242,.4)">SPECIFICATIONS</span>
+<span style="height:6px;width:80%;border-radius:3px;background:rgba(255,255,255,.2)"></span>
+<span style="height:6px;width:64%;border-radius:3px;background:rgba(255,255,255,.14)"></span>
+<span style="height:6px;width:72%;border-radius:3px;background:rgba(255,255,255,.14)"></span>
+<span style="height:6px;width:50%;border-radius:3px;background:rgba(255,255,255,.14)"></span>
+</div>
+</div>
+</div>
+
+<div style="padding:28px;border:1px solid rgba(255,255,255,.09);border-radius:22px;background:rgba(255,255,255,.035);backdrop-filter:blur(18px)">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(164,139,255,.85)">FEATURE 23 · UX SIMULATOR</div>
+<h3 style="margin:14px 0 0;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:22px;letter-spacing:-.02em">Simulated users, before real ones.</h3>
+<div style="margin-top:20px;display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ uxMetrics }}" as="u" hint-placeholder-count="5">
+<div>
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:rgba(233,235,242,.6)"><span>{{ u.t }}</span><span style="font-family:'IBM Plex Mono',monospace;color:rgba(233,235,242,.85)">{{ u.v }}</span></div>
+<div style="margin-top:6px;height:4px;border-radius:3px;background:rgba(255,255,255,.09);overflow:hidden"><span style="display:block;height:100%;width:{{ u.w }};background:linear-gradient(90deg,#a48bff,#7ce6ff)"></span></div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="padding:28px;border:1px solid rgba(255,255,255,.09);border-radius:22px;background:rgba(255,255,255,.035);backdrop-filter:blur(18px)">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(124,230,255,.85)">FEATURE 15 · EXPORT ANYWHERE</div>
+<h3 style="margin:14px 0 0;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:22px;letter-spacing:-.02em">Leave whenever you like.</h3>
+<div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:8px">
+<sc-for list="{{ exports }}" as="e" hint-placeholder-count="9">
+<span style="padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.04);font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(233,235,242,.72)" style-hover="border-color:rgba(150,225,255,.45);color:#fff">{{ e }}</span>
+</sc-for>
+</div>
+<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07);font-size:13px;line-height:1.6;color:rgba(233,235,242,.5)">Typed components, real routing, no runtime lock-in. Deploy in one click to Vercel, Netlify, Cloudflare or Pages.</div>
+</div>
+
+<div style="grid-column:span 2;min-width:0;padding:30px;border:1px solid rgba(255,255,255,.09);border-radius:22px;background:linear-gradient(150deg,rgba(164,139,255,.1),rgba(255,255,255,.02));backdrop-filter:blur(18px)">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(164,139,255,.85)">FEATURE 22 · COLLABORATIVE CANVAS</div>
+<h3 style="margin:16px 0 0;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:26px;letter-spacing:-.025em">Four people, four inputs, one product.</h3>
+<div style="margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+<sc-for list="{{ collab }}" as="c" hint-placeholder-count="4">
+<div style="padding:18px;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);position:relative;animation:floaty 6s ease-in-out infinite">
+<div style="display:flex;align-items:center;gap:8px">
+<span style="width:20px;height:20px;border-radius:50%;background:{{ c.dot }}"></span>
+<span style="font-size:13px">{{ c.who }}</span>
+</div>
+<div style="margin-top:12px;font-size:12.5px;line-height:1.55;color:rgba(233,235,242,.55)">{{ c.what }}</div>
+<div style="margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:rgba(233,235,242,.35)">{{ c.time }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</section>
+
+<section id="compare" style="position:relative;padding:0 28px 130px">
+<div style="max-width:1240px;margin:0 auto">
+<h2 style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:clamp(30px,4vw,50px);letter-spacing:-.03em;margin:0 0 40px">Everyone else takes prompts.<br>We take everything.</h2>
+<div style="border:1px solid rgba(255,255,255,.09);border-radius:20px;overflow:hidden;background:rgba(255,255,255,.025);backdrop-filter:blur(18px)">
+<div style="display:grid;grid-template-columns:minmax(200px,1.5fr) repeat(5,minmax(76px,1fr));padding:16px 22px;border-bottom:1px solid rgba(255,255,255,.09);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:rgba(233,235,242,.45)">
+<span>CAPABILITY</span>
+<span style="text-align:center;color:#bdf1ff">ORBITAL</span>
+<span style="text-align:center">TOOL A</span><span style="text-align:center">TOOL B</span><span style="text-align:center">TOOL C</span><span style="text-align:center">TOOL D</span>
+</div>
+<sc-for list="{{ compare }}" as="r" hint-placeholder-count="10">
+<div style="display:grid;grid-template-columns:minmax(200px,1.5fr) repeat(5,minmax(76px,1fr));padding:14px 22px;border-bottom:1px solid rgba(255,255,255,.055);font-size:13.5px;align-items:center" style-hover="background:rgba(255,255,255,.03)">
+<span style="color:rgba(233,235,242,.8)">{{ r.t }}</span>
+<span style="text-align:center;color:#7ce6ff;font-family:'IBM Plex Mono',monospace">{{ r.us }}</span>
+<span style="text-align:center;color:rgba(233,235,242,.3);font-family:'IBM Plex Mono',monospace">{{ r.a }}</span>
+<span style="text-align:center;color:rgba(233,235,242,.3);font-family:'IBM Plex Mono',monospace">{{ r.b }}</span>
+<span style="text-align:center;color:rgba(233,235,242,.3);font-family:'IBM Plex Mono',monospace">{{ r.c }}</span>
+<span style="text-align:center;color:rgba(233,235,242,.3);font-family:'IBM Plex Mono',monospace">{{ r.d }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="position:relative;padding:0 28px 130px">
+<div style="max-width:1240px;margin:0 auto">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(124,230,255,.7)">The future of website creation</div>
+<h2 style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:clamp(30px,4vw,50px);letter-spacing:-.03em;margin:16px 0 46px">Prompting was a phase.</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+<sc-for list="{{ era }}" as="e" hint-placeholder-count="4">
+<div style="padding:26px 22px;border-radius:20px;border:1px solid {{ e.border }};background:{{ e.bg }};position:relative;min-height:190px;display:flex;flex-direction:column">
+<div style="font-family:'Space Grotesk',sans-serif;font-size:32px;letter-spacing:-.03em;color:{{ e.year }}">{{ e.y }}</div>
+<div style="margin-top:auto;font-size:17px;font-family:'Space Grotesk',sans-serif;letter-spacing:-.015em">{{ e.t }}</div>
+<div style="margin-top:8px;font-size:13px;line-height:1.55;color:rgba(233,235,242,.5)">{{ e.d }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section id="pricing" style="position:relative;padding:0 28px 130px">
+<div style="max-width:1240px;margin:0 auto">
+<h2 style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:clamp(30px,4vw,50px);letter-spacing:-.03em;margin:0 0 44px;text-align:center">Priced like a tool. Works like a team.</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;align-items:start">
+<sc-for list="{{ plans }}" as="p" hint-placeholder-count="3">
+<div style="padding:30px 26px;border-radius:22px;border:1px solid {{ p.border }};background:{{ p.bg }};backdrop-filter:blur(18px)">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<span style="font-family:'Space Grotesk',sans-serif;font-size:18px">{{ p.name }}</span>
+<span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:{{ p.tagColor }}">{{ p.tag }}</span>
+</div>
+<div style="margin-top:20px;display:flex;align-items:baseline;gap:7px">
+<span style="font-family:'Space Grotesk',sans-serif;font-size:44px;letter-spacing:-.035em">{{ p.price }}</span>
+<span style="font-size:13px;color:rgba(233,235,242,.45)">{{ p.per }}</span>
+</div>
+<div style="margin-top:22px;display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ p.items }}" as="i" hint-placeholder-count="5">
+<div style="display:flex;gap:10px;font-size:13.5px;line-height:1.5;color:rgba(233,235,242,.62)"><span style="color:#7ce6ff;font-family:'IBM Plex Mono',monospace">—</span>{{ i }}</div>
+</sc-for>
+</div>
+<a href="#top" style="display:block;margin-top:26px;text-align:center;padding:12px;border-radius:12px;font-size:14px;border:1px solid {{ p.ctaBorder }};background:{{ p.ctaBg }};color:{{ p.ctaColor }}" style-hover="filter:brightness(1.08)">{{ p.cta }}</a>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="position:relative;padding:0 28px 120px">
+<div style="max-width:900px;margin:0 auto">
+<h2 style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:clamp(28px,3.4vw,42px);letter-spacing:-.03em;margin:0 0 34px">Questions we get asked.</h2>
+<div style="border-top:1px solid rgba(255,255,255,.09)">
+<sc-for list="{{ faq }}" as="q" hint-placeholder-count="5">
+<details style="border-bottom:1px solid rgba(255,255,255,.09);padding:20px 4px">
+<summary style="cursor:pointer;list-style:none;font-family:'Space Grotesk',sans-serif;font-size:17.5px;letter-spacing:-.015em;color:rgba(233,235,242,.9)">{{ q.q }}</summary>
+<p style="margin:12px 0 0;font-size:14.5px;line-height:1.65;color:rgba(233,235,242,.55);max-width:660px">{{ q.a }}</p>
+</details>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="position:relative;padding:0 28px 120px">
+<div style="max-width:1240px;margin:0 auto;padding:70px 40px;border-radius:28px;border:1px solid rgba(255,255,255,.1);background:radial-gradient(700px 340px at 50% 0%,rgba(124,230,255,.16),rgba(255,255,255,.02) 70%);text-align:center;overflow:hidden;position:relative">
+<h2 style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:clamp(32px,4.6vw,58px);letter-spacing:-.035em;margin:0;line-height:1.02">Put the pen down.<br>It's already live.</h2>
+<p style="margin:20px auto 0;max-width:460px;font-size:16px;line-height:1.6;color:rgba(233,235,242,.6)">Free while it's in orbit. Bring a napkin.</p>
+<a href="#top" style="display:inline-flex;align-items:center;gap:10px;margin-top:32px;padding:15px 28px;border-radius:14px;font-size:15px;font-weight:500;color:#04060c;background:linear-gradient(180deg,#c8f2ff,#7ad6ff);box-shadow:0 14px 44px rgba(122,214,255,.35)" style-hover="filter:brightness(1.07)">Start building <span style="font-family:'IBM Plex Mono',monospace">→</span></a>
+</div>
+</section>
+
+<footer style="position:relative;padding:0 28px 60px">
+<div style="max-width:1240px;margin:0 auto;padding-top:34px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-wrap:wrap;gap:28px;justify-content:space-between;align-items:center">
+<div style="display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-size:14px">
+<span style="width:14px;height:14px;border-radius:5px;background:conic-gradient(from 140deg,#7ce6ff,#a48bff,#7ce6ff)"></span>Orbital
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:22px;font-size:13px;color:rgba(233,235,242,.45)">
+<a href="#features" style="color:inherit">Capabilities</a>
+<a href="#workspace" style="color:inherit">Workspace</a>
+<a href="#pricing" style="color:inherit">Pricing</a>
+<a href="#compare" style="color:inherit">Comparison</a>
+<a href="#top" style="color:inherit">Changelog</a>
+</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(233,235,242,.3)">© 2026 ORBITAL ENGINEERING</div>
+</div>
+</footer>
+
+</main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    this.starRef = React.createRef();
+    this.globeRef = React.createRef();
+    this.cometRef = React.createRef();
+    this.state = { step: 0, voice: '' };
+  }
+
+  componentDidMount() {
+    this.initStars();
+    this.initComet();
+    this.waitThree();
+    this.timer = setInterval(() => this.setState(s => ({ step: (s.step + 1) % 5 })), 4200);
+    this.startVoice();
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timer); clearInterval(this.vTimer);
+    cancelAnimationFrame(this.starRaf); cancelAnimationFrame(this.globeRaf); cancelAnimationFrame(this.cometRaf);
+    window.removeEventListener('resize', this.onResize);
+    if (this.onCometResize) window.removeEventListener('resize', this.onCometResize);
+    if (this._globeResize) window.removeEventListener('resize', this._globeResize);
+  }
+
+  startVoice() {
+    const lines = ['Make the navbar transparent.', 'Use a darker theme.', 'Increase the spacing.', 'Make it feel like Apple.', 'Replace the illustration.'];
+    let li = 0, ci = 0, dir = 1;
+    this.vTimer = setInterval(() => {
+      const full = lines[li];
+      ci += dir;
+      if (ci > full.length) { dir = -1; ci = full.length; setTimeout(() => {}, 0); }
+      if (ci < 0) { dir = 1; ci = 0; li = (li + 1) % lines.length; }
+      this.setState({ voice: full.slice(0, Math.max(0, ci)) });
+    }, 55);
+  }
+
+  initStars() {
+    const cv = this.starRef.current; if (!cv) return;
+    const ctx = cv.getContext('2d');
+    let stars = [], w = 0, h = 0;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const resize = () => {
+      w = cv.clientWidth; h = cv.clientHeight;
+      cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const n = Math.round((w * h) / 3400);
+      stars = Array.from({ length: n }, () => ({
+        x: Math.random() * w, y: Math.random() * h,
+        z: Math.random() * 0.85 + 0.15,
+        r: Math.random() * 1.25 + 0.25,
+        tw: Math.random() * Math.PI * 2
+      }));
+    };
+    this.onResize = resize; resize();
+    window.addEventListener('resize', resize);
+    let t = 0;
+    const draw = () => {
+      t += 0.016;
+      ctx.clearRect(0, 0, w, h);
+      for (const s of stars) {
+        s.y -= s.z * 0.14; s.x += s.z * 0.04;
+        if (s.y < -2) { s.y = h + 2; s.x = Math.random() * w; }
+        if (s.x > w + 2) s.x = -2;
+        const tw = 0.45 + 0.55 * Math.pow(Math.abs(Math.sin(t * (0.9 + s.z * 1.7) + s.tw)), 2.2);
+        const a = (0.24 + 0.76 * s.z) * tw;
+        ctx.beginPath();
+        ctx.fillStyle = s.z > 0.72 ? 'rgba(196,238,255,' + a.toFixed(3) + ')' : 'rgba(255,255,255,' + (a * 0.72).toFixed(3) + ')';
+        ctx.arc(s.x, s.y, s.r * s.z, 0, Math.PI * 2); ctx.fill();
+        if (s.z > 0.9 && tw > 0.94) {
+          ctx.globalAlpha = (tw - 0.94) * 8;
+          ctx.strokeStyle = 'rgba(190,235,255,.7)'; ctx.lineWidth = 0.7;
+          const g = s.r * 4.5;
+          ctx.beginPath();
+          ctx.moveTo(s.x - g, s.y); ctx.lineTo(s.x + g, s.y);
+          ctx.moveTo(s.x, s.y - g); ctx.lineTo(s.x, s.y + g);
+          ctx.stroke(); ctx.globalAlpha = 1;
+        }
+      }
+      this.starRaf = requestAnimationFrame(draw);
+    };
+    draw();
+  }
+
+  initComet() {
+    const cv = this.cometRef.current; if (!cv) return;
+    const ctx = cv.getContext('2d');
+    let w = 0, h = 0;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const resize = () => {
+      w = cv.clientWidth; h = cv.clientHeight;
+      cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    this.onCometResize = resize;
+    window.addEventListener('resize', resize);
+
+    let comet = null, next = 1.2;
+    const spawn = () => {
+      const speed = 7.5 + Math.random() * 4.5;
+      const ang = -(16 + Math.random() * 16) * Math.PI / 180;
+      comet = {
+        x: -140 - Math.random() * 120,
+        y: h * (0.55 + Math.random() * 0.5),
+        vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed,
+        len: 210 + Math.random() * 150, life: 0
+      };
+    };
+    const tick = () => {
+      ctx.clearRect(0, 0, w, h);
+      next -= 0.016;
+      if (!comet && next <= 0) { spawn(); next = 6 + Math.random() * 6; }
+      if (comet) {
+        comet.x += comet.vx; comet.y += comet.vy; comet.life += 0.016;
+        const m = Math.hypot(comet.vx, comet.vy);
+        const tx = comet.x - (comet.vx / m) * comet.len;
+        const ty = comet.y - (comet.vy / m) * comet.len;
+        const fade = Math.min(1, comet.life * 2.6) * Math.min(1, Math.max(0, (w + 300 - comet.x) / 300));
+        const grad = ctx.createLinearGradient(comet.x, comet.y, tx, ty);
+        grad.addColorStop(0, 'rgba(255,255,255,' + (0.98 * fade).toFixed(3) + ')');
+        grad.addColorStop(0.28, 'rgba(196,236,255,' + (0.62 * fade).toFixed(3) + ')');
+        grad.addColorStop(1, 'rgba(150,215,255,0)');
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = grad; ctx.lineWidth = 4.6;
+        ctx.beginPath(); ctx.moveTo(comet.x, comet.y); ctx.lineTo(tx, ty); ctx.stroke();
+        ctx.strokeStyle = grad; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(comet.x, comet.y); ctx.lineTo(tx, ty); ctx.stroke();
+        const halo = ctx.createRadialGradient(comet.x, comet.y, 0, comet.x, comet.y, 16);
+        halo.addColorStop(0, 'rgba(255,255,255,' + fade.toFixed(3) + ')');
+        halo.addColorStop(0.35, 'rgba(190,235,255,' + (0.5 * fade).toFixed(3) + ')');
+        halo.addColorStop(1, 'rgba(150,215,255,0)');
+        ctx.fillStyle = halo;
+        ctx.beginPath(); ctx.arc(comet.x, comet.y, 16, 0, Math.PI * 2); ctx.fill();
+        if (comet.x > w + 340 || comet.y < -340) comet = null;
+      }
+      this.cometRaf = requestAnimationFrame(tick);
+    };
+    tick();
+  }
+
+  waitThree() {
+    if (window.THREE) return this.initGlobe();
+    let tries = 0;
+    const iv = setInterval(() => {
+      if (window.THREE) { clearInterval(iv); this.initGlobe(); }
+      else if (++tries > 120) clearInterval(iv);
+    }, 100);
+  }
+
+  initGlobe() {
+    const cv = this.globeRef.current; if (!cv || !window.THREE) return;
+    const T = window.THREE;
+    const renderer = new T.WebGLRenderer({ canvas: cv, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputEncoding = T.sRGBEncoding;
+    renderer.toneMapping = T.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.42;
+    const size = () => renderer.setSize(cv.clientWidth, cv.clientHeight, false);
+    size();
+    const scene = new T.Scene();
+    const cam = new T.PerspectiveCamera(34, 1, 0.1, 100);
+    cam.position.set(0, 0, 11.4);
+
+    const group = new T.Group();
+    group.rotation.z = -0.38;
+    scene.add(group);
+
+    const R = 2.5;
+    const load = new T.TextureLoader();
+    const tex = load.load('earth-equirect.jpg');
+    tex.wrapS = T.RepeatWrapping;
+    tex.anisotropy = Math.min(16, renderer.capabilities.getMaxAnisotropy());
+    tex.encoding = T.sRGBEncoding;
+    tex.minFilter = T.LinearMipMapLinearFilter;
+    tex.generateMipmaps = true;
+
+    const earth = new T.Mesh(
+      new T.SphereGeometry(R, 96, 64),
+      new T.MeshBasicMaterial({ map: tex })
+    );
+    group.add(earth);
+
+    // view-space day/night shaping so the lit limb always faces the sun side
+    const shade = new T.Mesh(
+      new T.SphereGeometry(R * 1.003, 64, 44),
+      new T.ShaderMaterial({
+        transparent: true, depthWrite: false, blending: T.NormalBlending,
+        vertexShader: 'varying vec3 vN; void main(){ vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+        fragmentShader: 'varying vec3 vN; void main(){ float d = dot(normalize(vN), normalize(vec3(0.85,0.28,0.45))); float night = smoothstep(0.30,-0.45,d); float warm = smoothstep(0.42,0.92,d); gl_FragColor = vec4(mix(vec3(0.012,0.03,0.07), vec3(1.0,0.86,0.64), warm), night*0.30 + warm*0.30); }'
+      })
+    );
+    group.add(shade);
+
+    const glow = new T.Mesh(
+      new T.SphereGeometry(R * 1.16, 64, 44),
+      new T.ShaderMaterial({
+        transparent: true, side: T.BackSide, depthWrite: false, blending: T.AdditiveBlending,
+        vertexShader: 'varying vec3 vN; varying vec3 vP; void main(){ vN = normalize(normalMatrix * normal); vP = normalize((modelViewMatrix * vec4(position,1.0)).xyz); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+        fragmentShader: 'varying vec3 vN; void main(){ float i = pow(0.66 - dot(vN, vec3(0.0,0.0,1.0)), 3.0); gl_FragColor = vec4(0.30,0.66,1.0,1.0) * i * 1.9; }'
+      })
+    );
+    group.add(glow);
+
+    const ring = new T.Mesh(
+      new T.RingGeometry(R * 1.46, R * 1.472, 180),
+      new T.MeshBasicMaterial({ color: 0x9fd8ff, transparent: true, opacity: 0.16, side: T.DoubleSide })
+    );
+    ring.rotation.x = Math.PI / 2.35; ring.rotation.y = 0.2;
+    scene.add(ring);
+
+    const orbit = new T.Group(); scene.add(orbit);
+    const sat = new T.Mesh(new T.SphereGeometry(0.05, 12, 12), new T.MeshBasicMaterial({ color: 0xbdf1ff }));
+    sat.position.set(R * 1.466, 0, 0);
+    const holder = new T.Group(); holder.rotation.x = Math.PI / 2.35; holder.rotation.y = 0.2;
+    holder.add(sat); orbit.add(holder);
+
+    const onResize = () => {
+      size();
+      cam.aspect = cv.clientWidth / cv.clientHeight || 1;
+      cam.updateProjectionMatrix();
+    };
+    onResize();
+    window.addEventListener('resize', onResize);
+    this._globeResize = onResize;
+
+    let t = 0;
+    const tick = () => {
+      t += 0.0045;
+      // slow drift that keeps the daylight continents in frame (a libration, not a full spin)
+      group.rotation.y = 0.32 + Math.sin(t * 0.16) * 0.62;
+      shade.rotation.y = -group.rotation.y;
+      ring.rotation.z += 0.0009;
+      holder.rotation.z = t * 1.6;
+      group.position.y = Math.sin(t * 1.1) * 0.06;
+      renderer.render(scene, cam);
+      this.globeRaf = requestAnimationFrame(tick);
+    };
+    tick();
+  }
+
+  renderVals() {
+    const step = this.state.step;
+    const stepNames = ['Sketch received', 'Detecting intent', 'Building layout', 'Voice editing', 'Production ready'];
+    const detect = ['scanning paper…', 'nav + hero + 3 cards', 'cards → feature cards', 'applying edit…', 'shipped · 42ms build'];
+    const thinking = ['Reading the page', 'Resolving intent', '', 'Applying your edit', ''];
+
+    const mk = (l, i) => ({
+      n: '0' + (i + 1), t: l, go: () => this.setState({ step: i }),
+      border: step === i ? 'rgba(150,225,255,.5)' : 'rgba(255,255,255,.09)',
+      bg: step === i ? 'rgba(124,230,255,.1)' : 'rgba(255,255,255,.025)'
+    });
+
+    const pill = (t, on) => ({
+      t, border: on ? 'rgba(124,230,255,.5)' : 'rgba(255,255,255,.12)',
+      bg: on ? 'rgba(124,230,255,.12)' : 'rgba(255,255,255,.035)',
+      color: on ? '#cdf2ff' : 'rgba(233,235,242,.7)'
+    });
+
+    return {
+      starRef: this.starRef, globeRef: this.globeRef, cometRef: this.cometRef,
+      stepLabel: stepNames[step], stepClock: '00:0' + (step + 1),
+      detectLabel: detect[step],
+      thinkingText: thinking[step],
+      thinkingOpacity: thinking[step] ? 1 : 0,
+      siteOpacity: step < 2 ? 0.18 : 1,
+      voiceLine: this.state.voice,
+      demoSteps: ['Sketch', 'Detection', 'Website', 'Voice edit', 'Final build'].map(mk),
+
+      modalities: [
+        { k: '01', t: 'Hand sketch', d: 'Boxes on paper, however messy.' },
+        { k: '02', t: 'Live camera', d: 'It builds while you draw.' },
+        { k: '03', t: 'Voice', d: 'Speak the change, see it land.' },
+        { k: '04', t: 'Handwriting', d: 'Notes read as design rules.' },
+        { k: '05', t: 'Screenshot / PDF', d: 'Brochures become sites.' },
+        { k: '06', t: 'Text', d: 'When words are simply faster.' }
+      ],
+
+      steps: [
+        { n: 'STEP 01', t: 'Sketch', d: 'Paper, whiteboard, napkin, tablet. Anything with a line on it.' },
+        { n: 'STEP 02', t: 'AI understands', d: 'Structure, hierarchy, spacing and intent — not just shapes.' },
+        { n: 'STEP 03', t: 'Live website', d: 'Real components, real routing, responsive from the first frame.' },
+        { n: 'STEP 04', t: 'Edit by voice', d: 'Continuous conversation. Nothing is ever regenerated.' },
+        { n: 'STEP 05', t: 'Deploy', d: 'One click to your host, or export the codebase and walk away.' }
+      ],
+
+      handNotes: ['blue gradient', 'glass effect', 'rounded cards'],
+      viewports: ['desktop', 'tablet', 'mobile'],
+
+      features: [
+        { n: 'F01', t: 'Sketch to website', d: 'Upload a drawing and get a responsive site with real hierarchy, spacing and components. No prompt required at any point.', k: 'accuracy · 96% layout match' },
+        { n: 'F02', t: 'Live camera mode', d: 'Point a phone at the page. Every new line you draw updates the preview beside it, in sync, without a rebuild.', k: 'latency · sub-second' },
+        { n: 'F03', t: 'Voice editing', d: '"Make the navbar transparent." Done. Edits are applied to the live tree, never regenerated from scratch.', k: 'edits · non-destructive' },
+        { n: 'F05', t: 'Handwriting understanding', d: 'Words written in the margin are treated as design instruction — palette, effects, radius, density.', k: 'reads · cursive & print' },
+        { n: 'F06', t: 'Intent understanding', d: 'Three boxes in a row is a question, not an answer. It asks whether you meant pricing or features, then commits.', k: 'behaves like · a designer' },
+        { n: 'F07', t: 'AI design mentor', d: 'Critique, not just generation: contrast, CTA placement, rhythm, accessibility — each with a reason attached.', k: 'output · design score' },
+        { n: 'F08', t: 'Style engine', d: 'Swap the entire visual language in one click while structure, copy and components stay exactly where they are.', k: '5 systems · 0 relayout' },
+        { n: 'F09', t: 'Component intelligence', d: 'Repeated elements are detected and lifted into typed, reusable React components with sane prop names.', k: 'exports · real code' },
+        { n: 'F10', t: 'Multi-page understanding', d: 'Hand it five sketches. It links them, builds navigation, keeps one design system and generates routing.', k: 'pages · unlimited' },
+        { n: 'F11', t: 'Flow detection', d: 'Login → dashboard → settings → checkout. It builds the journey, not a pile of disconnected pages.', k: 'output · full product flow' },
+        { n: 'F17', t: 'Screenshot to website', d: 'Drop in any screenshot and get the layout, spacing, type scale and motion rebuilt as clean code.', k: 'before / after diff' },
+        { n: 'F19', t: 'Whiteboard mode', d: 'One photo of a meeting-room whiteboard, arrows and all, becomes a working prototype before people leave the room.', k: 'input · one photo' }
+      ],
+
+      navItems: [
+        { t: 'Projects', c: '12', color: 'rgba(233,235,242,.68)', bg: 'transparent' },
+        { t: 'Dashboard', c: '', color: 'rgba(233,235,242,.68)', bg: 'transparent' },
+        { t: 'Components', c: '38', color: '#eaf7ff', bg: 'rgba(124,230,255,.12)' },
+        { t: 'Assets', c: '96', color: 'rgba(233,235,242,.68)', bg: 'transparent' },
+        { t: 'AI Assistant', c: '', color: 'rgba(233,235,242,.68)', bg: 'transparent' },
+        { t: 'Deployments', c: '4', color: 'rgba(233,235,242,.68)', bg: 'transparent' },
+        { t: 'Exports', c: '', color: 'rgba(233,235,242,.68)', bg: 'transparent' },
+        { t: 'History', c: '', color: 'rgba(233,235,242,.68)', bg: 'transparent' },
+        { t: 'Settings', c: '', color: 'rgba(233,235,242,.68)', bg: 'transparent' }
+      ],
+
+      deviceTabs: [
+        { t: 'desktop', border: 'rgba(124,230,255,.45)', bg: 'rgba(124,230,255,.12)', color: '#cdf2ff' },
+        { t: 'tablet', border: 'rgba(255,255,255,.11)', bg: 'transparent', color: 'rgba(233,235,242,.5)' },
+        { t: 'mobile', border: 'rgba(255,255,255,.11)', bg: 'transparent', color: 'rgba(233,235,242,.5)' }
+      ],
+
+      dock: [
+        { t: 'Voice', dot: '#7ce6ff' }, { t: 'Camera', dot: '#a48bff' }, { t: 'Sketch', dot: '#7ce6ff' },
+        { t: 'Screenshot', dot: '#a48bff' }, { t: 'PDF', dot: '#7ce6ff' }, { t: 'Prompt', dot: '#a48bff' }
+      ],
+
+      chat: [
+        { t: 'Detected three cards under the hero. Pricing or features?', align: 'flex-start', border: 'rgba(255,255,255,.1)', bg: 'rgba(255,255,255,.05)', color: 'rgba(233,235,242,.85)' },
+        { t: 'Features. And make the hero taller.', align: 'flex-end', border: 'rgba(124,230,255,.4)', bg: 'rgba(124,230,255,.13)', color: '#e9f8ff' },
+        { t: 'Done — hero is now 82vh. Contrast on the secondary CTA is 3.1:1, below AA. Want me to darken it?', align: 'flex-start', border: 'rgba(255,255,255,.1)', bg: 'rgba(255,255,255,.05)', color: 'rgba(233,235,242,.85)' },
+        { t: 'Yes. Then make it look like Apple.', align: 'flex-end', border: 'rgba(124,230,255,.4)', bg: 'rgba(124,230,255,.13)', color: '#e9f8ff' },
+        { t: 'Style engine applied · 0 layout shifts · design score 91 → 94.', align: 'flex-start', border: 'rgba(164,139,255,.35)', bg: 'rgba(164,139,255,.12)', color: '#efeaff' }
+      ],
+
+      productOffers: [
+        pill('Interactive 3D viewer', true), pill('Product gallery', true), pill('Specifications table', true),
+        pill('Buy button', false), pill('Reviews', false), pill('Colour variants', true),
+        pill('Comparison table', false), pill('Related products', false)
+      ],
+
+      uxMetrics: [
+        { t: 'Attention on primary CTA', v: '78%', w: '78%' },
+        { t: 'Scroll depth (median)', v: '64%', w: '64%' },
+        { t: 'Predicted conversion', v: '4.9%', w: '49%' },
+        { t: 'Accessibility (WCAG AA)', v: '97', w: '97%' },
+        { t: 'Predicted bounce', v: '31%', w: '31%' }
+      ],
+
+      exports: ['React', 'Next.js', 'HTML', 'Tailwind', 'Vue', 'Angular', 'Flutter', 'React Native', 'WordPress'],
+
+      collab: [
+        { who: 'Founder', what: 'Uploaded the original napkin sketch of the home page.', time: '09:12', dot: 'linear-gradient(140deg,#7ce6ff,#4aa7ff)' },
+        { who: 'Designer', what: 'Added the pricing page and pinned a type scale.', time: '09:31', dot: 'linear-gradient(140deg,#a48bff,#7c5cff)' },
+        { who: 'PM', what: 'Left three comments on the onboarding flow.', time: '10:04', dot: 'linear-gradient(140deg,#ffd28f,#ff9d6b)' },
+        { who: 'Engineer', what: 'Pulled the branch. Components already typed.', time: '10:22', dot: 'linear-gradient(140deg,#8fffc4,#3fd9a0)' }
+      ],
+
+      compare: [
+        { t: 'Prompt-based input', us: '✓', a: '✓', b: '✓', c: '✓', d: '✓' },
+        { t: 'Hand-drawn sketch input', us: '✓', a: '—', b: '—', c: '—', d: '—' },
+        { t: 'Live camera build', us: '✓', a: '—', b: '—', c: '—', d: '—' },
+        { t: 'Voice editing', us: '✓', a: '—', b: '—', c: '—', d: '—' },
+        { t: 'Handwriting recognition', us: '✓', a: '—', b: '—', c: '—', d: '—' },
+        { t: 'Intent clarification', us: '✓', a: '—', b: '—', c: '—', d: '—' },
+        { t: 'AI design mentor & score', us: '✓', a: '—', b: '—', c: '—', d: '—' },
+        { t: 'Multi-page understanding', us: '✓', a: '~', b: '~', c: '—', d: '✓' },
+        { t: 'Live editing without regeneration', us: '✓', a: '—', b: '~', c: '—', d: '✓' },
+        { t: 'Responsive generation', us: '✓', a: '~', b: '~', c: '~', d: '✓' },
+        { t: 'Product & 3D intelligence', us: '✓', a: '—', b: '—', c: '—', d: '—' }
+      ],
+
+      era: [
+        { y: '2024', t: 'Prompt-based AI', d: 'You describe. It guesses. You describe again.', year: 'rgba(233,235,242,.35)', border: 'rgba(255,255,255,.08)', bg: 'rgba(255,255,255,.025)' },
+        { y: '2025', t: 'Sketch-based AI', d: 'Images in, layouts out. Structure without meaning.', year: 'rgba(233,235,242,.5)', border: 'rgba(255,255,255,.09)', bg: 'rgba(255,255,255,.035)' },
+        { y: '2026', t: 'Multimodal AI', d: 'Draw, speak, show, write. All at once. This is us.', year: '#bdf1ff', border: 'rgba(124,230,255,.45)', bg: 'linear-gradient(160deg,rgba(124,230,255,.14),rgba(255,255,255,.02))' },
+        { y: 'Next', t: 'Intent-driven AI', d: 'It builds the product you meant, then argues with you about it.', year: 'rgba(164,139,255,.9)', border: 'rgba(164,139,255,.32)', bg: 'linear-gradient(160deg,rgba(164,139,255,.12),rgba(255,255,255,.02))' }
+      ],
+
+      plans: [
+        { name: 'Sketch', tag: 'FREE', tagColor: 'rgba(233,235,242,.4)', price: '$0', per: '/ forever', border: 'rgba(255,255,255,.09)', bg: 'rgba(255,255,255,.03)', cta: 'Start free', ctaBorder: 'rgba(255,255,255,.14)', ctaBg: 'rgba(255,255,255,.05)', ctaColor: '#e9ebf2', items: ['3 projects', 'Sketch & text input', 'Live preview', 'HTML export'] },
+        { name: 'Studio', tag: 'MOST PICKED', tagColor: '#bdf1ff', price: '$29', per: '/ month', border: 'rgba(124,230,255,.42)', bg: 'linear-gradient(165deg,rgba(124,230,255,.12),rgba(255,255,255,.02))', cta: 'Start 14-day trial', ctaBorder: 'transparent', ctaBg: 'linear-gradient(180deg,#c8f2ff,#7ad6ff)', ctaColor: '#04060c', items: ['Unlimited projects', 'Camera, voice & handwriting', 'Design mentor & style engine', 'React / Next / Vue export', 'One-click deployment'] },
+        { name: 'Orbit', tag: 'TEAMS', tagColor: 'rgba(164,139,255,.9)', price: '$89', per: '/ seat / month', border: 'rgba(164,139,255,.32)', bg: 'linear-gradient(165deg,rgba(164,139,255,.1),rgba(255,255,255,.02))', cta: 'Talk to us', ctaBorder: 'rgba(255,255,255,.14)', ctaBg: 'rgba(255,255,255,.05)', ctaColor: '#e9ebf2', items: ['Collaborative canvas', 'UX simulator & SEO intelligence', 'Project memory & version history', 'SSO, audit log, private cloud'] }
+      ],
+
+      faq: [
+        { q: 'Do I ever have to write a prompt?', a: 'No. Text is one input among six, not the entry fee. Most sessions start with a photo of a page and end with someone talking.' },
+        { q: 'How messy can the sketch be?', a: 'Very. It reads intent, not neatness — crossed-out boxes, arrows and margin notes are all signal. If it genuinely cannot tell, it asks one short question instead of guessing.' },
+        { q: 'Is the code real, or a locked-in export?', a: 'Real. Typed React components, real routing, Tailwind or plain CSS. Export the repo at any point and never open this product again.' },
+        { q: 'What happens when I ask for an edit?', a: 'The live tree is patched in place. Nothing regenerates, so your copy, images and manual tweaks survive every change.' },
+        { q: 'Does it work offline or on mobile?', a: 'The camera mode is built mobile-first — most people draw on paper and hold a phone above it. The workspace is desktop, tablet and mobile responsive.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

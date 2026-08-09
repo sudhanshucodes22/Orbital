@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Node (Phase 1 onward)
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# Env
+.env
+.env.local
+.env*.local
