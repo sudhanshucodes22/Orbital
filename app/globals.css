@@ -1,0 +1,18 @@
+/* Intentionally almost empty.
+ *
+ * The create-next-app default globals.css was NOT kept. It ships a reset
+ * (`* { padding: 0; margin: 0 }`), `body { display: flex; flex-direction:
+ * column; font-family: Arial }` and light/dark `--background` tokens. The
+ * Orbital design does none of that: its own reset is only
+ * `* { box-sizing: border-box }` plus `body { margin: 0 }`, and it relies on
+ * user-agent defaults for element padding and margins. Inheriting Next's
+ * reset would silently change spacing throughout the ported page.
+ *
+ * Phase 2 replaces this file with the <style> block from the <helmet> element
+ * of reference/artifact-export/Orbital Launch.dc.html, verbatim.
+ */
+
+/* Placeholder only — carries no styling the ported design does not ask for. */
+:root {
+  color-scheme: dark;
+}

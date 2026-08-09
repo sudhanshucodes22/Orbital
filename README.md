@@ -25,7 +25,55 @@ non-zero on drift. It never overwrites the baselines.
 
 Tags: `artifact-export` (the untouched export) and `baselines-v1`.
 
-The Next.js application is added at the repository root in Phase 1.
+The Next.js application lives at the repository root (`app/`, `next.config.ts`,
+`package.json`).
+
+```bash
+npm install
+npm run dev        # http://localhost:3000
+npm run build
+npm run typecheck
+npm run lint
+```
+
+## Scaffold decisions
+
+Next.js 16.3, React 19.2, App Router, TypeScript. `create-next-app` will not
+run in a directory that already contains `reference/` and `tools/`, so the
+scaffold was generated elsewhere and merged in deliberately. Four of its
+outputs were **not** taken:
+
+- **`app/globals.css`.** It ships `* { padding: 0; margin: 0 }`,
+  `body { display: flex; flex-direction: column; font-family: Arial }` and
+  light/dark tokens. The Orbital design resets only `box-sizing` and
+  `body { margin: 0 }`, and otherwise relies on user-agent defaults. Keeping
+  Next's reset would have silently changed spacing across the ported page.
+  The file is now a near-empty placeholder; Phase 2 replaces it with the
+  design's own `<style>` block verbatim.
+- **`app/favicon.ico`** and **`public/*.svg`** — Vercel branding and demo
+  assets. A real favicon is Phase 4.
+- **Tailwind** was declined. The design is 100% inline styles; Tailwind's
+  preflight is a CSS reset and would change rendering.
+- **`README.md`** — this file already existed.
+
+`reference/**` is excluded from ESLint. `support.js` is a generated
+third-party bundle and linting it produced real-but-irrelevant findings on a
+file that must stay byte-identical.
+
+`three` is pinned to **exactly** `0.128.0` (no caret) with matching
+`@types/three`. Verified at scaffold time that every API the globe uses still
+exists in r128 (`sRGBEncoding`, `ACESFilmicToneMapping`,
+`LinearMipMapLinearFilter`, and the rest) and that it bundles under Turbopack.
+
+Fonts are declared in `app/layout.tsx` via `next/font/google` with the exact
+weights and styles the export's Google Fonts `<link>` requested, exposed as
+CSS variables. Confirmed self-hosting works: the running page issues **zero**
+external requests. Nothing consumes the variables yet — Phase 2 maps the
+design's literal `font-family:'Space Grotesk',sans-serif` declarations onto
+`var(--font-space-grotesk),sans-serif`.
+
+`AGENTS.md` / `CLAUDE.md` are generated and re-added by `next dev`; they are
+committed so the tree stays clean.
 
 ## Provenance
 
@@ -49,7 +97,7 @@ Engineer.dc.html` is an earlier draft, retained for history only.
 | Phase | Scope | Status |
 |-------|-------|--------|
 | 0 | Freeze the export in git; capture parity baselines | **done** |
-| 1 | Scaffold Next.js (App Router, TypeScript, server runtime) | not started |
+| 1 | Scaffold Next.js (App Router, TypeScript, server runtime) | **done** |
 | 2 | Mechanical port of the template to JSX via codemod | not started |
 | 3 | Verify parity against baselines | not started |
 | 4 | Production hardening (metadata, a11y, images, CTA) | not started |
