@@ -8,9 +8,22 @@ Landing page for Orbital, a multimodal AI website engineer.
 reference/
   artifact-export/   Frozen, byte-identical copy of the original design export.
                      Read-only. Never edit — it is the source of visual truth.
-  baselines/         Reference screenshots used to prove visual parity
-                     during the port.
+  baselines/         28 deterministic screenshots + 2 live references, used to
+                     prove the port does not change how the page looks.
+tools/
+  baseline/          The capture harness. See tools/baseline/README.md.
 ```
+
+Before and after any porting work:
+
+```bash
+cd tools/baseline && npm install && npm run check
+```
+
+`check` re-captures and pixel-diffs against `reference/baselines/`, exiting
+non-zero on drift. It never overwrites the baselines.
+
+Tags: `artifact-export` (the untouched export) and `baselines-v1`.
 
 The Next.js application is added at the repository root in Phase 1.
 
@@ -35,7 +48,7 @@ Engineer.dc.html` is an earlier draft, retained for history only.
 
 | Phase | Scope | Status |
 |-------|-------|--------|
-| 0 | Freeze the export in git; capture parity baselines | in progress |
+| 0 | Freeze the export in git; capture parity baselines | **done** |
 | 1 | Scaffold Next.js (App Router, TypeScript, server runtime) | not started |
 | 2 | Mechanical port of the template to JSX via codemod | not started |
 | 3 | Verify parity against baselines | not started |
