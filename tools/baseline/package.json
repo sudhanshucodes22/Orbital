@@ -1,0 +1,16 @@
+{
+  "name": "orbital-baseline-harness",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Deterministic screenshot capture for proving visual parity during the port.",
+  "scripts": {
+    "capture": "node capture.mjs",
+    "check": "node capture.mjs --check"
+  },
+  "dependencies": {
+    "pixelmatch": "^7.2.0",
+    "playwright": "^1.62.1",
+    "pngjs": "^7.0.0"
+  }
+}

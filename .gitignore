@@ -7,6 +7,9 @@ node_modules/
 out/
 *.tsbuildinfo
 
+# Scratch tree written by `npm run check` in tools/baseline
+reference/.baseline-check/
+
 # Env
 .env
 .env.local
