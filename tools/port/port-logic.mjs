@@ -19,13 +19,23 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '../..');
 const SRC = path.join(REPO, 'reference/artifact-export/Orbital Launch.dc.html');
 
-const FONT_VARS = [
-  ["'Space Grotesk'", 'var(--font-space-grotesk)'],
-  ["'IBM Plex Sans'", 'var(--font-ibm-plex-sans)'],
-  ["'IBM Plex Mono'", 'var(--font-ibm-plex-mono)'],
-  ["'Instrument Serif'", 'var(--font-instrument-serif)'],
-  ["'Caveat'", 'var(--font-caveat)'],
-];
+// Font families are deliberately NOT rewritten.
+//
+// next/font registers each family under its real, unhashed name
+// (`@font-face { font-family: IBM Plex Mono }`), so the design's original
+// `font-family:'IBM Plex Mono',monospace` already resolves to the self-hosted
+// file. Leaving the declarations untouched keeps them byte-identical to the
+// export.
+//
+// Routing them through next/font's `--font-*` variables actively broke parity:
+// those variables expand to `"IBM Plex Mono", "IBM Plex Mono Fallback"`, and
+// the synthetic Fallback face (local Arial with size-adjust) sits ahead of the
+// generic family. U+2192 is absent from IBM Plex Mono, so the arrow rendered
+// in adjusted Arial at 20.19px instead of generic monospace at 9.03px,
+// widening the hero buttons by 11.16px. `adjustFontFallback: false` is
+// documented for next/font/google but is not honoured by Next 16.3, so not
+// referencing the variables at all is the reliable fix.
+const FONT_VARS = [];
 
 const raw = await readFile(SRC, 'utf8');
 const script = raw.match(
@@ -146,7 +156,7 @@ const out = `/* Ported from the <script type="text/x-dc"> block of
  *     global to poll for and initGlobe() is called directly.
  *   - the globe texture is addressed as /earth-equirect.jpg (it now lives in
  *     /public rather than beside the document).
- *   - quoted font-family names became the next/font CSS variables.
+ *   - font-family declarations are left verbatim; see the FONT_VARS note.
  *   - 2d contexts get a null guard for strict mode.
  *
  * The base class changed from dc-runtime's DCLogic to React.Component. DCLogic
@@ -220,7 +230,7 @@ const checks = [
   ['initGlobe called directly', out.includes('this.initGlobe();')],
   ['no window.THREE left', !out.includes('window.THREE')],
   ['texture path absolute', out.includes("load.load('/earth-equirect.jpg')")],
-  ['fonts mapped to vars', !/'(Space Grotesk|IBM Plex|Instrument Serif|Caveat)/.test(out)],
+  ['font names left verbatim', out.includes("'IBM Plex Mono',monospace")],
 ];
 for (const [label, ok] of checks) console.log(`  ${ok ? 'ok  ' : 'FAIL'} ${label}`);
 if (checks.some(([, ok]) => !ok)) process.exit(1);

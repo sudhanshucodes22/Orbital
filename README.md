@@ -14,14 +14,20 @@ tools/
   baseline/          The capture harness. See tools/baseline/README.md.
 ```
 
-Before and after any porting work:
+Before and after any work that could touch rendering:
 
 ```bash
-cd tools/baseline && npm install && npm run check
+npm run build && npm run start &                  # parity is measured on prod
+cd tools/baseline && npm install
+node capture.mjs --check --target=next            # 28 shots, expect zero drift
 ```
 
-`check` re-captures and pixel-diffs against `reference/baselines/`, exiting
+This pixel-diffs the running app against `reference/baselines/` and exits
 non-zero on drift. It never overwrites the baselines.
+
+**Current status: 28/28 shots reproduce with zero differing pixels** — 4 full
+page layouts (1440/1024/768/375), 18 interactive states driven by real clicks,
+and 6 hero scroll positions.
 
 Tags: `artifact-export` (the untouched export) and `baselines-v1`.
 
@@ -66,11 +72,13 @@ exists in r128 (`sRGBEncoding`, `ACESFilmicToneMapping`,
 `LinearMipMapLinearFilter`, and the rest) and that it bundles under Turbopack.
 
 Fonts are declared in `app/layout.tsx` via `next/font/google` with the exact
-weights and styles the export's Google Fonts `<link>` requested, exposed as
-CSS variables. Confirmed self-hosting works: the running page issues **zero**
-external requests. Nothing consumes the variables yet — Phase 2 maps the
-design's literal `font-family:'Space Grotesk',sans-serif` declarations onto
-`var(--font-space-grotesk),sans-serif`.
+weights and styles the export's Google Fonts `<link>` requested. Confirmed
+self-hosting works: the running page issues **zero** external requests.
+
+The design's own `font-family` declarations are left verbatim rather than
+rewritten to `var(--font-*)` — next/font registers each family under its real
+name, so they already resolve to the self-hosted file. See "Parity notes"
+below for why routing them through the variables broke rendering.
 
 `AGENTS.md` / `CLAUDE.md` are generated and re-added by `next dev`; they are
 committed so the tree stays clean.
@@ -98,13 +106,32 @@ Engineer.dc.html` is an earlier draft, retained for history only.
 |-------|-------|--------|
 | 0 | Freeze the export in git; capture parity baselines | **done** |
 | 1 | Scaffold Next.js (App Router, TypeScript, server runtime) | **done** |
-| 2 | Mechanical port of the template to JSX via codemod | not started |
-| 3 | Verify parity against baselines | not started |
+| 2 | Mechanical port of the template to JSX via codemod | **done** |
+| 3 | Verify parity against baselines | **done** — 28/28 pixel-identical |
 | 4 | Production hardening (metadata, a11y, images, CTA) | not started |
 | 5 | Responsive design (new design work, not a port) | not started |
 
 The governing constraint: **the visual design is final.** No phase before 5
 may change how the page looks. Baselines exist to prove that.
+
+## Parity notes
+
+Two things were found by the pixel diff during the port and are worth knowing
+before touching fonts or the hero:
+
+- **Do not route the design's fonts through next/font's `--font-*` variables.**
+  They expand to `"IBM Plex Mono", "IBM Plex Mono Fallback"`, and that
+  synthetic fallback (local Arial with `size-adjust`) sits ahead of the generic
+  family. U+2192 is absent from IBM Plex Mono, so the hero arrow rendered in
+  adjusted Arial at 20.19px instead of generic monospace at 9.03px, widening
+  the hero buttons by 11.16px. next/font registers each family under its real
+  name, so the design's own declarations already resolve to the self-hosted
+  file. `adjustFontFallback: false` is documented but is **not honoured** by
+  Next 16.3.
+- **`--hp` at scroll 0 is a race in the original code.** The scroll loop only
+  recomputes when `scrollY` changes, so the value is whatever the first rAF
+  tick saw. The harness nudges the scroll before the hero set so both
+  implementations measure settled layout.
 
 ## Known defects in the export
 

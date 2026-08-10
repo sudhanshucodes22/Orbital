@@ -5,12 +5,20 @@ be proven not to change how the page looks.
 
 ```bash
 npm install
-npm run capture   # write reference/baselines/ (destructive)
-npm run check     # re-capture to a scratch dir and pixel-diff; exit 1 on drift
+npm run capture                          # write reference/baselines/ (destructive)
+npm run check                            # re-verify the export against them
+node capture.mjs --check --target=next   # PARITY GATE: ported app vs them
 ```
 
 `check` never writes to `reference/baselines/`. It captures into
 `reference/.baseline-check/` (gitignored) and compares.
+
+`--target=next` captures from a running Next server (`NEXT_URL`, default
+`http://localhost:3000`) instead of the frozen export, and diffs it against the
+same baselines. Run it against a **production** build (`npm run build && npm
+run start`): the dev server paints a Next indicator badge that lands in every
+diff. It refuses to run without `--check`, so it can never overwrite the
+baselines with output from the thing being tested.
 
 ## Why this is not just "take a screenshot"
 
@@ -82,3 +90,13 @@ The trade-off: Chrome auto-updates, and a major rendering change could shift
 every baseline at once. That is easy to spot (everything drifts, not one thing)
 and the fix is to pin a build with `npx playwright install chromium` and drop
 the `channel` option. Re-capture baselines if you do.
+
+## Why the hero set nudges the scroll
+
+The page's scroll loop only recomputes `--hp` when `scrollY` changes, so at
+scroll 0 the variable keeps whatever the first `requestAnimationFrame` tick
+happened to observe — a pre-settle transient that never corrects itself. The
+export read 0.1541, the port read 0.1562, with byte-identical stage geometry
+either way (top 664.44, height 654, document 14526). That is a race in the
+original code, not a design property, so the harness scrolls to 1 and back
+before the hero set to make both targets measure the settled layout.

@@ -38,13 +38,23 @@ const SRC = path.join(REPO, 'reference/artifact-export/Orbital Launch.dc.html');
 // them by default; the Phase 3 pixel diff decides whether any are needed.
 const INTERP_SPANS = process.argv.includes('--interp-spans');
 
-const FONT_VARS = [
-  ["'Space Grotesk'", 'var(--font-space-grotesk)'],
-  ["'IBM Plex Sans'", 'var(--font-ibm-plex-sans)'],
-  ["'IBM Plex Mono'", 'var(--font-ibm-plex-mono)'],
-  ["'Instrument Serif'", 'var(--font-instrument-serif)'],
-  ["'Caveat'", 'var(--font-caveat)'],
-];
+// Font families are deliberately NOT rewritten.
+//
+// next/font registers each family under its real, unhashed name
+// (`@font-face { font-family: IBM Plex Mono }`), so the design's original
+// `font-family:'IBM Plex Mono',monospace` already resolves to the self-hosted
+// file. Leaving the declarations untouched keeps them byte-identical to the
+// export.
+//
+// Routing them through next/font's `--font-*` variables actively broke parity:
+// those variables expand to `"IBM Plex Mono", "IBM Plex Mono Fallback"`, and
+// the synthetic Fallback face (local Arial with size-adjust) sits ahead of the
+// generic family. U+2192 is absent from IBM Plex Mono, so the arrow rendered
+// in adjusted Arial at 20.19px instead of generic monospace at 9.03px,
+// widening the hero buttons by 11.16px. `adjustFontFallback: false` is
+// documented for next/font/google but is not honoured by Next 16.3, so not
+// referencing the variables at all is the reliable fix.
+const FONT_VARS = [];
 
 const mapFonts = (s) =>
   FONT_VARS.reduce((acc, [from, to]) => acc.split(from).join(to), s);

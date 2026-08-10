@@ -9,7 +9,7 @@
 :root{--hp:0;--sy:0}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:#03040 8;background:#030408;color:#e9ebf2;font-family:var(--font-ibm-plex-sans),system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{margin:0;background:#03040 8;background:#030408;color:#e9ebf2;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.035;background-image:radial-gradient(rgba(255,255,255,.9) .5px,transparent .5px);background-size:3px 3px;mix-blend-mode:overlay}
 a{color:#e9ebf2;text-decoration:none}
 a:hover{color:#8fe3ff}

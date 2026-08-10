@@ -24,6 +24,25 @@ import "./globals.css";
  * them. Declared here so that mapping is a rename, not a redesign.
  */
 
+/* These variables are declared but deliberately NOT consumed by the design.
+ *
+ * next/font registers each family under its real name, so the ported CSS can
+ * keep the export's own `font-family:'IBM Plex Mono',monospace` declarations
+ * and still get the self-hosted file. Applying `fontVariables` to <html> is
+ * what pulls the @font-face rules and preloads into the page; the variables
+ * themselves are just the mechanism.
+ *
+ * Routing the design through `var(--font-ibm-plex-mono)` broke visual parity.
+ * That variable expands to `"IBM Plex Mono", "IBM Plex Mono Fallback"`, and
+ * the synthetic Fallback face (local Arial with size-adjust) sits ahead of the
+ * generic family. U+2192 is not in IBM Plex Mono, so the hero arrow rendered
+ * in adjusted Arial at 20.19px instead of generic monospace at 9.03px, which
+ * widened the hero buttons by 11.16px. Caught by the Phase 3 pixel diff.
+ *
+ * `adjustFontFallback: false` is the documented way to suppress that face but
+ * is not honoured by Next 16.3, so the reliable fix is not to reference the
+ * variables at all.
+ */
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],

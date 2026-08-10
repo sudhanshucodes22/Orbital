@@ -24,7 +24,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
       <canvas ref={cometRef} style={{ position: "fixed", inset: "0", width: "100%", height: "100%", zIndex: "4", pointerEvents: "none" }} />
       <header ref={navRef} style={{ position: "fixed", top: "0", left: "0", right: "0", zIndex: "80", display: "flex", justifyContent: "center", padding: "18px 20px", transition: "padding .45s cubic-bezier(.4,0,.2,1)" }}>
         <nav style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", maxWidth: "1180px", padding: "10px 12px 10px 18px", border: "1px solid rgba(255,255,255,.08)", borderRadius: "999px", background: "rgba(8,10,16,.6)", backdropFilter: "blur(24px) saturate(1.5)", WebkitBackdropFilter: "blur(24px) saturate(1.5)", boxShadow: "0 18px 60px rgba(0,0,0,.5)" }}>
-          <a href="#top" style={{ display: "flex", alignItems: "center", gap: "11px", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: "-.01em", marginRight: "14px" }}>
+          <a href="#top" style={{ display: "flex", alignItems: "center", gap: "11px", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: "-.01em", marginRight: "14px" }}>
             <span style={{ position: "relative", display: "block", width: "18px", height: "18px", borderRadius: "50%", border: "1px solid rgba(160,225,255,.65)", boxShadow: "0 0 14px rgba(124,230,255,.35) inset" }}>
               <span style={{ position: "absolute", left: "50%", top: "50%", width: "6px", height: "6px", margin: "-3px 0 0 -3px", borderRadius: "50%", background: "#bdf1ff" }} />
             </span>
@@ -59,18 +59,18 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
       <main style={{ position: "relative", zIndex: "10" }}>
         <section id="top" style={{ position: "relative", padding: "172px 28px 40px" }}>
           <div style={{ position: "relative", zIndex: "3", maxWidth: "1180px", margin: "0 auto" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "11px", letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(233,235,242,.44)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(233,235,242,.44)" }}>
               <span style={{ position: "relative", display: "block", width: "6px", height: "6px", borderRadius: "50%", background: "#7ce6ff" }}>
                 <span style={{ position: "absolute", inset: "0", borderRadius: "50%", background: "#7ce6ff", animation: "pulseRing 2.6s ease-out infinite" }} />
               </span>
               {"\nMultimodal AI website engineer\n"}
               <span style={{ flex: "1", height: "1px", maxWidth: "180px", background: "linear-gradient(90deg,rgba(255,255,255,.18),transparent)" }} />
             </div>
-            <h1 data-reveal="" style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(40px,5.6vw,78px)", lineHeight: ".98", letterSpacing: "-.035em", margin: "26px 0 0", maxWidth: "840px" }}>
+            <h1 data-reveal="" style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(40px,5.6vw,78px)", lineHeight: ".98", letterSpacing: "-.035em", margin: "26px 0 0", maxWidth: "840px" }}>
               {"Stop describing it."}
               <br />
               {"Just "}
-              <span style={{ fontFamily: "var(--font-instrument-serif),serif", fontStyle: "italic", fontWeight: "400", color: "#cdeaff" }}>
+              <span style={{ fontFamily: "'Instrument Serif',serif", fontStyle: "italic", fontWeight: "400", color: "#cdeaff" }}>
                 {"show"}
               </span>
               {" the machine what you mean."}
@@ -82,7 +82,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
               <div data-reveal="" style={{ display: "flex", gap: "11px" }}>
                 <a href="#cta" style={{ display: "inline-flex", alignItems: "center", gap: "10px", padding: "14px 24px", borderRadius: "999px", fontSize: "15px", fontWeight: "500", color: "#04060c", background: "linear-gradient(180deg,#cdf3ff,#7ad6ff)", boxShadow: "0 14px 44px rgba(122,214,255,.3)" }} className="orb-h2">
                   {"Start building "}
-                  <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace" }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono',monospace" }}>
                     {"→"}
                   </span>
                 </a>
@@ -96,7 +96,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
             </div>
           </div>
           <div ref={heroStageRef} style={{ position: "relative", zIndex: "3", maxWidth: "1180px", margin: "78px auto 0" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "14px", paddingBottom: "16px", borderBottom: "1px solid rgba(255,255,255,.08)", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.38)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "14px", paddingBottom: "16px", borderBottom: "1px solid rgba(255,255,255,.08)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.38)" }}>
               <span>
                 {"Session 0918 · live"}
               </span>
@@ -134,7 +134,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                       <span style={{ position: "absolute", left: "-10%", right: "-10%", top: "50%", height: "2px", background: "#6d6e72", transform: "rotate(14deg)" }} />
                     </div>
                   </div>
-                  <div style={{ position: "relative", marginTop: "16px", display: "flex", flexWrap: "wrap", gap: "10px 16px", fontFamily: "var(--font-caveat),cursive", fontSize: "21px", color: "#2f3c56" }}>
+                  <div style={{ position: "relative", marginTop: "16px", display: "flex", flexWrap: "wrap", gap: "10px 16px", fontFamily: "'Caveat',cursive", fontSize: "21px", color: "#2f3c56" }}>
                     <span style={{ transform: "rotate(-1.6deg)" }}>
                       {"dark background"}
                     </span>
@@ -150,7 +150,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                   </div>
                   <div style={{ position: "absolute", left: "-1px", right: "-1px", height: "52%", top: "0", transform: "translateY(calc(var(--hp) * 190% - 40%))", background: "linear-gradient(180deg,transparent,rgba(124,230,255,.22))", borderBottom: "1px solid rgba(150,240,255,.85)", boxShadow: "0 0 40px rgba(124,230,255,.35)", pointerEvents: "none", opacity: "clamp(0,calc(var(--hp) * 5),1)" }} />
                 </div>
-                <div style={{ position: "absolute", left: "16px", bottom: "-26px", display: "flex", gap: "6px", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", letterSpacing: ".1em", color: "rgba(233,235,242,.4)" }}>
+                <div style={{ position: "absolute", left: "16px", bottom: "-26px", display: "flex", gap: "6px", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".1em", color: "rgba(233,235,242,.4)" }}>
                   <span>
                     {"INPUT · paper_sketch.jpg"}
                   </span>
@@ -163,7 +163,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                 <div style={{ position: "absolute", left: "0", right: "0", top: "50%", height: "1px", background: "repeating-linear-gradient(90deg,rgba(150,225,255,.55) 0 6px,transparent 6px 12px)", backgroundSize: "220px 1px", animation: "flowDash 3s linear infinite", opacity: "clamp(0,calc((var(--hp) - .1) * 4),1)" }} />
                 {v.detections.map((d, i0) => (
                   <React.Fragment key={i0}>
-                    <div style={{ position: "relative", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(124,230,255,.28)", background: "rgba(6,14,24,.82)", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", lineHeight: "1.35", letterSpacing: ".02em", color: "rgba(196,236,255,.92)", opacity: d.o, transform: d.tr, transition: "opacity .35s ease,transform .35s ease" }}>
+                    <div style={{ position: "relative", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(124,230,255,.28)", background: "rgba(6,14,24,.82)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", lineHeight: "1.35", letterSpacing: ".02em", color: "rgba(196,236,255,.92)", opacity: d.o, transform: d.tr, transition: "opacity .35s ease,transform .35s ease" }}>
                       {d.t}
                     </div>
                   </React.Fragment>
@@ -174,17 +174,17 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "11px 14px", borderBottom: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.02)" }}>
                     <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "rgba(255,255,255,.14)" }} />
                     <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "rgba(255,255,255,.14)" }} />
-                    <span style={{ flex: "1", textAlign: "center", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(233,235,242,.35)" }}>
+                    <span style={{ flex: "1", textAlign: "center", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.35)" }}>
                       {"aurora.studio"}
                     </span>
-                    <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", color: "rgba(124,230,255,.8)", opacity: "clamp(0,calc((var(--hp) - .55) * 5),1)" }}>
+                    <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", color: "rgba(124,230,255,.8)", opacity: "clamp(0,calc((var(--hp) - .55) * 5),1)" }}>
                       {"BUILT"}
                     </span>
                   </div>
                   <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "14px", opacity: "clamp(.12,calc((var(--hp) - .08) * 5),1)", transform: "translateY(calc((1 - clamp(0,calc((var(--hp) - .08) * 5),1)) * 8px))" }}>
                       <span style={{ width: "16px", height: "16px", borderRadius: "50%", background: "linear-gradient(140deg,#8fe6ff,#a48bff)" }} />
-                      <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "14px", letterSpacing: "-.01em" }}>
+                      <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "14px", letterSpacing: "-.01em" }}>
                         {"Aurora"}
                       </span>
                       <span style={{ flex: "1" }} />
@@ -200,7 +200,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "1.15fr .85fr", gap: "16px", alignItems: "stretch" }}>
                       <div style={{ opacity: "clamp(.1,calc((var(--hp) - .2) * 5),1)", transform: "translateY(calc((1 - clamp(0,calc((var(--hp) - .2) * 5),1)) * 12px))" }}>
-                        <div style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(20px,2.4vw,32px)", lineHeight: "1.02", letterSpacing: "-.03em" }}>
+                        <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(20px,2.4vw,32px)", lineHeight: "1.02", letterSpacing: "-.03em" }}>
                           {"Light, glass"}
                           <br />
                           {"and quiet rooms."}
@@ -218,7 +218,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                         </div>
                       </div>
                       <div style={{ borderRadius: "10px", border: "1px solid rgba(255,255,255,.09)", background: "repeating-linear-gradient(128deg,rgba(255,255,255,.06) 0 8px,rgba(255,255,255,.02) 8px 16px)", display: "flex", alignItems: "flex-end", padding: "10px", minHeight: "120px", opacity: "clamp(.08,calc((var(--hp) - .3) * 5),1)" }}>
-                        <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", color: "rgba(233,235,242,.45)" }}>
+                        <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", color: "rgba(233,235,242,.45)" }}>
                           {"studio photograph"}
                         </span>
                       </div>
@@ -227,7 +227,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                       {v.heroCards.map((hc, i0) => (
                         <React.Fragment key={i0}>
                           <div style={{ padding: "13px", borderRadius: "10px", border: "1px solid rgba(255,255,255,.08)", background: "rgba(255,255,255,.035)" }}>
-                            <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", color: "rgba(124,230,255,.75)", letterSpacing: ".08em" }}>
+                            <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", color: "rgba(124,230,255,.75)", letterSpacing: ".08em" }}>
                               {hc.k}
                             </div>
                             <div style={{ marginTop: "10px", fontSize: "12.5px", color: "rgba(233,235,242,.9)" }}>
@@ -242,7 +242,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                     </div>
                   </div>
                 </div>
-                <div style={{ position: "absolute", right: "14px", bottom: "-26px", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", letterSpacing: ".1em", color: "rgba(233,235,242,.4)" }}>
+                <div style={{ position: "absolute", right: "14px", bottom: "-26px", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".1em", color: "rgba(233,235,242,.4)" }}>
                   {"OUTPUT · react + tailwind · "}
                   <span style={{ color: "rgba(124,230,255,.8)" }}>
                     {"responsive"}
@@ -254,10 +254,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
               {v.telemetry.map((tm, i0) => (
                 <React.Fragment key={i0}>
                   <div style={{ flex: "1", minWidth: "170px", padding: "18px 20px 20px", borderRight: "1px solid rgba(255,255,255,.06)" }}>
-                    <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(233,235,242,.36)" }}>
+                    <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(233,235,242,.36)" }}>
                       {tm.k}
                     </div>
-                    <div style={{ marginTop: "9px", fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "22px", letterSpacing: "-.02em" }}>
+                    <div style={{ marginTop: "9px", fontFamily: "'Space Grotesk',sans-serif", fontSize: "22px", letterSpacing: "-.02em" }}>
                       {tm.v}
                     </div>
                   </div>
@@ -272,10 +272,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
               <React.Fragment key={i0}>
                 <div data-reveal="" style={{ padding: "34px 30px 40px", borderRight: "1px solid rgba(255,255,255,.06)", position: "relative" }}>
                   <div style={{ position: "absolute", top: "-5px", left: "0", width: "9px", height: "9px", borderRadius: "50%", background: tr.dot }} />
-                  <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", letterSpacing: ".16em", color: tr.label }}>
+                  <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".16em", color: tr.label }}>
                     {tr.k}
                   </div>
-                  <h3 style={{ margin: "20px 0 0", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "26px", letterSpacing: "-.025em", lineHeight: "1.08" }}>
+                  <h3 style={{ margin: "20px 0 0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "26px", letterSpacing: "-.025em", lineHeight: "1.08" }}>
                     {tr.t}
                   </h3>
                   <p style={{ margin: "12px 0 0", fontSize: "14px", lineHeight: "1.62", color: "rgba(233,235,242,.55)", maxWidth: "290px" }}>
@@ -289,12 +289,12 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         <section id="how" style={{ position: "relative", padding: "60px 28px 120px" }}>
           <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "30px", marginBottom: "44px" }}>
-              <h2 style={{ margin: "0", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em", lineHeight: "1.04", maxWidth: "520px" }}>
+              <h2 style={{ margin: "0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em", lineHeight: "1.04", maxWidth: "520px" }}>
                 {"Six moves, and none of them"}
                 <br />
                 {"are typing a prompt."}
               </h2>
-              <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(233,235,242,.38)", textTransform: "uppercase" }}>
+              <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(233,235,242,.38)", textTransform: "uppercase" }}>
                 {"Scroll to advance · "}
                 {v.stepReadout}
               </div>
@@ -306,11 +306,11 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                     <img src="/screenshot-2026-08-09-at-6-34-46-pm-msltegor-zp5x.png" alt="screenshot-2026-08-09-at-6-34-46-pm" width="2940" height="1912" style={{ maxWidth: "100%", height: "auto", display: "block", objectFit: "cover", width: "2940px", aspectRatio: "2940 / 1912" }} />
                     <div ref={s.ref} style={{ padding: "26px 0 28px", borderBottom: "1px solid rgba(255,255,255,.07)", cursor: "pointer", opacity: s.dim, transition: "opacity .4s ease" }} onClick={s.go}>
                       <div style={{ display: "flex", alignItems: "baseline", gap: "16px" }}>
-                        <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", letterSpacing: ".14em", color: s.numColor }}>
+                        <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", color: s.numColor }}>
                           {s.n}
                         </span>
                         <div style={{ flex: "1" }}>
-                          <div style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(22px,2.6vw,30px)", letterSpacing: "-.025em", color: s.titleColor }}>
+                          <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(22px,2.6vw,30px)", letterSpacing: "-.025em", color: s.titleColor }}>
                             {s.t}
                           </div>
                           <div style={{ marginTop: "8px", fontSize: "13.5px", lineHeight: "1.6", color: "rgba(233,235,242,.5)", maxWidth: "340px" }}>
@@ -325,7 +325,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
               </div>
               <div style={{ position: "sticky", top: "120px" }}>
                 <div style={{ position: "relative", borderRadius: "18px", border: "1px solid rgba(255,255,255,.1)", background: "linear-gradient(170deg,rgba(16,22,34,.9),rgba(6,9,15,.94))", boxShadow: "0 40px 110px rgba(0,0,0,.62)", overflow: "hidden", minHeight: "430px", display: "flex", flexDirection: "column" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "13px 16px", borderBottom: "1px solid rgba(255,255,255,.07)", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(233,235,242,.42)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "13px 16px", borderBottom: "1px solid rgba(255,255,255,.07)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(233,235,242,.42)" }}>
                     <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#7ce6ff" }} />
                     {v.stageTitle}
                     <span style={{ flex: "1" }} />
@@ -352,7 +352,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                           <span style={{ width: "3px", height: "100%", borderRadius: "2px", background: "#7ce6ff", animation: "bar .9s ease-in-out .5s infinite" }} />
                         </div>
                       </div>
-                      <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "11px", lineHeight: "1.7", color: "rgba(196,236,255,.85)", minHeight: "74px" }}>
+                      <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", lineHeight: "1.7", color: "rgba(196,236,255,.85)", minHeight: "74px" }}>
                         {v.stageLog}
                       </div>
                     </div>
@@ -365,16 +365,16 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         <section id="demo" style={{ position: "relative", padding: "0 28px 130px" }}>
           <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
             <div style={{ maxWidth: "640px", marginBottom: "40px" }}>
-              <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(124,230,255,.75)" }}>
+              <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(124,230,255,.75)" }}>
                 {"Interactive demo"}
               </div>
-              <h2 style={{ margin: "16px 0 0", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(30px,4vw,52px)", letterSpacing: "-.032em", lineHeight: "1.02" }}>
+              <h2 style={{ margin: "16px 0 0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(30px,4vw,52px)", letterSpacing: "-.032em", lineHeight: "1.02" }}>
                 {"Watch an idea become software."}
               </h2>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "minmax(0,.9fr) 210px minmax(0,1.25fr)", gap: "0", alignItems: "stretch", borderTop: "1px solid rgba(255,255,255,.09)", borderBottom: "1px solid rgba(255,255,255,.09)" }}>
               <div style={{ padding: "26px 26px 26px 0" }}>
-                <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.38)" }}>
+                <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.38)" }}>
                   {"Input"}
                 </div>
                 <div style={{ marginTop: "16px", padding: "18px", borderRadius: "3px", background: "linear-gradient(178deg,#f2efe6,#e4e0d3)", color: "#3a3a36", boxShadow: "0 26px 60px rgba(0,0,0,.5)", transform: "rotate(-1.2deg)" }}>
@@ -387,14 +387,14 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                       <div style={{ border: "2px solid #55565a", borderRadius: "2px" }} />
                     </div>
                   </div>
-                  <div style={{ marginTop: "12px", fontFamily: "var(--font-caveat),cursive", fontSize: "19px", color: "#2f3c56" }}>
+                  <div style={{ marginTop: "12px", fontFamily: "'Caveat',cursive", fontSize: "19px", color: "#2f3c56" }}>
                     {"3 cards → pricing?"}
                   </div>
                 </div>
                 <div style={{ marginTop: "22px", display: "flex", flexWrap: "wrap", gap: "7px" }}>
                   {v.inputChips.map((ic, i0) => (
                     <React.Fragment key={i0}>
-                      <span style={{ padding: "6px 10px", borderRadius: "999px", border: "1px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.035)", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(233,235,242,.62)" }}>
+                      <span style={{ padding: "6px 10px", borderRadius: "999px", border: "1px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.035)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.62)" }}>
                         {ic}
                       </span>
                     </React.Fragment>
@@ -402,13 +402,13 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                 </div>
               </div>
               <div style={{ position: "relative", padding: "26px 18px", borderLeft: "1px solid rgba(255,255,255,.07)", borderRight: "1px solid rgba(255,255,255,.07)", background: "linear-gradient(180deg,rgba(124,230,255,.05),transparent 60%)" }}>
-                <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(124,230,255,.7)" }}>
+                <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(124,230,255,.7)" }}>
                   {"Reasoning"}
                 </div>
                 <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "9px" }}>
                   {v.events.map((ev, i0) => (
                     <React.Fragment key={i0}>
-                      <div style={{ display: "flex", gap: "8px", alignItems: "flex-start", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", lineHeight: "1.5", color: ev.color, animation: "ticker 4.2s ease forwards" }}>
+                      <div style={{ display: "flex", gap: "8px", alignItems: "flex-start", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", lineHeight: "1.5", color: ev.color, animation: "ticker 4.2s ease forwards" }}>
                         <span style={{ color: "rgba(124,230,255,.7)" }}>
                           {ev.mark}
                         </span>
@@ -419,19 +419,19 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                     </React.Fragment>
                   ))}
                 </div>
-                <div style={{ marginTop: "20px", paddingTop: "14px", borderTop: "1px solid rgba(255,255,255,.07)", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(233,235,242,.42)" }}>
+                <div style={{ marginTop: "20px", paddingTop: "14px", borderTop: "1px solid rgba(255,255,255,.07)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.42)" }}>
                   {v.eventFooter}
                 </div>
               </div>
               <div style={{ padding: "26px 0 26px 26px" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
-                  <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.38)" }}>
+                  <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.38)" }}>
                     {"Output"}
                   </div>
                   <div style={{ display: "flex", gap: "5px" }}>
                     {v.devices.map((dv, i0) => (
                       <React.Fragment key={i0}>
-                        <button onClick={dv.go} style={{ cursor: "pointer", padding: "5px 10px", borderRadius: "999px", border: `1px solid ${dv.border}`, background: dv.bg, color: dv.color, fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", letterSpacing: ".06em" }}>
+                        <button onClick={dv.go} style={{ cursor: "pointer", padding: "5px 10px", borderRadius: "999px", border: `1px solid ${dv.border}`, background: dv.bg, color: dv.color, fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", letterSpacing: ".06em" }}>
                           {dv.t}
                         </button>
                       </React.Fragment>
@@ -442,7 +442,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                   <div style={{ width: v.deviceW, transition: "width .6s cubic-bezier(.4,0,.2,1)", borderRadius: "14px", border: "1px solid rgba(255,255,255,.1)", background: "linear-gradient(168deg,#0e1420,#070a11)", boxShadow: "0 40px 100px rgba(0,0,0,.66)", overflow: "hidden" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "13px 16px", borderBottom: "1px solid rgba(255,255,255,.06)" }}>
                       <span style={{ width: "14px", height: "14px", borderRadius: "50%", background: "linear-gradient(140deg,#8fe6ff,#a48bff)" }} />
-                      <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "12.5px" }}>
+                      <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "12.5px" }}>
                         {"Aurora"}
                       </span>
                       <span style={{ flex: "1" }} />
@@ -454,7 +454,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                       </span>
                     </div>
                     <div style={{ padding: "22px 20px 24px" }}>
-                      <div style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "26px", lineHeight: "1.04", letterSpacing: "-.03em" }}>
+                      <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "26px", lineHeight: "1.04", letterSpacing: "-.03em" }}>
                         {"Three ways to"}
                         <br />
                         {"work with us."}
@@ -466,10 +466,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                         {v.outCards.map((oc, i0) => (
                           <React.Fragment key={i0}>
                             <div style={{ padding: "14px 12px 16px", borderRadius: "11px", border: `1px solid ${oc.border}`, background: oc.bg }}>
-                              <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", letterSpacing: ".1em", color: oc.tag }}>
+                              <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", letterSpacing: ".1em", color: oc.tag }}>
                                 {oc.k}
                               </div>
-                              <div style={{ marginTop: "12px", fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "20px", letterSpacing: "-.02em" }}>
+                              <div style={{ marginTop: "12px", fontFamily: "'Space Grotesk',sans-serif", fontSize: "20px", letterSpacing: "-.02em" }}>
                                 {oc.p}
                               </div>
                               <div style={{ marginTop: "4px", fontSize: "10.5px", color: "rgba(233,235,242,.42)" }}>
@@ -486,7 +486,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                     </div>
                   </div>
                 </div>
-                <div style={{ marginTop: "18px", display: "flex", alignItems: "center", gap: "12px", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(233,235,242,.4)" }}>
+                <div style={{ marginTop: "18px", display: "flex", alignItems: "center", gap: "12px", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.4)" }}>
                   <span style={{ padding: "5px 9px", borderRadius: "6px", border: "1px solid rgba(143,230,255,.4)", color: "rgba(196,236,255,.9)" }}>
                     {"PRODUCTION READY"}
                   </span>
@@ -501,10 +501,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         <section style={{ position: "relative", padding: "0 28px 130px" }}>
           <div style={{ maxWidth: "1180px", margin: "0 auto", display: "grid", gridTemplateColumns: "minmax(0,.92fr) minmax(0,1.08fr)", gap: "52px", alignItems: "center" }}>
             <div>
-              <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(164,139,255,.8)" }}>
+              <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(164,139,255,.8)" }}>
                 {"Live conversational editing · F26"}
               </div>
-              <h2 style={{ margin: "16px 0 0", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(26px,3.2vw,42px)", letterSpacing: "-.03em", lineHeight: "1.05" }}>
+              <h2 style={{ margin: "16px 0 0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(26px,3.2vw,42px)", letterSpacing: "-.03em", lineHeight: "1.05" }}>
                 {"You don't regenerate."}
                 <br />
                 {"You keep talking."}
@@ -537,16 +537,16 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
               <div style={{ borderRadius: "16px", border: "1px solid rgba(255,255,255,.1)", background: v.vsBg, boxShadow: "0 40px 100px rgba(0,0,0,.6)", overflow: "hidden", transition: "background .8s ease" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "14px 18px", borderBottom: "1px solid rgba(255,255,255,.07)" }}>
                   <span style={{ width: "14px", height: "14px", borderRadius: "50%", background: "linear-gradient(140deg,#8fe6ff,#a48bff)" }} />
-                  <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "13px" }}>
+                  <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "13px" }}>
                     {"Aurora"}
                   </span>
                   <span style={{ flex: "1" }} />
-                  <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", color: "rgba(124,230,255,.85)" }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", color: "rgba(124,230,255,.85)" }}>
                     {v.vsBadge}
                   </span>
                 </div>
                 <div style={{ padding: v.vsPad, transition: "padding .8s ease" }}>
-                  <div style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(22px,2.6vw,34px)", lineHeight: "1.02", letterSpacing: "-.03em" }}>
+                  <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(22px,2.6vw,34px)", lineHeight: "1.02", letterSpacing: "-.03em" }}>
                     {"Light, glass and"}
                     <br />
                     {"quiet rooms."}
@@ -558,7 +558,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                     {v.vsCards.map((vc, i0) => (
                       <React.Fragment key={i0}>
                         <div style={{ padding: "16px 14px 18px", borderRadius: v.vsRadius, border: `1px solid ${v.vsCardBorder}`, background: v.vsCardBg, backdropFilter: v.vsBlur, transition: "all .8s ease" }}>
-                          <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", color: "rgba(196,236,255,.8)", letterSpacing: ".08em" }}>
+                          <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", color: "rgba(196,236,255,.8)", letterSpacing: ".08em" }}>
                             {vc.k}
                           </div>
                           <div style={{ marginTop: "14px", fontSize: "13px" }}>
@@ -576,7 +576,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
               <div style={{ marginTop: "16px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
                 {v.voiceSteps.map((vst, i0) => (
                   <React.Fragment key={i0}>
-                    <button onClick={vst.go} style={{ cursor: "pointer", padding: "8px 13px", borderRadius: "999px", border: `1px solid ${vst.border}`, background: vst.bg, color: vst.color, fontSize: "12px", fontFamily: "var(--font-ibm-plex-sans),sans-serif" }}>
+                    <button onClick={vst.go} style={{ cursor: "pointer", padding: "8px 13px", borderRadius: "999px", border: `1px solid ${vst.border}`, background: vst.bg, color: vst.color, fontSize: "12px", fontFamily: "'IBM Plex Sans',sans-serif" }}>
                       {vst.t}
                     </button>
                   </React.Fragment>
@@ -588,12 +588,12 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         <section id="chapters" style={{ position: "relative", padding: "0 28px 40px" }}>
           <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "30px", flexWrap: "wrap", borderBottom: "1px solid rgba(255,255,255,.09)", paddingBottom: "22px" }}>
-              <h2 style={{ margin: "0", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em" }}>
+              <h2 style={{ margin: "0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em" }}>
                 {"Twenty-six capabilities,"}
                 <br />
                 {"four chapters."}
               </h2>
-              <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(233,235,242,.36)", textTransform: "uppercase" }}>
+              <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(233,235,242,.36)", textTransform: "uppercase" }}>
                 {"F01 — F26"}
               </div>
             </div>
@@ -602,10 +602,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         <section style={{ position: "relative", padding: "56px 0 120px" }}>
           <div style={{ maxWidth: "1180px", margin: "0 auto", padding: "0 28px" }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: "18px" }}>
-              <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "11px", letterSpacing: ".18em", color: "rgba(124,230,255,.8)" }}>
+              <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", letterSpacing: ".18em", color: "rgba(124,230,255,.8)" }}>
                 {"CHAPTER 01"}
               </span>
-              <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "clamp(24px,3vw,38px)", letterSpacing: "-.03em" }}>
+              <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "clamp(24px,3vw,38px)", letterSpacing: "-.03em" }}>
                 {"Input"}
               </span>
               <span style={{ flex: "1", height: "1px", background: "linear-gradient(90deg,rgba(255,255,255,.16),transparent)" }} />
@@ -620,17 +620,17 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                 <React.Fragment key={i0}>
                   <div style={{ flex: "0 0 auto", width: "246px", height: "326px", padding: "20px", borderRadius: "16px", border: "1px solid rgba(255,255,255,.09)", background: ci.bg, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }} className="orb-h4">
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", letterSpacing: ".12em", color: "rgba(124,230,255,.8)" }}>
+                      <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".12em", color: "rgba(124,230,255,.8)" }}>
                         {ci.n}
                       </span>
-                      <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", color: "rgba(233,235,242,.35)" }}>
+                      <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", color: "rgba(233,235,242,.35)" }}>
                         {ci.k}
                       </span>
                     </div>
                     <div style={{ flex: "1", display: "flex", alignItems: "center", justifyContent: "center", padding: "14px 0" }}>
                       {ci.art}
                     </div>
-                    <div style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "17px", letterSpacing: "-.02em" }}>
+                    <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "17px", letterSpacing: "-.02em" }}>
                       {ci.t}
                     </div>
                     <div style={{ marginTop: "7px", fontSize: "12.5px", lineHeight: "1.55", color: "rgba(233,235,242,.5)" }}>
@@ -645,10 +645,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         <section style={{ position: "relative", padding: "0 28px 130px" }}>
           <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: "18px", marginBottom: "34px" }}>
-              <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "11px", letterSpacing: ".18em", color: "rgba(164,139,255,.85)" }}>
+              <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", letterSpacing: ".18em", color: "rgba(164,139,255,.85)" }}>
                 {"CHAPTER 02"}
               </span>
-              <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "clamp(24px,3vw,38px)", letterSpacing: "-.03em" }}>
+              <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "clamp(24px,3vw,38px)", letterSpacing: "-.03em" }}>
                 {"Understanding"}
               </span>
               <span style={{ flex: "1", height: "1px", background: "linear-gradient(90deg,rgba(255,255,255,.16),transparent)" }} />
@@ -658,17 +658,17 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                 {v.chapterUnderstand.map((cu, i0) => (
                   <React.Fragment key={i0}>
                     <div style={{ padding: "22px 0", borderBottom: "1px solid rgba(255,255,255,.07)", display: "grid", gridTemplateColumns: "48px 1fr", gap: "18px" }} className="orb-h5">
-                      <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", color: "rgba(164,139,255,.8)", paddingTop: "4px" }}>
+                      <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", color: "rgba(164,139,255,.8)", paddingTop: "4px" }}>
                         {cu.n}
                       </span>
                       <div>
-                        <div style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "19px", letterSpacing: "-.02em" }}>
+                        <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "19px", letterSpacing: "-.02em" }}>
                           {cu.t}
                         </div>
                         <div style={{ marginTop: "7px", fontSize: "13.5px", lineHeight: "1.6", color: "rgba(233,235,242,.52)", maxWidth: "430px" }}>
                           {cu.d}
                         </div>
-                        <div style={{ marginTop: "10px", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(233,235,242,.34)" }}>
+                        <div style={{ marginTop: "10px", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.34)" }}>
                           {cu.k}
                         </div>
                       </div>
@@ -677,11 +677,11 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                 ))}
               </div>
               <div style={{ position: "sticky", top: "120px", padding: "24px", borderRadius: "18px", border: "1px solid rgba(255,255,255,.1)", background: "linear-gradient(168deg,rgba(20,18,38,.86),rgba(6,8,14,.92))" }}>
-                <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.4)" }}>
+                <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.4)" }}>
                   {"Design report · aurora.studio"}
                 </div>
                 <div style={{ marginTop: "20px", display: "flex", alignItems: "flex-end", gap: "12px" }}>
-                  <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "52px", lineHeight: ".9", letterSpacing: "-.04em" }}>
+                  <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "52px", lineHeight: ".9", letterSpacing: "-.04em" }}>
                     {"94"}
                   </span>
                   <span style={{ fontSize: "12px", color: "rgba(233,235,242,.45)", paddingBottom: "8px" }}>
@@ -696,7 +696,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                           <span>
                             {sc.t}
                           </span>
-                          <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", color: "rgba(233,235,242,.9)" }}>
+                          <span style={{ fontFamily: "'IBM Plex Mono',monospace", color: "rgba(233,235,242,.9)" }}>
                             {sc.v}
                           </span>
                         </div>
@@ -709,7 +709,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                 </div>
                 <div style={{ marginTop: "22px", padding: "14px", borderRadius: "12px", border: "1px solid rgba(164,139,255,.28)", background: "rgba(164,139,255,.09)", fontSize: "12.5px", lineHeight: "1.6", color: "rgba(233,235,242,.75)" }}>
                   {"“Your secondary CTA sits below AA at 3.1:1. Darkening it to "}
-                  <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace" }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono',monospace" }}>
                     {"#0B1522"}
                   </span>
                   {" fixes contrast without touching the palette.”"}
@@ -721,20 +721,20 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         <section style={{ position: "relative", padding: "0 0 130px" }}>
           <div style={{ maxWidth: "1180px", margin: "0 auto", padding: "0 28px" }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: "18px", marginBottom: "34px" }}>
-              <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "11px", letterSpacing: ".18em", color: "rgba(124,230,255,.8)" }}>
+              <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", letterSpacing: ".18em", color: "rgba(124,230,255,.8)" }}>
                 {"CHAPTER 03"}
               </span>
-              <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "clamp(24px,3vw,38px)", letterSpacing: "-.03em" }}>
+              <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "clamp(24px,3vw,38px)", letterSpacing: "-.03em" }}>
                 {"Build"}
               </span>
               <span style={{ flex: "1", height: "1px", background: "linear-gradient(90deg,rgba(255,255,255,.16),transparent)" }} />
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "minmax(0,.85fr) minmax(0,1.15fr)", gap: "0", border: "1px solid rgba(255,255,255,.09)", borderRadius: "20px", overflow: "hidden", background: "rgba(8,11,18,.72)" }}>
               <div style={{ padding: "26px", borderRight: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.018)" }}>
-                <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.4)" }}>
+                <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.4)" }}>
                   {"Component tree"}
                 </div>
-                <div style={{ marginTop: "16px", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "11.5px", lineHeight: "2", color: "rgba(233,235,242,.62)" }}>
+                <div style={{ marginTop: "16px", fontFamily: "'IBM Plex Mono',monospace", fontSize: "11.5px", lineHeight: "2", color: "rgba(233,235,242,.62)" }}>
                   {v.tree.map((tn, i0) => (
                     <React.Fragment key={i0}>
                       <div style={{ paddingLeft: tn.pad, color: tn.color }}>
@@ -746,7 +746,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                 <div style={{ marginTop: "24px", paddingTop: "18px", borderTop: "1px solid rgba(255,255,255,.07)", display: "flex", flexWrap: "wrap", gap: "7px" }}>
                   {v.exportTargets.map((et, i0) => (
                     <React.Fragment key={i0}>
-                      <span style={{ padding: "6px 10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,.1)", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(233,235,242,.6)" }} className="orb-h6">
+                      <span style={{ padding: "6px 10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,.1)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.6)" }} className="orb-h6">
                         {et}
                       </span>
                     </React.Fragment>
@@ -760,10 +760,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                       <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "20px", alignItems: "center", padding: "18px 20px", borderRadius: "14px", border: "1px solid rgba(255,255,255,.08)", background: cb.bg }}>
                         <div>
                           <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
-                            <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(124,230,255,.8)" }}>
+                            <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(124,230,255,.8)" }}>
                               {cb.n}
                             </span>
-                            <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "18px", letterSpacing: "-.02em" }}>
+                            <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "18px", letterSpacing: "-.02em" }}>
                               {cb.t}
                             </span>
                           </div>
@@ -771,7 +771,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                             {cb.d}
                           </div>
                         </div>
-                        <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(233,235,242,.4)", textAlign: "right", whiteSpace: "pre-line" }}>
+                        <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.4)", textAlign: "right", whiteSpace: "pre-line" }}>
                           {cb.k}
                         </span>
                       </div>
@@ -785,29 +785,29 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         <section style={{ position: "relative", padding: "0 28px 130px" }}>
           <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: "18px", marginBottom: "34px" }}>
-              <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "11px", letterSpacing: ".18em", color: "rgba(164,139,255,.85)" }}>
+              <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", letterSpacing: ".18em", color: "rgba(164,139,255,.85)" }}>
                 {"CHAPTER 04"}
               </span>
-              <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "clamp(24px,3vw,38px)", letterSpacing: "-.03em" }}>
+              <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "clamp(24px,3vw,38px)", letterSpacing: "-.03em" }}>
                 {"Product"}
               </span>
               <span style={{ flex: "1", height: "1px", background: "linear-gradient(90deg,rgba(255,255,255,.16),transparent)" }} />
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(12,1fr)", gap: "16px" }}>
               <div style={{ gridColumn: "span 7", minWidth: "0", padding: "28px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.09)", background: "linear-gradient(150deg,rgba(124,230,255,.08),rgba(255,255,255,.015))" }}>
-                <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", letterSpacing: ".14em", color: "rgba(124,230,255,.8)" }}>
+                <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", color: "rgba(124,230,255,.8)" }}>
                   {"F20 · F21 — PRODUCT INTELLIGENCE + 3D"}
                 </div>
-                <h3 style={{ margin: "16px 0 0", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "26px", letterSpacing: "-.025em" }}>
+                <h3 style={{ margin: "16px 0 0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "26px", letterSpacing: "-.025em" }}>
                   {"A photo of a watch isn't an image. It's a storefront."}
                 </h3>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "22px", alignItems: "stretch" }}>
-                  <div style={{ borderRadius: "14px", border: "1px solid rgba(255,255,255,.1)", background: "repeating-linear-gradient(128deg,rgba(255,255,255,.06) 0 9px,rgba(255,255,255,.02) 9px 18px)", minHeight: "186px", display: "flex", alignItems: "flex-end", padding: "12px", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", color: "rgba(233,235,242,.45)" }}>
+                  <div style={{ borderRadius: "14px", border: "1px solid rgba(255,255,255,.1)", background: "repeating-linear-gradient(128deg,rgba(255,255,255,.06) 0 9px,rgba(255,255,255,.02) 9px 18px)", minHeight: "186px", display: "flex", alignItems: "flex-end", padding: "12px", fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", color: "rgba(233,235,242,.45)" }}>
                     {"product photo · drop here"}
                   </div>
                   <div style={{ borderRadius: "14px", border: "1px solid rgba(124,230,255,.3)", background: "radial-gradient(circle at 50% 42%,rgba(124,230,255,.18),rgba(255,255,255,.02) 68%)", minHeight: "186px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "14px", perspective: "600px" }}>
                     <span style={{ width: "96px", height: "96px", borderRadius: "16px", border: "1px solid rgba(190,240,255,.5)", background: "linear-gradient(150deg,rgba(190,240,255,.14),rgba(164,139,255,.1))", animation: "spinSlow 12s linear infinite", transformStyle: "preserve-3d" }} />
-                    <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", color: "rgba(190,240,255,.85)" }}>
+                    <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", color: "rgba(190,240,255,.85)" }}>
                       {"3D viewer · drag to orbit"}
                     </span>
                   </div>
@@ -823,10 +823,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                 </div>
               </div>
               <div style={{ gridColumn: "span 5", minWidth: "0", padding: "28px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.09)", background: "rgba(255,255,255,.028)" }}>
-                <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", letterSpacing: ".14em", color: "rgba(164,139,255,.85)" }}>
+                <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", color: "rgba(164,139,255,.85)" }}>
                   {"F23 · F24 · F25 — SIMULATE, AUDIT, RANK"}
                 </div>
-                <h3 style={{ margin: "16px 0 0", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "22px", letterSpacing: "-.02em" }}>
+                <h3 style={{ margin: "16px 0 0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "22px", letterSpacing: "-.02em" }}>
                   {"Simulated users before real ones."}
                 </h3>
                 <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "13px" }}>
@@ -837,7 +837,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                           <span>
                             {um.t}
                           </span>
-                          <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", color: "rgba(233,235,242,.88)" }}>
+                          <span style={{ fontFamily: "'IBM Plex Mono',monospace", color: "rgba(233,235,242,.88)" }}>
                             {um.v}
                           </span>
                         </div>
@@ -855,10 +855,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
               {v.chapterProduct.map((cp, i0) => (
                 <React.Fragment key={i0}>
                   <div style={{ gridColumn: "span 3", minWidth: "0", padding: "22px 20px 24px", borderRadius: "18px", border: "1px solid rgba(255,255,255,.08)", background: "rgba(255,255,255,.025)", display: "flex", flexDirection: "column", minHeight: "190px" }} className="orb-h8">
-                    <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(124,230,255,.78)", letterSpacing: ".1em" }}>
+                    <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(124,230,255,.78)", letterSpacing: ".1em" }}>
                       {cp.n}
                     </div>
-                    <div style={{ marginTop: "auto", fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "17px", letterSpacing: "-.02em" }}>
+                    <div style={{ marginTop: "auto", fontFamily: "'Space Grotesk',sans-serif", fontSize: "17px", letterSpacing: "-.02em" }}>
                       {cp.t}
                     </div>
                     <div style={{ marginTop: "7px", fontSize: "12.5px", lineHeight: "1.55", color: "rgba(233,235,242,.5)" }}>
@@ -873,10 +873,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         <section id="workspace" style={{ position: "relative", padding: "0 28px 130px" }}>
           <div style={{ maxWidth: "1240px", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "30px", flexWrap: "wrap", marginBottom: "34px" }}>
-              <h2 style={{ margin: "0", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em", lineHeight: "1.04" }}>
+              <h2 style={{ margin: "0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em", lineHeight: "1.04" }}>
                 {"The room where it happens."}
               </h2>
-              <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(233,235,242,.36)", textTransform: "uppercase" }}>
+              <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(233,235,242,.36)", textTransform: "uppercase" }}>
                 {"Workspace · build 2026.8"}
               </div>
             </div>
@@ -887,7 +887,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                     <span style={{ width: "15px", height: "15px", borderRadius: "50%", border: "1px solid rgba(160,225,255,.6)", position: "relative" }}>
                       <span style={{ position: "absolute", left: "50%", top: "50%", width: "5px", height: "5px", margin: "-2.5px 0 0 -2.5px", borderRadius: "50%", background: "#bdf1ff" }} />
                     </span>
-                    <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "13.5px" }}>
+                    <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "13.5px" }}>
                       {"Aurora Labs"}
                     </span>
                   </div>
@@ -897,7 +897,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                         <span>
                           {ni.t}
                         </span>
-                        <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(233,235,242,.3)" }}>
+                        <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.3)" }}>
                           {ni.c}
                         </span>
                       </div>
@@ -905,14 +905,14 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                   ))}
                   <span style={{ flex: "1" }} />
                   <div style={{ padding: "12px", borderRadius: "12px", border: "1px solid rgba(255,255,255,.08)", background: "rgba(255,255,255,.025)" }}>
-                    <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", letterSpacing: ".1em", color: "rgba(233,235,242,.4)" }}>
+                    <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", letterSpacing: ".1em", color: "rgba(233,235,242,.4)" }}>
                       {"PROJECT MEMORY · F16"}
                     </div>
                     <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "7px" }}>
                       {v.memory.map((mi, i0) => (
                         <React.Fragment key={i0}>
                           <div style={{ display: "flex", gap: "8px", fontSize: "11px", color: "rgba(233,235,242,.55)" }}>
-                            <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", color: "rgba(124,230,255,.7)" }}>
+                            <span style={{ fontFamily: "'IBM Plex Mono',monospace", color: "rgba(124,230,255,.7)" }}>
                               {mi.d}
                             </span>
                             {mi.t}
@@ -924,13 +924,13 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                 </aside>
                 <div style={{ display: "flex", flexDirection: "column", minWidth: "0" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "11px 16px", borderBottom: "1px solid rgba(255,255,255,.07)" }}>
-                    <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "11px", color: "rgba(233,235,242,.42)" }}>
+                    <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", color: "rgba(233,235,242,.42)" }}>
                       {"aurora.studio / home"}
                     </span>
                     <span style={{ flex: "1" }} />
                     {v.devices.map((dv2, i0) => (
                       <React.Fragment key={i0}>
-                        <button onClick={dv2.go} style={{ cursor: "pointer", padding: "5px 10px", borderRadius: "7px", border: `1px solid ${dv2.border}`, background: dv2.bg, color: dv2.color, fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px" }}>
+                        <button onClick={dv2.go} style={{ cursor: "pointer", padding: "5px 10px", borderRadius: "7px", border: `1px solid ${dv2.border}`, background: dv2.bg, color: dv2.color, fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px" }}>
                           {dv2.t}
                         </button>
                       </React.Fragment>
@@ -940,7 +940,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                     <div style={{ width: v.deviceW, transition: "width .6s cubic-bezier(.4,0,.2,1)", borderRadius: "14px", border: "1px solid rgba(255,255,255,.09)", background: "linear-gradient(170deg,#0d1420,#070a11)", overflow: "hidden", position: "relative" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "14px 18px", borderBottom: "1px solid rgba(255,255,255,.06)" }}>
                         <span style={{ width: "14px", height: "14px", borderRadius: "50%", background: "linear-gradient(140deg,#8fe6ff,#a48bff)" }} />
-                        <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "12.5px" }}>
+                        <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "12.5px" }}>
                           {"Aurora"}
                         </span>
                         <span style={{ flex: "1" }} />
@@ -955,10 +955,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                         </span>
                       </div>
                       <div style={{ padding: "26px 22px 24px", position: "relative" }}>
-                        <div style={{ position: "absolute", top: "14px", right: "14px", padding: "3px 8px", borderRadius: "6px", border: "1px dashed rgba(124,230,255,.55)", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9px", color: "rgba(190,240,255,.9)" }}>
+                        <div style={{ position: "absolute", top: "14px", right: "14px", padding: "3px 8px", borderRadius: "6px", border: "1px dashed rgba(124,230,255,.55)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "9px", color: "rgba(190,240,255,.9)" }}>
                           {"hero · selected"}
                         </div>
-                        <div style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(24px,3vw,38px)", lineHeight: "1.02", letterSpacing: "-.032em", maxWidth: "420px" }}>
+                        <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(24px,3vw,38px)", lineHeight: "1.02", letterSpacing: "-.032em", maxWidth: "420px" }}>
                           {"Light, glass and quiet rooms."}
                         </div>
                         <div style={{ marginTop: "14px", fontSize: "13.5px", lineHeight: "1.6", color: "rgba(233,235,242,.55)", maxWidth: "330px" }}>
@@ -973,14 +973,14 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                           </span>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "1.2fr .8fr", gap: "14px", marginTop: "26px" }}>
-                          <div style={{ borderRadius: "12px", border: "1px solid rgba(255,255,255,.08)", background: "repeating-linear-gradient(128deg,rgba(255,255,255,.06) 0 9px,rgba(255,255,255,.02) 9px 18px)", minHeight: "150px", display: "flex", alignItems: "flex-end", padding: "12px", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", color: "rgba(233,235,242,.42)" }}>
+                          <div style={{ borderRadius: "12px", border: "1px solid rgba(255,255,255,.08)", background: "repeating-linear-gradient(128deg,rgba(255,255,255,.06) 0 9px,rgba(255,255,255,.02) 9px 18px)", minHeight: "150px", display: "flex", alignItems: "flex-end", padding: "12px", fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", color: "rgba(233,235,242,.42)" }}>
                             {"interior photograph"}
                           </div>
                           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                             {v.heroCards.map((wc, i0) => (
                               <React.Fragment key={i0}>
                                 <div style={{ flex: "1", padding: "12px", borderRadius: "11px", border: "1px solid rgba(255,255,255,.08)", background: "rgba(255,255,255,.03)" }}>
-                                  <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9px", color: "rgba(124,230,255,.72)" }}>
+                                  <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9px", color: "rgba(124,230,255,.72)" }}>
                                     {wc.k}
                                   </div>
                                   <div style={{ marginTop: "8px", fontSize: "12px" }}>
@@ -1004,7 +1004,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                       </React.Fragment>
                     ))}
                     <span style={{ flex: "1" }} />
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "9px 14px", borderRadius: "10px", background: "rgba(124,230,255,.12)", border: "1px solid rgba(124,230,255,.4)", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "11px", color: "#cdf2ff" }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "9px 14px", borderRadius: "10px", background: "rgba(124,230,255,.12)", border: "1px solid rgba(124,230,255,.4)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", color: "#cdf2ff" }}>
                       {"DEPLOY ⌘⏎"}
                     </span>
                   </div>
@@ -1016,14 +1016,14 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                       {"AI engineer"}
                     </span>
                     <span style={{ flex: "1" }} />
-                    <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", color: "rgba(233,235,242,.35)" }}>
+                    <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", color: "rgba(233,235,242,.35)" }}>
                       {"reasoning"}
                     </span>
                   </div>
                   <div style={{ flex: "1", padding: "14px", display: "flex", flexDirection: "column", gap: "8px", overflow: "hidden" }}>
                     {v.wsEvents.map((we, i0) => (
                       <React.Fragment key={i0}>
-                        <div style={{ display: "flex", gap: "9px", alignItems: "flex-start", fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", lineHeight: "1.5", color: we.color }}>
+                        <div style={{ display: "flex", gap: "9px", alignItems: "flex-start", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", lineHeight: "1.5", color: we.color }}>
                           <span style={{ color: "rgba(124,230,255,.65)" }}>
                             {we.mark}
                           </span>
@@ -1047,7 +1047,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                     <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", borderRadius: "10px", border: "1px solid rgba(255,255,255,.09)", background: "rgba(255,255,255,.035)", fontSize: "12.5px", color: "rgba(233,235,242,.4)" }}>
                       {"Speak or type an edit…"}
                       <span style={{ flex: "1" }} />
-                      <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(124,230,255,.8)" }}>
+                      <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(124,230,255,.8)" }}>
                         {"⌘K"}
                       </span>
                     </div>
@@ -1059,7 +1059,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         </section>
         <section id="compare" style={{ position: "relative", padding: "0 28px 130px" }}>
           <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
-            <h2 style={{ margin: "0 0 40px", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em", lineHeight: "1.04" }}>
+            <h2 style={{ margin: "0 0 40px", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em", lineHeight: "1.04" }}>
               {"Two workflows."}
               <br />
               {"One of them still has you typing."}
@@ -1067,10 +1067,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: "22px" }}>
               <div style={{ padding: "28px 26px 30px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.018)" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(233,235,242,.4)" }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(233,235,242,.4)" }}>
                     {"PROMPT-BASED TOOLS"}
                   </span>
-                  <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", color: "rgba(255,150,140,.75)" }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", color: "rgba(255,150,140,.75)" }}>
                     {"~7 LOOPS"}
                   </span>
                 </div>
@@ -1083,7 +1083,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                           {of.t}
                         </span>
                         <span style={{ flex: "1" }} />
-                        <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(233,235,242,.3)" }}>
+                        <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.3)" }}>
                           {of.k}
                         </span>
                       </div>
@@ -1096,10 +1096,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
               </div>
               <div style={{ padding: "28px 26px 30px", borderRadius: "20px", border: "1px solid rgba(124,230,255,.36)", background: "linear-gradient(160deg,rgba(124,230,255,.11),rgba(255,255,255,.02))" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(190,240,255,.9)" }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(190,240,255,.9)" }}>
                     {"ORBITAL"}
                   </span>
-                  <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", color: "rgba(150,255,200,.85)" }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", color: "rgba(150,255,200,.85)" }}>
                     {"1 PASS"}
                   </span>
                 </div>
@@ -1112,7 +1112,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                           {nf.t}
                         </span>
                         <span style={{ flex: "1" }} />
-                        <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(190,240,255,.7)" }}>
+                        <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(190,240,255,.7)" }}>
                           {nf.k}
                         </span>
                       </div>
@@ -1128,7 +1128,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
               {v.uniqueCaps.map((uc, i0) => (
                 <React.Fragment key={i0}>
                   <div style={{ padding: "18px 18px 20px", borderRight: "1px solid rgba(255,255,255,.06)" }}>
-                    <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", letterSpacing: ".1em", color: "rgba(124,230,255,.75)" }}>
+                    <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", letterSpacing: ".1em", color: "rgba(124,230,255,.75)" }}>
                       {"ONLY HERE"}
                     </div>
                     <div style={{ marginTop: "10px", fontSize: "13.5px", lineHeight: "1.4", color: "rgba(233,235,242,.8)" }}>
@@ -1142,10 +1142,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         </section>
         <section style={{ position: "relative", padding: "0 28px 130px" }}>
           <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
-            <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(124,230,255,.75)" }}>
+            <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(124,230,255,.75)" }}>
               {"The future of website creation"}
             </div>
-            <h2 style={{ margin: "16px 0 46px", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em" }}>
+            <h2 style={{ margin: "16px 0 46px", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em" }}>
               {"Prompting was a phase."}
             </h2>
             <div style={{ position: "relative", paddingLeft: "26px" }}>
@@ -1155,11 +1155,11 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                   <div data-reveal="" style={{ position: "relative", padding: "0 0 42px" }}>
                     <span style={{ position: "absolute", left: "-26px", top: "8px", width: "11px", height: "11px", borderRadius: "50%", background: er.dot, boxShadow: "0 0 0 4px rgba(3,4,8,1)" }} />
                     <div style={{ display: "grid", gridTemplateColumns: "110px minmax(0,1fr)", gap: "26px", alignItems: "baseline" }}>
-                      <div style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "26px", letterSpacing: "-.03em", color: er.year }}>
+                      <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "26px", letterSpacing: "-.03em", color: er.year }}>
                         {er.y}
                       </div>
                       <div>
-                        <div style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "20px", letterSpacing: "-.02em" }}>
+                        <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "20px", letterSpacing: "-.02em" }}>
                           {er.t}
                         </div>
                         <div style={{ marginTop: "8px", fontSize: "13.5px", lineHeight: "1.6", color: "rgba(233,235,242,.5)", maxWidth: "520px" }}>
@@ -1176,7 +1176,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         <section id="pricing" style={{ position: "relative", padding: "0 28px 130px" }}>
           <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "24px", flexWrap: "wrap", paddingBottom: "22px", borderBottom: "1px solid rgba(255,255,255,.09)" }}>
-              <h2 style={{ margin: "0", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(26px,3.2vw,40px)", letterSpacing: "-.03em" }}>
+              <h2 style={{ margin: "0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(26px,3.2vw,40px)", letterSpacing: "-.03em" }}>
                 {"Priced like a tool."}
                 <br />
                 {"Works like a team."}
@@ -1190,15 +1190,15 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                 <React.Fragment key={i0}>
                   <div style={{ padding: "30px 26px 34px", borderRight: "1px solid rgba(255,255,255,.07)", background: pl.bg }}>
                     <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-                      <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "17px" }}>
+                      <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "17px" }}>
                         {pl.name}
                       </span>
-                      <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "9.5px", letterSpacing: ".1em", color: pl.tagColor }}>
+                      <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", letterSpacing: ".1em", color: pl.tagColor }}>
                         {pl.tag}
                       </span>
                     </div>
                     <div style={{ marginTop: "22px", display: "flex", alignItems: "baseline", gap: "7px" }}>
-                      <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "40px", letterSpacing: "-.035em" }}>
+                      <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "40px", letterSpacing: "-.035em" }}>
                         {pl.price}
                       </span>
                       <span style={{ fontSize: "12.5px", color: "rgba(233,235,242,.42)" }}>
@@ -1209,7 +1209,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                       {pl.items.map((pi, i1) => (
                         <React.Fragment key={i1}>
                           <div style={{ display: "grid", gridTemplateColumns: "74px 1fr", gap: "12px", fontSize: "12.5px", lineHeight: "1.45" }}>
-                            <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: "rgba(233,235,242,.35)", letterSpacing: ".06em" }}>
+                            <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.35)", letterSpacing: ".06em" }}>
                               {pi.k}
                             </span>
                             <span style={{ color: "rgba(233,235,242,.7)" }}>
@@ -1231,7 +1231,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         <section style={{ position: "relative", padding: "0 28px 120px" }}>
           <div style={{ maxWidth: "1180px", margin: "0 auto", display: "grid", gridTemplateColumns: "minmax(0,.9fr) minmax(0,1.1fr)", gap: "56px", alignItems: "start" }}>
             <div>
-              <h2 style={{ margin: "0 0 26px", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(26px,3.2vw,40px)", letterSpacing: "-.03em" }}>
+              <h2 style={{ margin: "0 0 26px", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(26px,3.2vw,40px)", letterSpacing: "-.03em" }}>
                 {"Questions we get"}
                 <br />
                 {"in every demo."}
@@ -1240,10 +1240,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                 {v.faq.map((fq, i0) => (
                   <React.Fragment key={i0}>
                     <div onClick={fq.go} style={{ padding: "18px 4px", borderBottom: "1px solid rgba(255,255,255,.08)", cursor: "pointer", display: "flex", gap: "14px", alignItems: "baseline", color: fq.color }} className="orb-h11">
-                      <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", color: fq.numColor }}>
+                      <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: fq.numColor }}>
                         {fq.n}
                       </span>
-                      <span style={{ fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "16.5px", letterSpacing: "-.015em", lineHeight: "1.3" }}>
+                      <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "16.5px", letterSpacing: "-.015em", lineHeight: "1.3" }}>
                         {fq.q}
                       </span>
                     </div>
@@ -1252,10 +1252,10 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
               </div>
             </div>
             <div style={{ position: "sticky", top: "130px", padding: "30px 28px 34px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.09)", background: "linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,.015))" }}>
-              <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10px", letterSpacing: ".14em", color: "rgba(124,230,255,.78)" }}>
+              <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", color: "rgba(124,230,255,.78)" }}>
                 {v.faqTag}
               </div>
-              <div style={{ marginTop: "18px", fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "21px", letterSpacing: "-.02em", lineHeight: "1.25" }}>
+              <div style={{ marginTop: "18px", fontFamily: "'Space Grotesk',sans-serif", fontSize: "21px", letterSpacing: "-.02em", lineHeight: "1.25" }}>
                 {v.faqQ}
               </div>
               <p style={{ margin: "16px 0 0", fontSize: "14.5px", lineHeight: "1.7", color: "rgba(233,235,242,.62)", textWrap: "pretty" }}>
@@ -1279,9 +1279,9 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                   <span style={{ height: "20px", width: "70px", borderRadius: "6px", background: "linear-gradient(180deg,#d6f4ff,#8ad9ff)" }} />
                 </div>
               </div>
-              <h2 style={{ margin: "48px 0 0", fontFamily: "var(--font-space-grotesk),sans-serif", fontWeight: "500", fontSize: "clamp(30px,4.4vw,58px)", letterSpacing: "-.035em", lineHeight: "1.02" }}>
+              <h2 style={{ margin: "48px 0 0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(30px,4.4vw,58px)", letterSpacing: "-.035em", lineHeight: "1.02" }}>
                 {"Your idea is "}
-                <span style={{ fontFamily: "var(--font-instrument-serif),serif", fontStyle: "italic", fontWeight: "400", color: "#cdeaff" }}>
+                <span style={{ fontFamily: "'Instrument Serif',serif", fontStyle: "italic", fontWeight: "400", color: "#cdeaff" }}>
                   {"already"}
                 </span>
                 {" enough."}
@@ -1292,7 +1292,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "11px", justifyContent: "center", marginTop: "34px" }}>
                 <a href="#top" style={{ display: "inline-flex", alignItems: "center", gap: "10px", padding: "15px 27px", borderRadius: "999px", fontSize: "15px", fontWeight: "500", color: "#04060c", background: "linear-gradient(180deg,#cdf3ff,#7ad6ff)", boxShadow: "0 16px 46px rgba(122,214,255,.32)" }} className="orb-h12">
                   {"Start building "}
-                  <span style={{ fontFamily: "var(--font-ibm-plex-mono),monospace" }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono',monospace" }}>
                     {"→"}
                   </span>
                 </a>
@@ -1305,7 +1305,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
         </section>
         <footer style={{ position: "relative", padding: "0 28px 56px" }}>
           <div style={{ maxWidth: "1180px", margin: "0 auto", paddingTop: "30px", borderTop: "1px solid rgba(255,255,255,.08)", display: "flex", flexWrap: "wrap", gap: "26px", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", fontFamily: "var(--font-space-grotesk),sans-serif", fontSize: "14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", fontFamily: "'Space Grotesk',sans-serif", fontSize: "14px" }}>
               <span style={{ position: "relative", display: "block", width: "16px", height: "16px", borderRadius: "50%", border: "1px solid rgba(160,225,255,.6)" }}>
                 <span style={{ position: "absolute", left: "50%", top: "50%", width: "5px", height: "5px", margin: "-2.5px 0 0 -2.5px", borderRadius: "50%", background: "#bdf1ff" }} />
               </span>
@@ -1328,7 +1328,7 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
                 {"Comparison"}
               </a>
             </div>
-            <div style={{ fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: "10.5px", letterSpacing: ".08em", color: "rgba(233,235,242,.28)" }}>
+            <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".08em", color: "rgba(233,235,242,.28)" }}>
               {"© 2026 ORBITAL ENGINEERING · BUILT FROM A NAPKIN"}
             </div>
           </div>

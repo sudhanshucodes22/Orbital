@@ -30,6 +30,15 @@ const OUT_DIR = path.join(REPO, 'reference/baselines');
 const PAGE = 'Orbital Launch.dc.html';
 
 const CHECK = process.argv.includes('--check');
+
+// Which implementation to capture.
+//   export  the frozen dc-runtime artifact (default) — how baselines were made
+//   next    the ported Next.js app, expected to be running on NEXT_URL
+// `--target=next --check` is the Phase 3 parity gate: capture the ported app
+// and pixel-diff it against the baselines taken from the export.
+const TARGET = process.argv.find((a) => a.startsWith('--target='))?.slice(9) ?? 'export';
+if (!['export', 'next'].includes(TARGET)) throw new Error(`unknown --target: ${TARGET}`);
+const NEXT_URL = process.env.NEXT_URL ?? 'http://localhost:3000';
 const WIDTHS = [1440, 1024, 768, 375];
 const VIEWPORT_H = 900;
 const SETTLE_MS = 900;
@@ -136,9 +145,8 @@ async function newPage(browser, { width, freeze = true }) {
 }
 
 async function load(page, port) {
-  await page.goto(`http://127.0.0.1:${port}/${encodeURIComponent(PAGE)}`, {
-    waitUntil: 'load',
-  });
+  const url = TARGET === 'next' ? NEXT_URL : `http://127.0.0.1:${port}/${encodeURIComponent(PAGE)}`;
+  await page.goto(url, { waitUntil: 'load' });
   await page.evaluate(() => document.fonts.ready);
   // The 3 MB stray screenshot decodes asynchronously and is 540x351 in six
   // places, so until it lands the document height (and every element position
@@ -162,11 +170,17 @@ async function load(page, port) {
 async function main() {
   if (!existsSync(SERVE_DIR)) throw new Error(`missing export dir: ${SERVE_DIR}`);
 
-  const { server, port } = await startServer(SERVE_DIR);
+  // The static server is only needed for the export target.
+  const { server, port } = TARGET === 'export'
+    ? await startServer(SERVE_DIR)
+    : { server: { close() {} }, port: 0 };
   const browser = await chromium.launch({ channel: 'chrome' });
   const chromeVersion = browser.version();
-  console.log(`chrome ${chromeVersion} · serving ${path.basename(SERVE_DIR)} on :${port}\n`);
+  console.log(`chrome ${chromeVersion} · target=${TARGET} · ${TARGET === 'next' ? NEXT_URL : `:${port}`}\n`);
 
+  if (TARGET === 'next' && !CHECK) {
+    throw new Error('--target=next is only valid with --check; baselines come from the export');
+  }
   const outExisting = existsSync(OUT_DIR) ? await readdir(OUT_DIR) : [];
   if (!CHECK && outExisting.length) await rm(OUT_DIR, { recursive: true, force: true });
   if (CHECK) await rm(WRITE_DIR, { recursive: true, force: true });
@@ -257,6 +271,16 @@ async function main() {
     });
     await load(page, port);
     await forceReveals(page);
+
+    // --hp saturates at 1 well before scroll 400, so sample the morph finely.
+    // The page's scroll loop only recomputes --hp when scrollY changes, so at
+    // scroll 0 the value is whatever the first rAF tick happened to see —
+    // a pre-settle transient that never corrects itself. Nudge once so every
+    // target measures the settled layout instead of a race. Verified: the
+    // export reads 0.1541 before the nudge and 0.1562 after, with identical
+    // stage geometry (top 664.44, height 654) either way.
+    await page.evaluate(() => window.scrollTo(0, 1));
+    await page.waitForTimeout(250);
 
     // --hp saturates at 1 well before scroll 400, so sample the morph finely.
     for (const y of [0, 80, 160, 240, 320, 400]) {

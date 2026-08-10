@@ -7,7 +7,7 @@
  *     global to poll for and initGlobe() is called directly.
  *   - the globe texture is addressed as /earth-equirect.jpg (it now lives in
  *     /public rather than beside the document).
- *   - quoted font-family names became the next/font CSS variables.
+ *   - font-family declarations are left verbatim; see the FONT_VARS note.
  *   - 2d contexts get a null guard for strict mode.
  *
  * The base class changed from dc-runtime's DCLogic to React.Component. DCLogic
@@ -451,9 +451,9 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
       { n: 'F03', k: 'voice', t: 'Voice editing', d: '"Make the navbar transparent." Applied, not regenerated.', bg: 'linear-gradient(170deg,rgba(255,255,255,.055),rgba(255,255,255,.012))',
         art: artBox(React.createElement('div', { style: { display: 'flex', alignItems: 'flex-end', gap: '4px', height: '54px' } }, [0, 1, 2, 3, 4, 5, 6].map(i => React.createElement('span', { key: i, style: { width: '4px', height: '100%', borderRadius: '2px', background: i % 2 ? '#a48bff' : '#7ce6ff', animation: 'bar 1s ease-in-out ' + (i * 0.1) + 's infinite' } })))) },
       { n: 'F04', k: 'text', t: 'Text editing', d: 'Sometimes typing is faster. Voice and text share context.', bg: 'linear-gradient(170deg,rgba(255,255,255,.05),rgba(255,255,255,.012))',
-        art: artBox(React.createElement('div', { style: { width: '80%', padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,.12)', background: 'rgba(255,255,255,.04)', fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: '11px', color: 'rgba(196,236,255,.9)' } }, 'tighten the footer▎')) },
+        art: artBox(React.createElement('div', { style: { width: '80%', padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,.12)', background: 'rgba(255,255,255,.04)', fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', color: 'rgba(196,236,255,.9)' } }, 'tighten the footer▎')) },
       { n: 'F05', k: 'handwriting', t: 'Handwriting', d: 'Margin notes become palette, radius and density rules.', bg: 'linear-gradient(170deg,rgba(255,255,255,.06),rgba(255,255,255,.015))',
-        art: artBox(React.createElement('div', { style: { fontFamily: "var(--font-caveat),cursive", fontSize: '22px', color: '#cfe4ff', display: 'flex', flexDirection: 'column', gap: '2px', transform: 'rotate(-3deg)' } }, [
+        art: artBox(React.createElement('div', { style: { fontFamily: "'Caveat',cursive", fontSize: '22px', color: '#cfe4ff', display: 'flex', flexDirection: 'column', gap: '2px', transform: 'rotate(-3deg)' } }, [
           React.createElement('span', { key: 'a' }, 'glass effect'),
           React.createElement('span', { key: 'b', style: { color: '#9fd8ff' } }, 'rounded cards'),
           React.createElement('span', { key: 'c', style: { color: '#c9a7ff' } }, 'blue gradient')
@@ -465,8 +465,8 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
         ])) },
       { n: 'F18', k: 'pdf', t: 'PDF to website', d: 'Brochures, decks and proposals become responsive pages.', bg: 'linear-gradient(170deg,rgba(255,255,255,.05),rgba(255,255,255,.012))',
         art: artBox(React.createElement('div', { style: { display: 'flex', gap: '8px', alignItems: 'center' } }, [
-          React.createElement('div', { key: 'a', style: { width: '52px', height: '68px', borderRadius: '3px', background: '#efece3', display: 'flex', alignItems: 'flex-end', padding: '6px', fontFamily: "var(--font-ibm-plex-mono),monospace", fontSize: '8px', color: '#5a5b5f' } }, 'PDF'),
-          React.createElement('span', { key: 'b', style: { fontFamily: "var(--font-ibm-plex-mono),monospace", color: 'rgba(124,230,255,.8)', fontSize: '12px' } }, '→'),
+          React.createElement('div', { key: 'a', style: { width: '52px', height: '68px', borderRadius: '3px', background: '#efece3', display: 'flex', alignItems: 'flex-end', padding: '6px', fontFamily: "'IBM Plex Mono',monospace", fontSize: '8px', color: '#5a5b5f' } }, 'PDF'),
+          React.createElement('span', { key: 'b', style: { fontFamily: "'IBM Plex Mono',monospace", color: 'rgba(124,230,255,.8)', fontSize: '12px' } }, '→'),
           React.createElement('div', { key: 'c', style: { width: '84px', height: '58px', borderRadius: '6px', border: '1px solid rgba(255,255,255,.12)', background: 'rgba(255,255,255,.04)', padding: '7px', display: 'flex', flexDirection: 'column', gap: '5px' } }, [line('80%', .28), line('55%', .16)])
         ])) },
       { n: 'F19', k: 'whiteboard', t: 'Whiteboard mode', d: 'One photo of the meeting room wall. Arrows included.', bg: 'linear-gradient(170deg,rgba(164,139,255,.08),rgba(255,255,255,.015))',
