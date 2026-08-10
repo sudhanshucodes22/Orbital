@@ -1,0 +1,8 @@
+{
+  "name": "orbital-verify",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "End-to-end verification of the Supabase setup against a running app.",
+  "scripts": { "supabase": "node supabase.mjs" }
+}

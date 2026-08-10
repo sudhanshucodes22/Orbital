@@ -43,3 +43,6 @@ yarn-error.log*
 
 # Claude Code local config
 .claude/
+
+# symlinked to tools/baseline/node_modules
+tools/verify/node_modules
