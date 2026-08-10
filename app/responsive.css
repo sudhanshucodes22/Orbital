@@ -1,0 +1,317 @@
+/* Responsive layer.
+ *
+ * The design is expressed entirely in inline styles, which a media query
+ * cannot reach — so every override here is `!important`. That is the same
+ * mechanism the design's own hover system uses (dc-runtime appended
+ * !important to every `style-hover` declaration for exactly this reason), and
+ * it is what keeps the desktop layout provably untouched: none of these rules
+ * exist above 768px, so 1440 and 1024 render byte-identically to the approved
+ * baselines.
+ *
+ * Hooks are `r-*` classes added to the components. Nothing here restyles the
+ * design; it only re-flows it. Colours, borders, type and spacing rhythm are
+ * inherited from the inline styles in every case.
+ *
+ * Two tiers:
+ *   <= 768px   tablet and phone: multi-column becomes single column,
+ *              the nav collapses to a menu.
+ *   <= 480px   phone: tighter gutters and a smaller hero.
+ *
+ * 480 rather than 375 so the tier covers every common handset (375, 390, 393,
+ * 414, 428) instead of only the narrowest test point.
+ */
+
+/* ---------------------------------------------------------------- nav ---- */
+/* The trigger only exists on small screens; the link row replaces it above. */
+.r-menu-trigger {
+  display: none;
+  width: 40px;
+  height: 40px;
+  margin-left: 10px;
+  padding: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.r-menu-trigger:hover {
+  border-color: rgba(150, 225, 255, 0.4);
+  background: rgba(150, 225, 255, 0.08);
+}
+
+.r-menu-bar {
+  display: block;
+  width: 15px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: rgba(233, 235, 242, 0.85);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+}
+
+/* Collapse the three bars into a cross while the panel is open. */
+.r-menu-trigger[aria-expanded="true"] .r-menu-bar[data-top] {
+  transform: translateY(5.5px) rotate(45deg);
+}
+.r-menu-trigger[aria-expanded="true"] .r-menu-bar[data-mid] {
+  opacity: 0;
+}
+.r-menu-trigger[aria-expanded="true"] .r-menu-bar[data-bot] {
+  transform: translateY(-5.5px) rotate(-45deg);
+}
+
+/* Sits directly under the nav pill and reuses its glass treatment so the two
+ * read as one object rather than a panel bolted on. */
+.r-menu-panel {
+  position: absolute;
+  top: calc(100% - 6px);
+  left: 20px;
+  right: 20px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  /* The nav pill can afford 0.6 alpha because it is a thin bar over mostly
+   * empty space. A full panel sits over hero type, and at that alpha the
+   * headline reads straight through it. */
+  background: rgba(6, 8, 14, 0.97);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.5);
+  animation: rMenuIn 0.22s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+@keyframes rMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.r-menu-link {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 15px;
+  color: rgba(233, 235, 242, 0.78);
+}
+
+.r-menu-link:hover,
+.r-menu-link:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.r-menu-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+}
+
+/* ------------------------------------------------ earth and scrim ------- */
+@media (max-width: 768px) {
+  /* Desktop places the Earth to the right of the copy. With one column there
+   * is no "beside", so it moves below the fold of the hero text and grows to
+   * stay a real presence rather than a 217px dot (58vw of 375px). Still
+   * position: fixed, so it remains the same parallax backdrop it is on
+   * desktop rather than becoming a picture in the flow. */
+  .r-globe {
+    top: 58% !important;
+    right: -26% !important;
+    width: min(560px, 104vw) !important;
+    height: min(560px, 104vw) !important;
+    /* Desktop keeps the Earth at .95 because the copy sits on the dark left
+     * of the scrim and never crosses it. Stacked, every section is full width
+     * and passes straight over it, so card text was washing out against the
+     * daylit side. Dimmed enough to read through, bright enough to still be
+     * the Earth. */
+    opacity: 0.62 !important;
+  }
+
+  /* The scrim runs left-to-right on desktop because the copy is on the left.
+   * Stacked, the copy is on top, so the gradient turns to match — dark behind
+   * the type, clearing as it reaches the Earth. Same colours, same intent. */
+  .r-scrim2 {
+    background:
+      radial-gradient(1200px 700px at 76% 12%, rgba(74, 168, 255, 0.1), transparent 62%),
+      radial-gradient(900px 760px at 4% 78%, rgba(140, 116, 255, 0.09), transparent 66%),
+      linear-gradient(180deg, rgba(3, 4, 8, 0.35), rgba(3, 4, 8, 0.68)) !important;
+  }
+
+  .r-scrim {
+    background: linear-gradient(
+      180deg,
+      #030408 0%,
+      rgba(3, 4, 8, 0.94) 34%,
+      rgba(3, 4, 8, 0.62) 56%,
+      rgba(3, 4, 8, 0.3) 78%,
+      rgba(3, 4, 8, 0.12) 100%
+    ) !important;
+  }
+}
+
+/* ------------------------------------------------- tablet and below ------ */
+@media (max-width: 768px) {
+  .r-nav-links {
+    display: none !important;
+  }
+  .r-menu-trigger {
+    display: flex;
+  }
+
+  /* Every multi-column layout becomes a single column. Gaps are kept in the
+   * design's own rhythm rather than invented. */
+  .r-hero-stage,
+  .r-2col,
+  .r-demo,
+  .r-workspace,
+  .r-pricing,
+  .r-product,
+  .r-timeline {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .r-hero-stage {
+    gap: 30px !important;
+  }
+  .r-2col {
+    gap: 34px !important;
+  }
+  .r-workspace {
+    min-height: 0 !important;
+  }
+  .r-timeline {
+    gap: 4px !important;
+  }
+
+  /* The 12-column product mosaic: every tile spans the full row. */
+  .r-span {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* A sticky panel has nothing to stick beside once the columns are stacked;
+   * left alone it pins itself over the content that follows. */
+  .r-sticky {
+    position: static !important;
+    top: auto !important;
+  }
+
+  /* Vertical rules between columns become horizontal rules between rows.
+   * Removing them entirely would drop a real part of the visual language. */
+  .r-triad > div,
+  .r-pricing > div,
+  .r-caps > div {
+    border-right: none !important;
+  }
+  .r-triad > div + div,
+  .r-pricing > div + div,
+  .r-caps > div + div {
+    border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+  }
+  .r-telemetry {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  }
+
+  /* The demo's three columns carry asymmetric padding and side rules that
+   * only make sense side by side. */
+  .r-demo > div {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+  .r-demo > div + div {
+    border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+  }
+
+  /* Same for the workspace rails. */
+  .r-workspace > aside {
+    border-right: none !important;
+    border-left: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+  }
+
+  /* The device switcher can request 520px inside a 375px viewport. The card
+   * clips it, so nothing overflows the page, but it reads as broken. */
+  .r-device-frame {
+    max-width: 100% !important;
+  }
+
+  /* Real touch targets on controls the desktop design sizes for a cursor. */
+  .r-touch {
+    min-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  /* Gutters. The design's 28px becomes 20px, keeping the same proportion of
+   * the narrower viewport. */
+  .r-section {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  .r-hero-section {
+    padding-top: 124px !important;
+    padding-bottom: 32px !important;
+  }
+}
+
+/* -------------------------------------------------------- phone --------- */
+@media (max-width: 480px) {
+  .r-section {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .r-hero-section {
+    padding-top: 108px !important;
+  }
+
+  /* clamp()'s vw term bottoms out at its floor on a narrow viewport, so the
+   * hero would sit at a flat 40px and wrap into six lines. Re-scale it. */
+  .r-hero-title {
+    font-size: clamp(30px, 8.6vw, 40px) !important;
+    line-height: 1.02 !important;
+  }
+
+  /* The capability strip stays horizontally scrollable — that is the design's
+   * own behaviour — but two columns of "only here" text is too tight. */
+  .r-caps {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .r-menu-panel {
+    left: 16px;
+    right: 16px;
+  }
+
+  /* Side by side at 375 the two pills squeeze until "Start building" breaks
+   * over two lines. Full width reads as deliberate and doubles the tap area. */
+  .r-hero-cta {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+  }
+  .r-hero-cta > a {
+    justify-content: center !important;
+  }
+}
+
+/* Nothing above may cause a horizontal scrollbar. `body` already sets
+ * overflow-x: hidden, which hides symptoms; this stops the common cause. */
+@media (max-width: 768px) {
+  .r-section img,
+  .r-section canvas {
+    max-width: 100%;
+  }
+}

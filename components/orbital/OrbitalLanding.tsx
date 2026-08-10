@@ -63,6 +63,12 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
    * unavailable during server rendering. */
   private reduce = false;
 
+  /* Phones do the same work on a fraction of the power budget, so the canvas
+   * layers are tuned down: lower device-pixel ratio, no MSAA, and a coarser
+   * globe mesh. Nothing is removed — the Earth, stars and comet all still run,
+   * they just cost less. Resolved at mount alongside `reduce`. */
+  private small = false;
+
   constructor(props: Record<string, never>) {
     super(props);
     this.state = { step: 0, voice: '', vs: 0, device: 1, faq: 0, evTick: 0, detect: 0 };
@@ -70,6 +76,7 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
 
   componentDidMount() {
     this.reduce = prefersReducedMotion();
+    this.small = typeof window !== "undefined" && window.innerWidth <= 768;
     this.initStars();
     this.initComet();
     this.initGlobe();
@@ -156,11 +163,11 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
     const cv = this.nodeRefs.starRef.current; if (!cv) return;
     const ctx = cv.getContext('2d'); if (!ctx) return;
     let stars: { x: number; y: number; z: number; r: number; tw: number }[] = [], w = 0, h = 0;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, this.small ? 1.5 : 2);
     const resize = () => {
       w = cv.clientWidth; h = cv.clientHeight;
       cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const n = Math.round((w * h) / 3400);
+      const n = Math.round((w * h) / (this.small ? 6200 : 3400));
       stars = Array.from({ length: n }, () => ({
         x: Math.random() * w, y: Math.random() * h,
         z: Math.random() * 0.85 + 0.15,
@@ -202,7 +209,7 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
     const cv = this.nodeRefs.cometRef.current; if (!cv) return;
     const ctx = cv.getContext('2d'); if (!ctx) return;
     let w = 0, h = 0;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, this.small ? 1.5 : 2);
     const resize = () => {
       w = cv.clientWidth; h = cv.clientHeight;
       cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -257,8 +264,8 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
   initGlobe() {
     const cv = this.nodeRefs.globeRef.current; if (!cv) return;
     const T = THREE;
-    const renderer = new T.WebGLRenderer({ canvas: cv, alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const renderer = new T.WebGLRenderer({ canvas: cv, alpha: true, antialias: !this.small });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this.small ? 1.5 : 2));
     renderer.outputEncoding = T.sRGBEncoding;
     renderer.toneMapping = T.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.42;
@@ -286,7 +293,7 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
     tex.generateMipmaps = true;
 
     const earth = new T.Mesh(
-      new T.SphereGeometry(R, 96, 64),
+      new T.SphereGeometry(R, this.small ? 48 : 96, this.small ? 32 : 64),
       new T.MeshBasicMaterial({ map: tex })
     );
     group.add(earth);
@@ -312,7 +319,7 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
     group.add(glow);
 
     const ring = new T.Mesh(
-      new T.RingGeometry(R * 1.46, R * 1.472, 180),
+      new T.RingGeometry(R * 1.46, R * 1.472, this.small ? 90 : 180),
       new T.MeshBasicMaterial({ color: 0x9fd8ff, transparent: true, opacity: 0.16, side: T.DoubleSide })
     );
     ring.rotation.x = Math.PI / 2.35; ring.rotation.y = 0.2;

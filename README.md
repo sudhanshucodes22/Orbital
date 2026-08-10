@@ -110,7 +110,7 @@ Engineer.dc.html` is an earlier draft, retained for history only.
 | 2 | Mechanical port of the template to JSX via codemod | **done** |
 | 3 | Verify parity against baselines | **done** — 28/28 pixel-identical |
 | 4 | Production hardening (components, metadata, a11y, images) | **done** |
-| 5 | Responsive design (new design work, not a port) | not started |
+| 5 | Responsive design (new design work, not a port) | **done** |
 | 6 | Product foundation, backend, deployment | not started |
 
 The governing constraint: **the visual design is final.** Baselines exist to
@@ -118,8 +118,10 @@ prove that. Since Phase 4 they are captured from the application rather than
 the export, so they now represent *the approved design*; re-baselining needs
 `--accept` and a reviewed diff.
 
-One intentional visual change has been accepted so far: the stray screenshot
-(defect 1) was removed with sign-off.
+Two intentional visual changes have been accepted: the stray screenshot
+(defect 1) was removed with sign-off, and the 768 / 375 baselines now carry
+the responsive layout. Every 1440 and 1024 shot is still pixel-identical to
+the approved design.
 
 ## Parity notes
 
@@ -149,8 +151,8 @@ Recorded at freeze time; none are fixed in `reference/artifact-export/`.
    inside `<sc-for list="{{ steps }}">`, so it rendered once per step at
    540x351, forcing the step rows apart by 2108px in total. It was a screenshot
    of the artifact editor displaying this same page.
-2. **No `@media` queries in either file.** Type is fluid via `clamp()`;
-   layout is fixed multi-column grids. There is no mobile design yet.
+2. ~~**No `@media` queries in either file.**~~ **Addressed in the app**
+   (Phase 5) by `app/responsive.css`. The export remains desktop-only.
 3. ~~**No document metadata.**~~ **Fixed in the app** (Phase 4): title,
    description, Open Graph, Twitter card, canonical, `lang`, an SVG favicon
    and an `opengraph-image.png` rendered from the real page.
@@ -184,3 +186,25 @@ All fetched from third-party CDNs at page load.
 three.js r128 dates from 2021 and the globe uses `outputEncoding`,
 `sRGBEncoding` and `LinearMipMapLinearFilter`, all removed in later
 versions. Pin `three@0.128.0` from npm during the port or the shaders break.
+
+## Responsive layer
+
+`app/responsive.css` holds every responsive rule; the components carry only
+`r-*` class hooks. Nothing restyles the design — it re-flows it, and all
+colours, borders, type and spacing come from the untouched inline styles.
+
+Because the design is expressed entirely in inline styles, which a media query
+cannot reach, every override is `!important`. That is the same mechanism the
+design's own hover system uses. It is also what makes the desktop guarantee
+structural rather than hopeful: none of these rules exist above 768px.
+
+| Tier | Behaviour |
+|------|-----------|
+| `<= 768px` | Nav collapses to a hamburger; every multi-column grid becomes one column; sticky side panels go static; vertical column rules become horizontal row rules; touch targets grow to 44px; Earth moves right and dims to 0.62 so full-width content stays legible over it |
+| `<= 480px` | Tighter gutters (16px), hero re-scaled to `clamp(30px, 8.6vw, 40px)`, hero CTAs stack full width |
+
+480 rather than 375 for the phone tier so it covers every common handset
+(375–430), not only the narrowest test point.
+
+The capability strip stays horizontally scrollable on small screens — that is
+the design's own behaviour, not a concession.

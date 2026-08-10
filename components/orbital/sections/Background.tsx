@@ -13,9 +13,9 @@ export function Background({ starRef, globeRef, cometRef }: Pick<Refs, "starRef"
   return (
 <>
       <canvas aria-hidden="true" ref={starRef} style={{ position: "fixed", inset: "0", width: "100%", height: "100%", zIndex: "0", pointerEvents: "none" }} />
-      <canvas aria-hidden="true" ref={globeRef} style={{ position: "fixed", top: "50%", right: "-4%", transform: "translateY(-50%)", width: "min(1080px,58vw)", height: "min(1080px,58vw)", zIndex: "1", opacity: ".95", pointerEvents: "none" }} />
-      <div aria-hidden="true" style={{ position: "fixed", inset: "0", zIndex: "2", pointerEvents: "none", background: "linear-gradient(90deg,#030408 0%,rgba(3,4,8,.9) 30%,rgba(3,4,8,.5) 52%,rgba(3,4,8,.18) 74%,transparent 100%)" }} />
-      <div aria-hidden="true" style={{ position: "fixed", inset: "0", zIndex: "3", pointerEvents: "none", background: "radial-gradient(1200px 700px at 76% 12%,rgba(74,168,255,.1),transparent 62%),radial-gradient(900px 760px at 4% 78%,rgba(140,116,255,.09),transparent 66%),linear-gradient(180deg,rgba(3,4,8,.15),rgba(3,4,8,.55))" }} />
+      <canvas aria-hidden="true" className="r-globe" ref={globeRef} style={{ position: "fixed", top: "50%", right: "-4%", transform: "translateY(-50%)", width: "min(1080px,58vw)", height: "min(1080px,58vw)", zIndex: "1", opacity: ".95", pointerEvents: "none" }} />
+      <div aria-hidden="true" className="r-scrim" style={{ position: "fixed", inset: "0", zIndex: "2", pointerEvents: "none", background: "linear-gradient(90deg,#030408 0%,rgba(3,4,8,.9) 30%,rgba(3,4,8,.5) 52%,rgba(3,4,8,.18) 74%,transparent 100%)" }} />
+      <div aria-hidden="true" className="r-scrim2" style={{ position: "fixed", inset: "0", zIndex: "3", pointerEvents: "none", background: "radial-gradient(1200px 700px at 76% 12%,rgba(74,168,255,.1),transparent 62%),radial-gradient(900px 760px at 4% 78%,rgba(140,116,255,.09),transparent 66%),linear-gradient(180deg,rgba(3,4,8,.15),rgba(3,4,8,.55))" }} />
       <canvas aria-hidden="true" ref={cometRef} style={{ position: "fixed", inset: "0", width: "100%", height: "100%", zIndex: "4", pointerEvents: "none" }} />
     </>
   );

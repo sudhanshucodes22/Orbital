@@ -12,7 +12,7 @@ import type { Vals } from "../types";
 
 export function Workspace({ v }: { v: Vals }) {
   return (
-      <section id="workspace" style={{ position: "relative", padding: "0 28px 130px" }}>
+      <section className="r-section" id="workspace" style={{ position: "relative", padding: "0 28px 130px" }}>
         <div style={{ maxWidth: "1240px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "30px", flexWrap: "wrap", marginBottom: "34px" }}>
             <h2 style={{ margin: "0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em", lineHeight: "1.04" }}>
@@ -23,7 +23,7 @@ export function Workspace({ v }: { v: Vals }) {
             </div>
           </div>
           <div style={{ border: "1px solid rgba(255,255,255,.1)", borderRadius: "20px", background: "rgba(6,8,14,.86)", boxShadow: "0 50px 130px rgba(0,0,0,.66)", overflow: "hidden" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "212px minmax(0,1fr) 316px", minHeight: "600px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "212px minmax(0,1fr) 316px", minHeight: "600px" }} className="r-workspace">
               <aside style={{ borderRight: "1px solid rgba(255,255,255,.07)", padding: "18px 12px", display: "flex", flexDirection: "column", gap: "2px", background: "rgba(255,255,255,.015)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "9px", padding: "6px 10px 16px" }}>
                   <span style={{ width: "15px", height: "15px", borderRadius: "50%", border: "1px solid rgba(160,225,255,.6)", position: "relative" }}>
@@ -72,14 +72,14 @@ export function Workspace({ v }: { v: Vals }) {
                   <span style={{ flex: "1" }} />
                   {v.devices.map((dv2, i0) => (
                     <React.Fragment key={i0}>
-                      <button onClick={dv2.go} style={{ cursor: "pointer", padding: "5px 10px", borderRadius: "7px", border: `1px solid ${dv2.border}`, background: dv2.bg, color: dv2.color, fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px" }}>
+                      <button onClick={dv2.go} style={{ cursor: "pointer", padding: "5px 10px", borderRadius: "7px", border: `1px solid ${dv2.border}`, background: dv2.bg, color: dv2.color, fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px" }} className="r-touch">
                         {dv2.t}
                       </button>
                     </React.Fragment>
                   ))}
                 </div>
                 <div style={{ flex: "1", padding: "26px", display: "flex", justifyContent: "center", background: "radial-gradient(700px 340px at 50% -10%,rgba(124,230,255,.06),transparent 70%)" }}>
-                  <div style={{ width: v.deviceW, transition: "width .6s cubic-bezier(.4,0,.2,1)", borderRadius: "14px", border: "1px solid rgba(255,255,255,.09)", background: "linear-gradient(170deg,#0d1420,#070a11)", overflow: "hidden", position: "relative" }}>
+                  <div style={{ width: v.deviceW, transition: "width .6s cubic-bezier(.4,0,.2,1)", borderRadius: "14px", border: "1px solid rgba(255,255,255,.09)", background: "linear-gradient(170deg,#0d1420,#070a11)", overflow: "hidden", position: "relative" }} className="r-device-frame">
                     <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "14px 18px", borderBottom: "1px solid rgba(255,255,255,.06)" }}>
                       <span style={{ width: "14px", height: "14px", borderRadius: "50%", background: "linear-gradient(140deg,#8fe6ff,#a48bff)" }} />
                       <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "12.5px" }}>
@@ -139,7 +139,7 @@ export function Workspace({ v }: { v: Vals }) {
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.022)" }}>
                   {v.dock.map((dk, i0) => (
                     <React.Fragment key={i0}>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "9px 13px", borderRadius: "10px", border: "1px solid rgba(255,255,255,.09)", background: "rgba(255,255,255,.035)", fontSize: "12.5px", color: "rgba(233,235,242,.75)", cursor: "pointer" }} className="orb-h10">
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "9px 13px", borderRadius: "10px", border: "1px solid rgba(255,255,255,.09)", background: "rgba(255,255,255,.035)", fontSize: "12.5px", color: "rgba(233,235,242,.75)", cursor: "pointer" }} className="orb-h10 r-touch">
                         <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: dk.dot }} />
                         {dk.t}
                       </span>

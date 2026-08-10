@@ -11,7 +11,7 @@
 
 export function ChaptersIntro() {
   return (
-      <section id="chapters" style={{ position: "relative", padding: "0 28px 40px" }}>
+      <section className="r-section" id="chapters" style={{ position: "relative", padding: "0 28px 40px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "30px", flexWrap: "wrap", borderBottom: "1px solid rgba(255,255,255,.09)", paddingBottom: "22px" }}>
             <h2 style={{ margin: "0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em" }}>

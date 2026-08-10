@@ -11,7 +11,7 @@
 
 export function CallToAction() {
   return (
-      <section id="cta" style={{ position: "relative", padding: "0 28px 110px" }}>
+      <section className="r-section" id="cta" style={{ position: "relative", padding: "0 28px 110px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto", position: "relative", borderRadius: "26px", border: "1px solid rgba(255,255,255,.1)", overflow: "hidden", background: "radial-gradient(800px 380px at 50% -20%,rgba(124,230,255,.18),rgba(255,255,255,.015) 70%)" }}>
           <div style={{ padding: "80px 40px 84px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
             <div style={{ position: "relative", width: "220px", height: "150px" }}>

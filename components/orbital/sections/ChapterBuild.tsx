@@ -12,7 +12,7 @@ import type { Vals } from "../types";
 
 export function ChapterBuild({ v }: { v: Vals }) {
   return (
-      <section style={{ position: "relative", padding: "0 0 130px" }}>
+      <section className="r-section" style={{ position: "relative", padding: "0 0 130px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto", padding: "0 28px" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: "18px", marginBottom: "34px" }}>
             <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", letterSpacing: ".18em", color: "rgba(124,230,255,.8)" }}>
@@ -23,7 +23,7 @@ export function ChapterBuild({ v }: { v: Vals }) {
             </span>
             <span style={{ flex: "1", height: "1px", background: "linear-gradient(90deg,rgba(255,255,255,.16),transparent)" }} />
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,.85fr) minmax(0,1.15fr)", gap: "0", border: "1px solid rgba(255,255,255,.09)", borderRadius: "20px", overflow: "hidden", background: "rgba(8,11,18,.72)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,.85fr) minmax(0,1.15fr)", gap: "0", border: "1px solid rgba(255,255,255,.09)", borderRadius: "20px", overflow: "hidden", background: "rgba(8,11,18,.72)" }} className="r-2col">
             <div style={{ padding: "26px", borderRight: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.018)" }}>
               <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.4)" }}>
                 {"Component tree"}
@@ -40,7 +40,7 @@ export function ChapterBuild({ v }: { v: Vals }) {
               <div style={{ marginTop: "24px", paddingTop: "18px", borderTop: "1px solid rgba(255,255,255,.07)", display: "flex", flexWrap: "wrap", gap: "7px" }}>
                 {v.exportTargets.map((et, i0) => (
                   <React.Fragment key={i0}>
-                    <span style={{ padding: "6px 10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,.1)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.6)" }} className="orb-h6">
+                    <span style={{ padding: "6px 10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,.1)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.6)" }} className="orb-h6 r-touch">
                       {et}
                     </span>
                   </React.Fragment>

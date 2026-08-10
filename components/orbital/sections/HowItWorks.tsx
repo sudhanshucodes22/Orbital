@@ -13,7 +13,7 @@ import type { Vals } from "../types";
 
 export function HowItWorks({ v }: { v: Vals }) {
   return (
-      <section id="how" style={{ position: "relative", padding: "60px 28px 120px" }}>
+      <section className="r-section" id="how" style={{ position: "relative", padding: "60px 28px 120px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "30px", marginBottom: "44px" }}>
             <h2 style={{ margin: "0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em", lineHeight: "1.04", maxWidth: "520px" }}>
@@ -26,7 +26,7 @@ export function HowItWorks({ v }: { v: Vals }) {
               {v.stepReadout}
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1.08fr)", gap: "56px", alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1.08fr)", gap: "56px", alignItems: "start" }} className="r-2col">
             <div>
               {v.steps.map((s, i0) => (
                 <React.Fragment key={i0}>
@@ -49,7 +49,7 @@ export function HowItWorks({ v }: { v: Vals }) {
                 </React.Fragment>
               ))}
             </div>
-            <div style={{ position: "sticky", top: "120px" }}>
+            <div style={{ position: "sticky", top: "120px" }} className="r-sticky">
               <div style={{ position: "relative", borderRadius: "18px", border: "1px solid rgba(255,255,255,.1)", background: "linear-gradient(170deg,rgba(16,22,34,.9),rgba(6,9,15,.94))", boxShadow: "0 40px 110px rgba(0,0,0,.62)", overflow: "hidden", minHeight: "430px", display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "13px 16px", borderBottom: "1px solid rgba(255,255,255,.07)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(233,235,242,.42)" }}>
                   <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#7ce6ff" }} />

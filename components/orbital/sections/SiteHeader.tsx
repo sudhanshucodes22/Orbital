@@ -6,12 +6,50 @@
  * reduced-motion and defect fixes applied after the port.
  *
  * reference/baselines/ is the guard. Run the parity check after any edit.
+ *
+ * Hand-added since the port: the mobile menu. The desktop bar below is
+ * unchanged — the link row and the trigger are swapped by media query, so at
+ * 769px and above this renders exactly what the export did.
  */
+"use client";
+
+import { useEffect, useState } from "react";
 import type { Refs } from "../types";
 
+const LINKS = [
+  ["#story", "Product"],
+  ["#how", "How it works"],
+  ["#workspace", "Workspace"],
+  ["#chapters", "Capabilities"],
+  ["#demo", "Demo"],
+  ["#pricing", "Pricing"],
+] as const;
+
+const MENU_ID = "orbital-mobile-menu";
+
 export function SiteHeader({ navRef }: Pick<Refs, "navRef">) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    // Resizing past the breakpoint hides the trigger, which would otherwise
+    // strand the panel open with no way to dismiss it.
+    const onResize = () => {
+      if (window.innerWidth > 768) setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [open]);
+
   return (
-<>
+    <>
       <header ref={navRef} style={{ position: "fixed", top: "0", left: "0", right: "0", zIndex: "80", display: "flex", justifyContent: "center", padding: "18px 20px", transition: "padding .45s cubic-bezier(.4,0,.2,1)" }}>
         <nav style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", maxWidth: "1180px", padding: "10px 12px 10px 18px", border: "1px solid rgba(255,255,255,.08)", borderRadius: "999px", background: "rgba(8,10,16,.6)", backdropFilter: "blur(24px) saturate(1.5)", WebkitBackdropFilter: "blur(24px) saturate(1.5)", boxShadow: "0 18px 60px rgba(0,0,0,.5)" }}>
           <a href="#top" style={{ display: "flex", alignItems: "center", gap: "11px", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: "-.01em", marginRight: "14px" }}>
@@ -21,31 +59,53 @@ export function SiteHeader({ navRef }: Pick<Refs, "navRef">) {
             {"\nOrbital"}
           </a>
           <span style={{ flex: "1" }} />
-          <div style={{ display: "flex", gap: "4px", fontSize: "13px", color: "rgba(233,235,242,.6)" }}>
-            <a href="#story" style={{ padding: "7px 11px", borderRadius: "999px", color: "inherit" }} className="orb-h0">
-              {"Product"}
-            </a>
-            <a href="#how" style={{ padding: "7px 11px", borderRadius: "999px", color: "inherit" }} className="orb-h0">
-              {"How it works"}
-            </a>
-            <a href="#workspace" style={{ padding: "7px 11px", borderRadius: "999px", color: "inherit" }} className="orb-h0">
-              {"Workspace"}
-            </a>
-            <a href="#chapters" style={{ padding: "7px 11px", borderRadius: "999px", color: "inherit" }} className="orb-h0">
-              {"Capabilities"}
-            </a>
-            <a href="#demo" style={{ padding: "7px 11px", borderRadius: "999px", color: "inherit" }} className="orb-h0">
-              {"Demo"}
-            </a>
-            <a href="#pricing" style={{ padding: "7px 11px", borderRadius: "999px", color: "inherit" }} className="orb-h0">
-              {"Pricing"}
-            </a>
+          <div className="r-nav-links" style={{ display: "flex", gap: "4px", fontSize: "13px", color: "rgba(233,235,242,.6)" }}>
+            {LINKS.map(([href, label]) => (
+              <a key={href} href={href} style={{ padding: "7px 11px", borderRadius: "999px", color: "inherit" }} className="orb-h0">
+                {label}
+              </a>
+            ))}
           </div>
-          <a href="#cta" style={{ marginLeft: "10px", fontSize: "13.5px", fontWeight: "500", padding: "10px 18px", borderRadius: "999px", color: "#04060c", background: "linear-gradient(180deg,#cdf3ff,#7ad6ff)", boxShadow: "0 8px 26px rgba(122,214,255,.32)" }} className="orb-h1">
+          <a href="#cta" style={{ marginLeft: "10px", fontSize: "13.5px", fontWeight: "500", padding: "10px 18px", borderRadius: "999px", color: "#04060c", background: "linear-gradient(180deg,#cdf3ff,#7ad6ff)", boxShadow: "0 8px 26px rgba(122,214,255,.32)" }} className="orb-h1 r-nav-cta">
             {"Start building"}
           </a>
+
+          {/* Trigger. Hidden above 768px; the link row takes its place. */}
+          <button
+            type="button"
+            className="r-menu-trigger"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            aria-controls={MENU_ID}
+            onClick={() => setOpen((o) => !o)}
+          >
+            <span className="r-menu-bar" data-top="" />
+            <span className="r-menu-bar" data-mid="" />
+            <span className="r-menu-bar" data-bot="" />
+          </button>
         </nav>
+
+        {open ? (
+          <div
+            id={MENU_ID}
+            className="r-menu-panel"
+            // The nav pill is the visual anchor; this sits directly under it
+            // and reuses the same glass treatment so it reads as one object.
+          >
+            {LINKS.map(([href, label]) => (
+              <a key={href} href={href} className="r-menu-link" onClick={() => setOpen(false)}>
+                {label}
+              </a>
+            ))}
+          </div>
+        ) : null}
       </header>
+
+      {/* Dismiss layer. Rendered only while open, below the header's z-index
+          but above the page, so a tap anywhere else closes the menu. */}
+      {open ? (
+        <div className="r-menu-scrim" aria-hidden="true" onClick={() => setOpen(false)} />
+      ) : null}
     </>
   );
 }

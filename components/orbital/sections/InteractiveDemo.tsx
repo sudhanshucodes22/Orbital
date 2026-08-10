@@ -12,7 +12,7 @@ import type { Vals } from "../types";
 
 export function InteractiveDemo({ v }: { v: Vals }) {
   return (
-      <section id="demo" style={{ position: "relative", padding: "0 28px 130px" }}>
+      <section className="r-section" id="demo" style={{ position: "relative", padding: "0 28px 130px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
           <div style={{ maxWidth: "640px", marginBottom: "40px" }}>
             <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(124,230,255,.75)" }}>
@@ -22,7 +22,7 @@ export function InteractiveDemo({ v }: { v: Vals }) {
               {"Watch an idea become software."}
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,.9fr) 210px minmax(0,1.25fr)", gap: "0", alignItems: "stretch", borderTop: "1px solid rgba(255,255,255,.09)", borderBottom: "1px solid rgba(255,255,255,.09)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,.9fr) 210px minmax(0,1.25fr)", gap: "0", alignItems: "stretch", borderTop: "1px solid rgba(255,255,255,.09)", borderBottom: "1px solid rgba(255,255,255,.09)" }} className="r-demo">
             <div style={{ padding: "26px 26px 26px 0" }}>
               <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.38)" }}>
                 {"Input"}
@@ -81,7 +81,7 @@ export function InteractiveDemo({ v }: { v: Vals }) {
                 <div style={{ display: "flex", gap: "5px" }}>
                   {v.devices.map((dv, i0) => (
                     <React.Fragment key={i0}>
-                      <button onClick={dv.go} style={{ cursor: "pointer", padding: "5px 10px", borderRadius: "999px", border: `1px solid ${dv.border}`, background: dv.bg, color: dv.color, fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", letterSpacing: ".06em" }}>
+                      <button onClick={dv.go} style={{ cursor: "pointer", padding: "5px 10px", borderRadius: "999px", border: `1px solid ${dv.border}`, background: dv.bg, color: dv.color, fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", letterSpacing: ".06em" }} className="r-touch">
                         {dv.t}
                       </button>
                     </React.Fragment>
@@ -89,7 +89,7 @@ export function InteractiveDemo({ v }: { v: Vals }) {
                 </div>
               </div>
               <div style={{ marginTop: "16px", display: "flex", justifyContent: "center" }}>
-                <div style={{ width: v.deviceW, transition: "width .6s cubic-bezier(.4,0,.2,1)", borderRadius: "14px", border: "1px solid rgba(255,255,255,.1)", background: "linear-gradient(168deg,#0e1420,#070a11)", boxShadow: "0 40px 100px rgba(0,0,0,.66)", overflow: "hidden" }}>
+                <div style={{ width: v.deviceW, transition: "width .6s cubic-bezier(.4,0,.2,1)", borderRadius: "14px", border: "1px solid rgba(255,255,255,.1)", background: "linear-gradient(168deg,#0e1420,#070a11)", boxShadow: "0 40px 100px rgba(0,0,0,.66)", overflow: "hidden" }} className="r-device-frame">
                   <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "13px 16px", borderBottom: "1px solid rgba(255,255,255,.06)" }}>
                     <span style={{ width: "14px", height: "14px", borderRadius: "50%", background: "linear-gradient(140deg,#8fe6ff,#a48bff)" }} />
                     <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "12.5px" }}>

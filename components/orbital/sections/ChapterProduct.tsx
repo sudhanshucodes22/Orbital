@@ -12,7 +12,7 @@ import type { Vals } from "../types";
 
 export function ChapterProduct({ v }: { v: Vals }) {
   return (
-      <section style={{ position: "relative", padding: "0 28px 130px" }}>
+      <section className="r-section" style={{ position: "relative", padding: "0 28px 130px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: "18px", marginBottom: "34px" }}>
             <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", letterSpacing: ".18em", color: "rgba(164,139,255,.85)" }}>
@@ -23,8 +23,8 @@ export function ChapterProduct({ v }: { v: Vals }) {
             </span>
             <span style={{ flex: "1", height: "1px", background: "linear-gradient(90deg,rgba(255,255,255,.16),transparent)" }} />
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(12,1fr)", gap: "16px" }}>
-            <div style={{ gridColumn: "span 7", minWidth: "0", padding: "28px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.09)", background: "linear-gradient(150deg,rgba(124,230,255,.08),rgba(255,255,255,.015))" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(12,1fr)", gap: "16px" }} className="r-product">
+            <div style={{ gridColumn: "span 7", minWidth: "0", padding: "28px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.09)", background: "linear-gradient(150deg,rgba(124,230,255,.08),rgba(255,255,255,.015))" }} className="r-span">
               <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", color: "rgba(124,230,255,.8)" }}>
                 {"F20 · F21 — PRODUCT INTELLIGENCE + 3D"}
               </div>
@@ -45,14 +45,14 @@ export function ChapterProduct({ v }: { v: Vals }) {
               <div style={{ marginTop: "18px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
                 {v.productOffers.map((po, i0) => (
                   <React.Fragment key={i0}>
-                    <span style={{ padding: "8px 13px", borderRadius: "999px", border: `1px solid ${po.border}`, background: po.bg, fontSize: "12.5px", color: po.color, cursor: "pointer" }} className="orb-h7">
+                    <span style={{ padding: "8px 13px", borderRadius: "999px", border: `1px solid ${po.border}`, background: po.bg, fontSize: "12.5px", color: po.color, cursor: "pointer" }} className="orb-h7 r-touch">
                       {po.t}
                     </span>
                   </React.Fragment>
                 ))}
               </div>
             </div>
-            <div style={{ gridColumn: "span 5", minWidth: "0", padding: "28px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.09)", background: "rgba(255,255,255,.028)" }}>
+            <div style={{ gridColumn: "span 5", minWidth: "0", padding: "28px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.09)", background: "rgba(255,255,255,.028)" }} className="r-span">
               <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", color: "rgba(164,139,255,.85)" }}>
                 {"F23 · F24 · F25 — SIMULATE, AUDIT, RANK"}
               </div>
@@ -84,7 +84,7 @@ export function ChapterProduct({ v }: { v: Vals }) {
             </div>
             {v.chapterProduct.map((cp, i0) => (
               <React.Fragment key={i0}>
-                <div style={{ gridColumn: "span 3", minWidth: "0", padding: "22px 20px 24px", borderRadius: "18px", border: "1px solid rgba(255,255,255,.08)", background: "rgba(255,255,255,.025)", display: "flex", flexDirection: "column", minHeight: "190px" }} className="orb-h8">
+                <div style={{ gridColumn: "span 3", minWidth: "0", padding: "22px 20px 24px", borderRadius: "18px", border: "1px solid rgba(255,255,255,.08)", background: "rgba(255,255,255,.025)", display: "flex", flexDirection: "column", minHeight: "190px" }} className="orb-h8 r-span">
                   <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(124,230,255,.78)", letterSpacing: ".1em" }}>
                     {cp.n}
                   </div>

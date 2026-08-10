@@ -12,7 +12,7 @@ import type { Vals } from "../types";
 
 export function Comparison({ v }: { v: Vals }) {
   return (
-      <section id="compare" style={{ position: "relative", padding: "0 28px 130px" }}>
+      <section className="r-section" id="compare" style={{ position: "relative", padding: "0 28px 130px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
           <h2 style={{ margin: "0 0 40px", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em", lineHeight: "1.04" }}>
             {"Two workflows."}
@@ -79,7 +79,7 @@ export function Comparison({ v }: { v: Vals }) {
               </div>
             </div>
           </div>
-          <div style={{ marginTop: "22px", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: "0", borderTop: "1px solid rgba(255,255,255,.08)" }}>
+          <div style={{ marginTop: "22px", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: "0", borderTop: "1px solid rgba(255,255,255,.08)" }} className="r-caps">
             {v.uniqueCaps.map((uc, i0) => (
               <React.Fragment key={i0}>
                 <div style={{ padding: "18px 18px 20px", borderRight: "1px solid rgba(255,255,255,.06)" }}>

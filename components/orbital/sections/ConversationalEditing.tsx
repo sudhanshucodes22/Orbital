@@ -12,8 +12,8 @@ import type { Vals } from "../types";
 
 export function ConversationalEditing({ v }: { v: Vals }) {
   return (
-      <section style={{ position: "relative", padding: "0 28px 130px" }}>
-        <div style={{ maxWidth: "1180px", margin: "0 auto", display: "grid", gridTemplateColumns: "minmax(0,.92fr) minmax(0,1.08fr)", gap: "52px", alignItems: "center" }}>
+      <section className="r-section" style={{ position: "relative", padding: "0 28px 130px" }}>
+        <div style={{ maxWidth: "1180px", margin: "0 auto", display: "grid", gridTemplateColumns: "minmax(0,.92fr) minmax(0,1.08fr)", gap: "52px", alignItems: "center" }} className="r-2col">
           <div>
             <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(164,139,255,.8)" }}>
               {"Live conversational editing · F26"}
@@ -90,7 +90,7 @@ export function ConversationalEditing({ v }: { v: Vals }) {
             <div style={{ marginTop: "16px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
               {v.voiceSteps.map((vst, i0) => (
                 <React.Fragment key={i0}>
-                  <button onClick={vst.go} style={{ cursor: "pointer", padding: "8px 13px", borderRadius: "999px", border: `1px solid ${vst.border}`, background: vst.bg, color: vst.color, fontSize: "12px", fontFamily: "'IBM Plex Sans',sans-serif" }}>
+                  <button onClick={vst.go} style={{ cursor: "pointer", padding: "8px 13px", borderRadius: "999px", border: `1px solid ${vst.border}`, background: vst.bg, color: vst.color, fontSize: "12px", fontFamily: "'IBM Plex Sans',sans-serif" }} className="r-touch">
                     {vst.t}
                   </button>
                 </React.Fragment>

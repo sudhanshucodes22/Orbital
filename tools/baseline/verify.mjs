@@ -102,6 +102,63 @@ const t = (name, ok, detail = '') => (ok ? pass : fail).push(`${name}${detail ? 
   await p.close();
 }
 
+// ---- responsive -----------------------------------------------------------
+for (const [w, h, label] of [[375, 812, '375'], [768, 1024, '768'], [1440, 900, '1440']]) {
+  const p = await b.newPage({ viewport: { width: w, height: h } });
+  await p.goto(URL_, { waitUntil: 'load' });
+  await p.evaluate(() => document.fonts.ready);
+  await p.waitForTimeout(1800);
+
+  const overflow = await p.evaluate(() => {
+    const de = document.documentElement;
+    return { scrollW: de.scrollWidth, clientW: de.clientWidth };
+  });
+  t(`${label}: no horizontal page scroll`, overflow.scrollW <= overflow.clientW,
+    `${overflow.scrollW} <= ${overflow.clientW}`);
+
+  const trigger = p.locator('.r-menu-trigger');
+  const links = p.locator('.r-nav-links');
+  const mobile = w <= 768;
+  t(`${label}: ${mobile ? 'hamburger shown' : 'desktop links shown'}`,
+    (await trigger.isVisible()) === mobile && (await links.isVisible()) === !mobile);
+
+  if (mobile) {
+    await trigger.click();
+    await p.waitForTimeout(400);
+    const panel = p.locator('.r-menu-panel');
+    t(`${label}: menu opens`, await panel.isVisible());
+    t(`${label}: menu links count`, (await panel.locator('a').count()) === 6);
+    await p.keyboard.press('Escape');
+    await p.waitForTimeout(300);
+    t(`${label}: Escape closes menu`, (await panel.count()) === 0);
+
+    // Touch targets on the controls the desktop sizes for a cursor.
+    const small = await p.evaluate(() => {
+      const bad = [];
+      for (const el of document.querySelectorAll('.r-touch')) {
+        const r = el.getBoundingClientRect();
+        if (r.height > 0 && r.height < 44) bad.push(Math.round(r.height));
+      }
+      return bad;
+    });
+    t(`${label}: touch targets >= 44px`, small.length === 0,
+      small.length ? `${small.length} under: ${small.slice(0, 5)}` : 'all pass');
+
+    const stacked = await p.evaluate(() => {
+      const one = (sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return 'missing';
+        return getComputedStyle(el).gridTemplateColumns.split(' ').length;
+      };
+      return { pricing: one('.r-pricing'), workspace: one('.r-workspace'), demo: one('.r-demo') };
+    });
+    t(`${label}: multi-column sections are single column`,
+      stacked.pricing === 1 && stacked.workspace === 1 && stacked.demo === 1,
+      JSON.stringify(stacked));
+  }
+  await p.close();
+}
+
 await b.close();
 console.log('PASS');
 for (const l of pass) console.log('  ok   ' + l);

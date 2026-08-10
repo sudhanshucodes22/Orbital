@@ -13,8 +13,14 @@ node capture.mjs --check --target=next   # PARITY GATE: ported app vs them
 `check` never writes to `reference/baselines/`. It captures into
 `reference/.baseline-check/` (gitignored) and compares.
 
+`review.mjs` renders the 375 and 768 breakpoints into
+`reference/.baseline-check/review/` for a human to look at. It asserts
+nothing — it exists because responsive work needs eyes, not just a diff.
+
 `verify.mjs` covers what pixels cannot: reduced-motion behaviour, keyboard
-operation of the FAQ and step rows, and the document head. Run it against the
+operation of the FAQ and step rows, the document head, and the responsive
+behaviour at 375 / 768 / 1440 (no horizontal scroll, hamburger vs link row,
+menu open/Escape, 44px touch targets, single-column stacking). Run it against the
 same production server.
 
 `--target=next` captures from a running Next server (`NEXT_URL`, default

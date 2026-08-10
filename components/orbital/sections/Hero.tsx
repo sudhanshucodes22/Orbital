@@ -13,7 +13,7 @@ import type { Refs, Vals } from "../types";
 export function Hero({ v, heroStageRef }: { v: Vals } & Pick<Refs, "heroStageRef">) {
   return (
 <>
-      <section id="top" style={{ position: "relative", padding: "172px 28px 40px" }}>
+      <section className="r-section r-hero-section" id="top" style={{ position: "relative", padding: "172px 28px 40px" }}>
         <div style={{ position: "relative", zIndex: "3", maxWidth: "1180px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px", fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(233,235,242,.44)" }}>
             <span style={{ position: "relative", display: "block", width: "6px", height: "6px", borderRadius: "50%", background: "#7ce6ff" }}>
@@ -22,7 +22,7 @@ export function Hero({ v, heroStageRef }: { v: Vals } & Pick<Refs, "heroStageRef
             {"\nMultimodal AI website engineer\n"}
             <span style={{ flex: "1", height: "1px", maxWidth: "180px", background: "linear-gradient(90deg,rgba(255,255,255,.18),transparent)" }} />
           </div>
-          <h1 data-reveal="" style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(40px,5.6vw,78px)", lineHeight: ".98", letterSpacing: "-.035em", margin: "26px 0 0", maxWidth: "840px" }}>
+          <h1 className="r-hero-title" data-reveal="" style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(40px,5.6vw,78px)", lineHeight: ".98", letterSpacing: "-.035em", margin: "26px 0 0", maxWidth: "840px" }}>
             {"Stop describing it."}
             <br />
             {"Just "}
@@ -35,7 +35,7 @@ export function Hero({ v, heroStageRef }: { v: Vals } & Pick<Refs, "heroStageRef
             <p data-reveal="" style={{ margin: "0", maxWidth: "430px", fontSize: "17px", lineHeight: "1.62", color: "rgba(233,235,242,.62)", textWrap: "pretty" }}>
               {"A sheet of paper, a phone camera, your voice, a note in the margin. Orbital reads intent the way an engineer does — and hands back a production website you can keep talking to."}
             </p>
-            <div data-reveal="" style={{ display: "flex", gap: "11px" }}>
+            <div className="r-hero-cta" data-reveal="" style={{ display: "flex", gap: "11px" }}>
               <a href="#cta" style={{ display: "inline-flex", alignItems: "center", gap: "10px", padding: "14px 24px", borderRadius: "999px", fontSize: "15px", fontWeight: "500", color: "#04060c", background: "linear-gradient(180deg,#cdf3ff,#7ad6ff)", boxShadow: "0 14px 44px rgba(122,214,255,.3)" }} className="orb-h2">
                 {"Start building "}
                 <span style={{ fontFamily: "'IBM Plex Mono',monospace" }}>
@@ -61,7 +61,7 @@ export function Hero({ v, heroStageRef }: { v: Vals } & Pick<Refs, "heroStageRef
               {v.hpLabel}
             </span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,.96fr) 132px minmax(0,1.18fr)", alignItems: "center", gap: "0", marginTop: "26px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,.96fr) 132px minmax(0,1.18fr)", alignItems: "center", gap: "0", marginTop: "26px" }} className="r-hero-stage">
             <div style={{ position: "relative", transform: "translateY(calc(var(--hp) * -26px)) rotate(calc(-2.4deg + var(--hp) * 1.9deg))", transition: "transform .1s linear" }}>
               <div style={{ position: "relative", padding: "26px 24px 30px", borderRadius: "3px", background: "linear-gradient(178deg,#f4f1e8,#e8e4d8)", boxShadow: "0 40px 90px rgba(0,0,0,.6),0 2px 0 rgba(255,255,255,.5) inset", color: "#3a3a36", overflow: "hidden" }}>
                 <div style={{ position: "absolute", inset: "0", background: "repeating-linear-gradient(0deg,rgba(90,100,120,.09) 0 1px,transparent 1px 27px)", pointerEvents: "none" }} />
@@ -209,7 +209,7 @@ export function Hero({ v, heroStageRef }: { v: Vals } & Pick<Refs, "heroStageRef
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0", marginTop: "64px", borderTop: "1px solid rgba(255,255,255,.08)" }}>
             {v.telemetry.map((tm, i0) => (
               <React.Fragment key={i0}>
-                <div style={{ flex: "1", minWidth: "170px", padding: "18px 20px 20px", borderRight: "1px solid rgba(255,255,255,.06)" }}>
+                <div style={{ flex: "1", minWidth: "170px", padding: "18px 20px 20px", borderRight: "1px solid rgba(255,255,255,.06)" }} className="r-telemetry">
                   <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(233,235,242,.36)" }}>
                     {tm.k}
                   </div>

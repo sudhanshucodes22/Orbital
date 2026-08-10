@@ -12,7 +12,7 @@ import type { Vals } from "../types";
 
 export function ChapterUnderstanding({ v }: { v: Vals }) {
   return (
-      <section style={{ position: "relative", padding: "0 28px 130px" }}>
+      <section className="r-section" style={{ position: "relative", padding: "0 28px 130px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: "18px", marginBottom: "34px" }}>
             <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", letterSpacing: ".18em", color: "rgba(164,139,255,.85)" }}>
@@ -23,7 +23,7 @@ export function ChapterUnderstanding({ v }: { v: Vals }) {
             </span>
             <span style={{ flex: "1", height: "1px", background: "linear-gradient(90deg,rgba(255,255,255,.16),transparent)" }} />
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.05fr) minmax(0,.95fr)", gap: "44px", alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.05fr) minmax(0,.95fr)", gap: "44px", alignItems: "start" }} className="r-2col">
             <div style={{ borderTop: "1px solid rgba(255,255,255,.09)" }}>
               {v.chapterUnderstand.map((cu, i0) => (
                 <React.Fragment key={i0}>
@@ -46,7 +46,7 @@ export function ChapterUnderstanding({ v }: { v: Vals }) {
                 </React.Fragment>
               ))}
             </div>
-            <div style={{ position: "sticky", top: "120px", padding: "24px", borderRadius: "18px", border: "1px solid rgba(255,255,255,.1)", background: "linear-gradient(168deg,rgba(20,18,38,.86),rgba(6,8,14,.92))" }}>
+            <div style={{ position: "sticky", top: "120px", padding: "24px", borderRadius: "18px", border: "1px solid rgba(255,255,255,.1)", background: "linear-gradient(168deg,rgba(20,18,38,.86),rgba(6,8,14,.92))" }} className="r-sticky">
               <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.4)" }}>
                 {"Design report · aurora.studio"}
               </div>

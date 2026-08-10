@@ -12,7 +12,7 @@ import type { Vals } from "../types";
 
 export function Timeline({ v }: { v: Vals }) {
   return (
-      <section style={{ position: "relative", padding: "0 28px 130px" }}>
+      <section className="r-section" style={{ position: "relative", padding: "0 28px 130px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
           <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(124,230,255,.75)" }}>
             {"The future of website creation"}
@@ -26,7 +26,7 @@ export function Timeline({ v }: { v: Vals }) {
               <React.Fragment key={i0}>
                 <div data-reveal="" style={{ position: "relative", padding: "0 0 42px" }}>
                   <span style={{ position: "absolute", left: "-26px", top: "8px", width: "11px", height: "11px", borderRadius: "50%", background: er.dot, boxShadow: "0 0 0 4px rgba(3,4,8,1)" }} />
-                  <div style={{ display: "grid", gridTemplateColumns: "110px minmax(0,1fr)", gap: "26px", alignItems: "baseline" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "110px minmax(0,1fr)", gap: "26px", alignItems: "baseline" }} className="r-timeline">
                     <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "26px", letterSpacing: "-.03em", color: er.year }}>
                       {er.y}
                     </div>

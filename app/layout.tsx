@@ -7,6 +7,7 @@ import {
   Space_Grotesk,
 } from "next/font/google";
 import "./globals.css";
+import "./responsive.css";
 
 /* The five families the design loads, with the exact weights and styles
  * requested by the Google Fonts <link> in the artifact export:

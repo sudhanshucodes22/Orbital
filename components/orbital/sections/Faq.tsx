@@ -13,8 +13,8 @@ import type { Vals } from "../types";
 
 export function Faq({ v }: { v: Vals }) {
   return (
-      <section style={{ position: "relative", padding: "0 28px 120px" }}>
-        <div style={{ maxWidth: "1180px", margin: "0 auto", display: "grid", gridTemplateColumns: "minmax(0,.9fr) minmax(0,1.1fr)", gap: "56px", alignItems: "start" }}>
+      <section className="r-section" style={{ position: "relative", padding: "0 28px 120px" }}>
+        <div style={{ maxWidth: "1180px", margin: "0 auto", display: "grid", gridTemplateColumns: "minmax(0,.9fr) minmax(0,1.1fr)", gap: "56px", alignItems: "start" }} className="r-2col">
           <div>
             <h2 style={{ margin: "0 0 26px", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(26px,3.2vw,40px)", letterSpacing: "-.03em" }}>
               {"Questions we get"}
@@ -36,7 +36,7 @@ export function Faq({ v }: { v: Vals }) {
               ))}
             </div>
           </div>
-          <div aria-live="polite" style={{ position: "sticky", top: "130px", padding: "30px 28px 34px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.09)", background: "linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,.015))" }}>
+          <div aria-live="polite" style={{ position: "sticky", top: "130px", padding: "30px 28px 34px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.09)", background: "linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,.015))" }} className="r-sticky">
             <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", color: "rgba(124,230,255,.78)" }}>
               {v.faqTag}
             </div>

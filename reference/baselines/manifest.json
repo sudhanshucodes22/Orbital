@@ -16,8 +16,8 @@
   "shots": {
     "layout/full-1440": "6b407161b443f7ab",
     "layout/full-1024": "9c856a232f8490c7",
-    "layout/full-768": "69a26f940829efa8",
-    "layout/full-375": "57d686ab2d529b7b",
+    "layout/full-768": "f02ce2b9be1e6c5d",
+    "layout/full-375": "b0330ae674067524",
     "states/device-mobile": "3f84c25387220a75",
     "states/device-desktop": "243b4fd91babc09c",
     "states/device-tablet": "2c358b129f078988",
@@ -43,5 +43,5 @@
     "hero/scroll-0320-hp0.8358": "b49a0faf5983e27f",
     "hero/scroll-0400-hp1.0000": "f8ed584105dda302"
   },
-  "capturedAt": "2026-08-10T03:55:52.411Z"
+  "capturedAt": "2026-08-10T04:37:39.901Z"
 }

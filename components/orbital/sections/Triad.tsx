@@ -12,8 +12,8 @@ import type { Vals } from "../types";
 
 export function Triad({ v }: { v: Vals }) {
   return (
-      <section id="story" style={{ position: "relative", padding: "120px 28px 40px" }}>
-        <div style={{ maxWidth: "1180px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: "0", borderTop: "1px solid rgba(255,255,255,.09)" }}>
+      <section className="r-section" id="story" style={{ position: "relative", padding: "120px 28px 40px" }}>
+        <div style={{ maxWidth: "1180px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: "0", borderTop: "1px solid rgba(255,255,255,.09)" }} className="r-triad">
           {v.triad.map((tr, i0) => (
             <React.Fragment key={i0}>
               <div data-reveal="" style={{ padding: "34px 30px 40px", borderRight: "1px solid rgba(255,255,255,.06)", position: "relative" }}>
