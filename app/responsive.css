@@ -295,6 +295,15 @@
     right: 16px;
   }
 
+  /* auto-fit with a 320px minimum track cannot shrink below 320px, so at a
+   * 320px viewport it was wider than its padded container and pushed the page
+   * 16px sideways. Only the very smallest handsets expose it — every other
+   * width is wide enough to hide the bug — and at 768 the two comparison
+   * columns still fit side by side, which is why this is not in that tier. */
+  .r-compare {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
   /* Side by side at 375 the two pills squeeze until "Start building" breaks
    * over two lines. Full width reads as deliberate and doubles the tap area. */
   .r-hero-cta {
@@ -304,6 +313,24 @@
   }
   .r-hero-cta > a {
     justify-content: center !important;
+  }
+
+  /* At 320px the bar needs ~336px for logo + CTA + trigger, so it pushed the
+   * page 16px wide. Trimming the gutter and the CTA buys ~25px, which keeps
+   * the call to action visible on every handset rather than hiding it behind
+   * a knife-edge breakpoint. initScroll() writes `padding` as a shorthand on
+   * scroll; these longhands are !important so the horizontal trim survives
+   * while the vertical shrink-on-scroll keeps working. */
+  .r-header {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+  .r-nav-cta {
+    font-size: 12.5px !important;
+    padding: 9px 14px !important;
+  }
+  .r-menu-trigger {
+    margin-left: 8px;
   }
 }
 

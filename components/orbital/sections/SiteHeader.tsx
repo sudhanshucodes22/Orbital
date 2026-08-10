@@ -50,7 +50,7 @@ export function SiteHeader({ navRef }: Pick<Refs, "navRef">) {
 
   return (
     <>
-      <header ref={navRef} style={{ position: "fixed", top: "0", left: "0", right: "0", zIndex: "80", display: "flex", justifyContent: "center", padding: "18px 20px", transition: "padding .45s cubic-bezier(.4,0,.2,1)" }}>
+      <header className="r-header" ref={navRef} style={{ position: "fixed", top: "0", left: "0", right: "0", zIndex: "80", display: "flex", justifyContent: "center", padding: "18px 20px", transition: "padding .45s cubic-bezier(.4,0,.2,1)" }}>
         <nav style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", maxWidth: "1180px", padding: "10px 12px 10px 18px", border: "1px solid rgba(255,255,255,.08)", borderRadius: "999px", background: "rgba(8,10,16,.6)", backdropFilter: "blur(24px) saturate(1.5)", WebkitBackdropFilter: "blur(24px) saturate(1.5)", boxShadow: "0 18px 60px rgba(0,0,0,.5)" }}>
           <a href="#top" style={{ display: "flex", alignItems: "center", gap: "11px", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: "-.01em", marginRight: "14px" }}>
             <span style={{ position: "relative", display: "block", width: "18px", height: "18px", borderRadius: "50%", border: "1px solid rgba(160,225,255,.65)", boxShadow: "0 0 14px rgba(124,230,255,.35) inset" }}>

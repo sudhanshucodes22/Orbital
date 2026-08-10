@@ -13,6 +13,10 @@ node capture.mjs --check --target=next   # PARITY GATE: ported app vs them
 `check` never writes to `reference/baselines/`. It captures into
 `reference/.baseline-check/` (gitignored) and compares.
 
+`widths.mjs` sweeps ten device widths for horizontal overflow. It exists
+because 320px was the only width that exposed a `minmax(320px, 1fr)` track
+wider than its own container — 360 and up were wide enough to hide it.
+
 `review.mjs` renders the 375 and 768 breakpoints into
 `reference/.baseline-check/review/` for a human to look at. It asserts
 nothing — it exists because responsive work needs eyes, not just a diff.

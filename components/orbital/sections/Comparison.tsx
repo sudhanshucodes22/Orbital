@@ -19,7 +19,7 @@ export function Comparison({ v }: { v: Vals }) {
             <br />
             {"One of them still has you typing."}
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: "22px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: "22px" }} className="r-compare">
             <div style={{ padding: "28px 26px 30px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.018)" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(233,235,242,.4)" }}>
