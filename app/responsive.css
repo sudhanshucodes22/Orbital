@@ -406,3 +406,9 @@
     padding-bottom: 88px !important;
   }
 }
+
+/* Active item in the mobile menu, matching the desktop bar's treatment. */
+.r-menu-link[aria-current="true"] {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}

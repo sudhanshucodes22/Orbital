@@ -67,3 +67,21 @@ summary::-webkit-details-marker{display:none}
   }
   html { scroll-behavior: auto !important; }
 }
+
+/* ---- anchor offset for the fixed header ---------------------------------
+ * The bar is position: fixed, so an anchor scrolled flush to the top of the
+ * viewport lands underneath it and the section heading is hidden. Reserving
+ * the bar's height plus a little air puts the heading just below it.
+ *
+ * scroll-margin only affects scrolling into view, so nothing about the page's
+ * layout or rhythm changes.
+ */
+section[id] {
+  scroll-margin-top: 96px;
+}
+
+@media (max-width: 768px) {
+  section[id] {
+    scroll-margin-top: 84px;
+  }
+}

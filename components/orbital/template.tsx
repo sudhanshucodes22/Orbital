@@ -33,22 +33,46 @@ export function Template({ v, starRef, globeRef, cometRef, navRef, heroStageRef 
     <div style={{ position: "relative", minHeight: "100vh", isolation: "isolate" }}>
       <Background starRef={starRef} globeRef={globeRef} cometRef={cometRef} />
       <SiteHeader navRef={navRef} />
+      {/* Section order matches the navbar exactly, top to bottom. Previously
+          Demo sat fourth in the DOM but fifth in the nav, and Workspace sat
+          eleventh but third, so clicking "Workspace" jumped past Demo and
+          Capabilities and then "Capabilities" jumped back up. */}
       <main style={{ position: "relative", zIndex: "10" }}>
         <Hero v={v} heroStageRef={heroStageRef} />
+
+        {/* 1. Product */}
         <Triad v={v} />
+
+        {/* 2. How it works */}
         <HowItWorks v={v} />
-        <InteractiveDemo v={v} />
-        <ConversationalEditing v={v} />
+
+        {/* 3. Workspace */}
+        <Workspace v={v} />
+
+        {/* 4. Capabilities — #chapters heads a block of five: the four
+            chapters plus conversational editing, which is capability F26 and
+            belongs with them rather than stranded between other anchors. */}
         <ChaptersIntro />
         <ChapterInput v={v} />
         <ChapterUnderstanding v={v} />
         <ChapterBuild v={v} />
         <ChapterProduct v={v} />
-        <Workspace v={v} />
+        <ConversationalEditing v={v} />
+
+        {/* 5. Demo */}
+        <InteractiveDemo v={v} />
+
+        {/* 6. Pricing */}
+        <Pricing v={v} />
+
+        {/* Closing argument: comparison, the timeline and the FAQ sit between
+            pricing and the final call to action, which is where they answer
+            the objections a reader has just formed. */}
         <Comparison v={v} />
         <Timeline v={v} />
-        <Pricing v={v} />
         <Faq v={v} />
+
+        {/* 7. Final CTA, then the footer. */}
         <CallToAction />
         <SiteFooter />
       </main>

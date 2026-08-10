@@ -13,7 +13,7 @@
  */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Refs } from "../types";
 
 const LINKS = [
@@ -27,8 +27,49 @@ const LINKS = [
 
 const MENU_ID = "orbital-mobile-menu";
 
+const SECTION_IDS = LINKS.map(([href]) => href.slice(1));
+
 export function SiteHeader({ navRef }: Pick<Refs, "navRef">) {
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState<string | null>(null);
+  const frame = useRef(0);
+
+  /* Which section the reader is currently in.
+   *
+   * Deliberately "the last section whose top has passed just below the bar"
+   * rather than an IntersectionObserver on each anchor. Capabilities is a
+   * block of six sections and only the first carries #chapters; an observer
+   * would drop the highlight as soon as the reader scrolled past that first
+   * short section. This keeps it lit for the whole block.
+   */
+  const syncActive = useCallback(() => {
+    const y = window.scrollY + 120;
+    let current: string | null = null;
+    for (const id of SECTION_IDS) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      if (el.getBoundingClientRect().top + window.scrollY <= y) current = id;
+    }
+    setActive(current);
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => {
+      cancelAnimationFrame(frame.current);
+      frame.current = requestAnimationFrame(syncActive);
+    };
+    // Deferred to a frame rather than called inline: setting state
+    // synchronously in an effect body triggers a cascading render, and this
+    // also lets first layout settle before measuring.
+    frame.current = requestAnimationFrame(syncActive);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame.current);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [syncActive]);
 
   useEffect(() => {
     if (!open) return;
@@ -60,11 +101,25 @@ export function SiteHeader({ navRef }: Pick<Refs, "navRef">) {
           </a>
           <span style={{ flex: "1" }} />
           <div className="r-nav-links" style={{ display: "flex", gap: "4px", fontSize: "13px", color: "rgba(233,235,242,.6)" }}>
-            {LINKS.map(([href, label]) => (
-              <a key={href} href={href} style={{ padding: "7px 11px", borderRadius: "999px", color: "inherit" }} className="orb-h0">
-                {label}
-              </a>
-            ))}
+            {LINKS.map(([href, label]) => {
+              const isActive = active === href.slice(1);
+              return (
+                <a
+                  key={href}
+                  href={href}
+                  aria-current={isActive ? "true" : undefined}
+                  style={{
+                    padding: "7px 11px",
+                    borderRadius: "999px",
+                    color: isActive ? "#fff" : "inherit",
+                    background: isActive ? "rgba(255,255,255,.07)" : "transparent",
+                  }}
+                  className="orb-h0"
+                >
+                  {label}
+                </a>
+              );
+            })}
           </div>
           <a href="/sign-up" style={{ marginLeft: "10px", fontSize: "13.5px", fontWeight: "500", padding: "10px 18px", borderRadius: "999px", color: "#04060c", background: "linear-gradient(180deg,#cdf3ff,#7ad6ff)", boxShadow: "0 8px 26px rgba(122,214,255,.32)" }} className="orb-h1 r-nav-cta">
             {"Start building"}
@@ -93,7 +148,13 @@ export function SiteHeader({ navRef }: Pick<Refs, "navRef">) {
             // and reuses the same glass treatment so it reads as one object.
           >
             {LINKS.map(([href, label]) => (
-              <a key={href} href={href} className="r-menu-link" onClick={() => setOpen(false)}>
+              <a
+                key={href}
+                href={href}
+                className="r-menu-link"
+                aria-current={active === href.slice(1) ? "true" : undefined}
+                onClick={() => setOpen(false)}
+              >
                 {label}
               </a>
             ))}
