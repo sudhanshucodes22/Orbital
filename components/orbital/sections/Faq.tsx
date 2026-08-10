@@ -13,7 +13,7 @@ import type { Vals } from "../types";
 
 export function Faq({ v }: { v: Vals }) {
   return (
-      <section className="r-section" style={{ position: "relative", padding: "0 28px 120px" }}>
+      <section className="r-section r-pad-lg" style={{ position: "relative", padding: "0 28px 120px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto", display: "grid", gridTemplateColumns: "minmax(0,.9fr) minmax(0,1.1fr)", gap: "56px", alignItems: "start" }} className="r-2col">
           <div>
             <h2 style={{ margin: "0 0 26px", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(26px,3.2vw,40px)", letterSpacing: "-.03em" }}>

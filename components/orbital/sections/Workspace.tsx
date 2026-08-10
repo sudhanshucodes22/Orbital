@@ -12,7 +12,7 @@ import type { Vals } from "../types";
 
 export function Workspace({ v }: { v: Vals }) {
   return (
-      <section className="r-section" id="workspace" style={{ position: "relative", padding: "0 28px 130px" }}>
+      <section className="r-section r-pad-lg" id="workspace" style={{ position: "relative", padding: "0 28px 130px" }}>
         <div style={{ maxWidth: "1240px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "30px", flexWrap: "wrap", marginBottom: "34px" }}>
             <h2 style={{ margin: "0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em", lineHeight: "1.04" }}>

@@ -200,8 +200,10 @@ structural rather than hopeful: none of these rules exist above 768px.
 
 | Tier | Behaviour |
 |------|-----------|
-| `<= 768px` | Nav collapses to a hamburger; every multi-column grid becomes one column; sticky side panels go static; vertical column rules become horizontal row rules; touch targets grow to 44px; Earth moves right and dims to 0.62 so full-width content stays legible over it |
-| `<= 480px` | Tighter gutters (16px), hero re-scaled to `clamp(30px, 8.6vw, 40px)`, hero CTAs stack full width |
+| `769–1023px` | Tablet. Only the workspace changes: its `212px / 1fr / 316px` tracks squeezed the centre canvas to 248px at 834px, clipping the preview mid-word. Now two columns with the AI-engineer rail on a full-width row beneath, giving the canvas 564px. Bounded below 1024 because that layout is part of the approved design |
+| landscape, `height <= 520px` | Phone on its side (812x375). The hero's 172px top padding and the stage's 78px margin ate most of the viewport before a word appeared; reduced to 92px and 34px. Height-based, so it cannot reach 1024x768 or 1440x900 |
+| `<= 768px` | Nav collapses to a hamburger; every multi-column grid becomes one column; sticky side panels go static; vertical column rules become horizontal row rules; touch targets grow to 44px; large section gaps 130px -> 104px; Earth moves right and dims to 0.62 so full-width content stays legible over it |
+| `<= 480px` | Tighter gutters (16px), large section gaps 130px -> 88px, hero re-scaled to `clamp(30px, 8.6vw, 40px)`, hero CTAs stack full width |
 
 480 rather than 375 for the phone tier so it covers every common handset
 (375–430), not only the narrowest test point.

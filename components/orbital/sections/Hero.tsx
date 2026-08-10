@@ -51,7 +51,7 @@ export function Hero({ v, heroStageRef }: { v: Vals } & Pick<Refs, "heroStageRef
             </div>
           </div>
         </div>
-        <div ref={heroStageRef} style={{ position: "relative", zIndex: "3", maxWidth: "1180px", margin: "78px auto 0" }}>
+        <div className="r-hero-stage-wrap" ref={heroStageRef} style={{ position: "relative", zIndex: "3", maxWidth: "1180px", margin: "78px auto 0" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "14px", paddingBottom: "16px", borderBottom: "1px solid rgba(255,255,255,.08)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(233,235,242,.38)" }}>
             <span>
               {"Session 0918 · live"}

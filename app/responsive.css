@@ -342,3 +342,67 @@
     max-width: 100%;
   }
 }
+
+/* ------------------------------------------------------ tablet tier ----- */
+/* 769–1023px. Bounded below 1024 because the 1024 layout is part of the
+ * approved design and must stay pixel-identical.
+ *
+ * Only the workspace needs help here. Its three tracks are 212px + 1fr +
+ * 316px, so at 834px the centre canvas collapses to 248px: the Aurora preview
+ * clipped mid-word, "Enquire" was cut off, and the TABLET pill disappeared
+ * behind the AI-engineer header. Everything else at this width was measured
+ * and left alone — the demo's three columns, the 12-column product mosaic and
+ * the pricing row all still read correctly.
+ */
+@media (min-width: 769px) and (max-width: 1023px) {
+  /* Two columns: the project rail keeps its place, the canvas takes the rest
+   * (~530px instead of 248px), and the AI engineer moves to a full-width row
+   * beneath rather than being squeezed alongside. */
+  .r-workspace {
+    grid-template-columns: 212px minmax(0, 1fr) !important;
+  }
+  .r-workspace > aside:last-of-type {
+    grid-column: 1 / -1 !important;
+    border-left: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+  }
+}
+
+/* ------------------------------------------- short landscape viewports -- */
+/* A phone on its side is 812x375: wide enough for the desktop layout, but the
+ * hero's 172px top padding plus the fixed bar eats most of 375px of height
+ * before a word appears. Height-based so it cannot touch 1024x768 or
+ * 1440x900, both far taller than this ceiling.
+ */
+@media (orientation: landscape) and (max-height: 520px) {
+  .r-hero-section {
+    padding-top: 92px !important;
+    padding-bottom: 24px !important;
+  }
+  /* The stage wrapper's 78px top margin is a second large vertical gap in a
+   * viewport that has none to spare. Note this is the wrapper, not the inner
+   * .r-hero-stage grid, whose own margin is only 26px — targeting that one
+   * would have made the gap bigger, not smaller. */
+  .r-hero-stage-wrap {
+    margin-top: 34px !important;
+  }
+}
+
+/* --------------------------------------- vertical rhythm on small screens */
+/* The design's 110–130px section gaps are tuned for a 1440px canvas. Kept
+ * generous rather than collapsed — the point is a premium feel, not density —
+ * but a 130px gap between stacked sections on a phone reads as a dead screen.
+ * Only sections whose bottom padding is already large are touched; the 40px
+ * ones that deliberately butt against the next section keep their spacing.
+ */
+@media (max-width: 768px) {
+  .r-pad-lg {
+    padding-bottom: 104px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .r-pad-lg {
+    padding-bottom: 88px !important;
+  }
+}

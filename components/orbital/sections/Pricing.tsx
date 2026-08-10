@@ -12,7 +12,7 @@ import type { Vals } from "../types";
 
 export function Pricing({ v }: { v: Vals }) {
   return (
-      <section className="r-section" id="pricing" style={{ position: "relative", padding: "0 28px 130px" }}>
+      <section className="r-section r-pad-lg" id="pricing" style={{ position: "relative", padding: "0 28px 130px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "24px", flexWrap: "wrap", paddingBottom: "22px", borderBottom: "1px solid rgba(255,255,255,.09)" }}>
             <h2 style={{ margin: "0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(26px,3.2vw,40px)", letterSpacing: "-.03em" }}>

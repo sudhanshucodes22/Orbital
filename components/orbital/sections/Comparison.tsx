@@ -12,7 +12,7 @@ import type { Vals } from "../types";
 
 export function Comparison({ v }: { v: Vals }) {
   return (
-      <section className="r-section" id="compare" style={{ position: "relative", padding: "0 28px 130px" }}>
+      <section className="r-section r-pad-lg" id="compare" style={{ position: "relative", padding: "0 28px 130px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
           <h2 style={{ margin: "0 0 40px", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em", lineHeight: "1.04" }}>
             {"Two workflows."}

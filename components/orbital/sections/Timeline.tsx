@@ -12,7 +12,7 @@ import type { Vals } from "../types";
 
 export function Timeline({ v }: { v: Vals }) {
   return (
-      <section className="r-section" style={{ position: "relative", padding: "0 28px 130px" }}>
+      <section className="r-section r-pad-lg" style={{ position: "relative", padding: "0 28px 130px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
           <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(124,230,255,.75)" }}>
             {"The future of website creation"}

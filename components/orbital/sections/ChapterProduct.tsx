@@ -12,7 +12,7 @@ import type { Vals } from "../types";
 
 export function ChapterProduct({ v }: { v: Vals }) {
   return (
-      <section className="r-section" style={{ position: "relative", padding: "0 28px 130px" }}>
+      <section className="r-section r-pad-lg" style={{ position: "relative", padding: "0 28px 130px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: "18px", marginBottom: "34px" }}>
             <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", letterSpacing: ".18em", color: "rgba(164,139,255,.85)" }}>

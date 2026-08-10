@@ -13,7 +13,7 @@ import type { Vals } from "../types";
 
 export function HowItWorks({ v }: { v: Vals }) {
   return (
-      <section className="r-section" id="how" style={{ position: "relative", padding: "60px 28px 120px" }}>
+      <section className="r-section r-pad-lg" id="how" style={{ position: "relative", padding: "60px 28px 120px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "30px", marginBottom: "44px" }}>
             <h2 style={{ margin: "0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.03em", lineHeight: "1.04", maxWidth: "520px" }}>
