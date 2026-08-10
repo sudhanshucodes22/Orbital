@@ -66,7 +66,7 @@ export function SiteHeader({ navRef }: Pick<Refs, "navRef">) {
               </a>
             ))}
           </div>
-          <a href="#cta" style={{ marginLeft: "10px", fontSize: "13.5px", fontWeight: "500", padding: "10px 18px", borderRadius: "999px", color: "#04060c", background: "linear-gradient(180deg,#cdf3ff,#7ad6ff)", boxShadow: "0 8px 26px rgba(122,214,255,.32)" }} className="orb-h1 r-nav-cta">
+          <a href="/sign-up" style={{ marginLeft: "10px", fontSize: "13.5px", fontWeight: "500", padding: "10px 18px", borderRadius: "999px", color: "#04060c", background: "linear-gradient(180deg,#cdf3ff,#7ad6ff)", boxShadow: "0 8px 26px rgba(122,214,255,.32)" }} className="orb-h1 r-nav-cta">
             {"Start building"}
           </a>
 

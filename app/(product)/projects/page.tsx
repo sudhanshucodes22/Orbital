@@ -115,6 +115,23 @@ export default async function ProjectsPage() {
                         {project.status.toUpperCase()} · UPDATED {formatDate(project.updatedAt)}
                       </p>
                     </div>
+                    {/* The title is a link, but a bare title reads as static
+                        text. An explicit control makes the row's primary
+                        action obvious at a glance. */}
+                    <Link
+                      href={`/projects/${project.id}`}
+                      style={{
+                        padding: "7px 15px",
+                        borderRadius: 999,
+                        border: `1px solid ${tokens.borderAccent}`,
+                        background: tokens.accentSoft,
+                        color: "#cdf2ff",
+                        fontSize: 12.5,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      Open →
+                    </Link>
                     <DeleteProjectButton
                       projectId={project.id}
                       projectName={project.name}

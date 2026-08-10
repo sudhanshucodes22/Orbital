@@ -36,7 +36,7 @@ export function Hero({ v, heroStageRef }: { v: Vals } & Pick<Refs, "heroStageRef
               {"A sheet of paper, a phone camera, your voice, a note in the margin. Orbital reads intent the way an engineer does — and hands back a production website you can keep talking to."}
             </p>
             <div className="r-hero-cta" data-reveal="" style={{ display: "flex", gap: "11px" }}>
-              <a href="#cta" style={{ display: "inline-flex", alignItems: "center", gap: "10px", padding: "14px 24px", borderRadius: "999px", fontSize: "15px", fontWeight: "500", color: "#04060c", background: "linear-gradient(180deg,#cdf3ff,#7ad6ff)", boxShadow: "0 14px 44px rgba(122,214,255,.3)" }} className="orb-h2">
+              <a href="/sign-up" style={{ display: "inline-flex", alignItems: "center", gap: "10px", padding: "14px 24px", borderRadius: "999px", fontSize: "15px", fontWeight: "500", color: "#04060c", background: "linear-gradient(180deg,#cdf3ff,#7ad6ff)", boxShadow: "0 14px 44px rgba(122,214,255,.3)" }} className="orb-h2">
                 {"Start building "}
                 <span style={{ fontFamily: "'IBM Plex Mono',monospace" }}>
                   {"→"}

@@ -37,7 +37,7 @@ export function CallToAction() {
               {"Bring the napkin. Free while we're in orbit."}
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "11px", justifyContent: "center", marginTop: "34px" }}>
-              <a href="#top" style={{ display: "inline-flex", alignItems: "center", gap: "10px", padding: "15px 27px", borderRadius: "999px", fontSize: "15px", fontWeight: "500", color: "#04060c", background: "linear-gradient(180deg,#cdf3ff,#7ad6ff)", boxShadow: "0 16px 46px rgba(122,214,255,.32)" }} className="orb-h12">
+              <a href="/sign-up" style={{ display: "inline-flex", alignItems: "center", gap: "10px", padding: "15px 27px", borderRadius: "999px", fontSize: "15px", fontWeight: "500", color: "#04060c", background: "linear-gradient(180deg,#cdf3ff,#7ad6ff)", boxShadow: "0 16px 46px rgba(122,214,255,.32)" }} className="orb-h12">
                 {"Start building "}
                 <span style={{ fontFamily: "'IBM Plex Mono',monospace" }}>
                   {"→"}

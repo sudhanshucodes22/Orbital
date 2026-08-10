@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "demo:reset": "node tools/demo-reset.mjs",
+    "verify": "node tools/verify/supabase.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
