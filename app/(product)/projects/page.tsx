@@ -1,52 +1,141 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { AppShell } from "@/components/ui/AppShell";
+import { CreateProjectForm } from "@/components/ui/CreateProjectForm";
+import { DeleteProjectButton } from "@/components/ui/DeleteProjectButton";
 import { NotConfigured } from "@/components/ui/NotConfigured";
-import { CAPABILITY_REQUIREMENTS } from "@/lib/config/env";
-import { isNotConfigured } from "@/lib/errors";
+import { Panel } from "@/components/ui/Panel";
+import { tokens } from "@/components/ui/tokens";
+import { CAPABILITY_REQUIREMENTS, capabilities } from "@/lib/config/env";
 import { getSession, listProjects } from "@/lib/services";
-import type { Project } from "@/lib/domain";
+import { createProjectAction, deleteProjectAction } from "./actions";
 
 export const metadata: Metadata = { title: "Projects" };
 
+// Session state must not be cached across requests.
+export const dynamic = "force-dynamic";
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export default async function ProjectsPage() {
-  const session = await getSession();
-
-  let projects: Project[] | null = null;
-  let blocked: { capability: string; requires: readonly string[] } | null = null;
-
-  if (session) {
-    try {
-      projects = await listProjects(session);
-    } catch (error) {
-      // A missing backend is an expected state right now; anything else is a
-      // real fault and should surface rather than be swallowed into an
-      // empty list.
-      if (!isNotConfigured(error)) throw error;
-      blocked = { capability: "Projects", requires: error.requires };
-    }
-  }
-
-  return (
-    <AppShell title="Projects">
-      {!session ? (
+  if (!capabilities().database) {
+    return (
+      <AppShell title="Projects">
         <NotConfigured
           capability="Projects"
-          requires={CAPABILITY_REQUIREMENTS.auth}
-          what="This is the workspace project list. It needs a signed-in user before it can show anything, and identity is not configured yet."
+          requires={CAPABILITY_REQUIREMENTS.database}
+          what="Listing, creating and deleting projects is implemented end to end, including workspace role checks and row-level security. It needs a Supabase project to read from."
         />
-      ) : blocked ? (
-        <NotConfigured
-          capability={blocked.capability}
-          requires={blocked.requires}
-          what="Listing, creating and deleting projects is implemented in lib/services/projects.ts, including name validation and workspace role checks. It needs a repository to read from."
-        />
-      ) : (
-        <ul>
-          {projects?.map((p) => (
-            <li key={p.id}>{p.name}</li>
-          ))}
-        </ul>
-      )}
+      </AppShell>
+    );
+  }
+
+  // Middleware redirects unauthenticated requests before they reach here, so
+  // this is a guard against a misconfigured matcher rather than a normal path.
+  const session = await getSession();
+  if (!session) {
+    return (
+      <AppShell title="Projects">
+        <Panel>
+          <p style={{ margin: 0, color: tokens.textMuted }}>
+            <Link href="/sign-in" style={{ color: tokens.accent }}>Sign in</Link> to see your projects.
+          </p>
+        </Panel>
+      </AppShell>
+    );
+  }
+
+  // Errors deliberately propagate to error.tsx rather than being flattened
+  // into an empty list — "you have no projects" and "the query failed" must
+  // not look the same.
+  const projects = await listProjects(session);
+
+  return (
+    <AppShell title="Projects" signedIn>
+      <div style={{ display: "grid", gap: 26 }}>
+        <Panel>
+          <CreateProjectForm action={createProjectAction} />
+        </Panel>
+
+        {projects.length === 0 ? (
+          <Panel>
+            <h2
+              style={{
+                margin: 0,
+                fontFamily: tokens.display,
+                fontWeight: 500,
+                fontSize: 20,
+                letterSpacing: "-.02em",
+              }}
+            >
+              Nothing in orbit yet.
+            </h2>
+            <p style={{ margin: "10px 0 0", fontSize: 14.5, lineHeight: 1.6, color: tokens.textMuted, maxWidth: 460 }}>
+              Create your first project above. Once the generation engine is
+              connected, this is where a sketch, a screenshot or a sentence
+              becomes a site.
+            </p>
+          </Panel>
+        ) : (
+          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 12 }}>
+            {projects.map((project) => (
+              <li key={project.id}>
+                <Panel style={{ padding: "18px 20px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 16,
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <div style={{ flex: "1 1 240px", minWidth: 0 }}>
+                      <Link
+                        href={`/projects/${project.id}`}
+                        style={{
+                          fontFamily: tokens.display,
+                          fontSize: 17,
+                          letterSpacing: "-.02em",
+                          color: tokens.text,
+                        }}
+                      >
+                        {project.name}
+                      </Link>
+                      {project.description && (
+                        <p style={{ margin: "6px 0 0", fontSize: 13, lineHeight: 1.5, color: tokens.textMuted }}>
+                          {project.description}
+                        </p>
+                      )}
+                      <p
+                        style={{
+                          margin: "8px 0 0",
+                          fontFamily: tokens.mono,
+                          fontSize: 10.5,
+                          letterSpacing: ".08em",
+                          color: tokens.textFaint,
+                        }}
+                      >
+                        {project.status.toUpperCase()} · UPDATED {formatDate(project.updatedAt)}
+                      </p>
+                    </div>
+                    <DeleteProjectButton
+                      projectId={project.id}
+                      projectName={project.name}
+                      action={deleteProjectAction}
+                    />
+                  </div>
+                </Panel>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </AppShell>
   );
 }

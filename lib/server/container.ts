@@ -6,12 +6,16 @@
  * the rule is: nothing under lib/server may be imported by a file carrying
  * "use client", directly or transitively.
  *
- * Every adapter is currently the unconfigured one. Implementing a capability
- * means writing the adapter beside this file and swapping the line here;
- * services and pages do not change.
+ * Each capability is selected independently from its own configuration, so a
+ * project with auth and a database but no storage gets real adapters for the
+ * first two and honest "not configured" errors for the third, rather than
+ * all-or-nothing.
  */
 import { capabilities } from "../config/env";
 import type { ServiceContainer } from "../ports";
+import { supabaseAuth } from "./supabase/auth";
+import { supabaseProjects, supabaseWorkspaces } from "./supabase/repositories";
+import { supabaseStorage } from "./supabase/storage";
 import {
   unconfiguredAuth,
   unconfiguredGeneration,
@@ -26,18 +30,15 @@ let cached: ServiceContainer | null = null;
 
 export function getContainer(): ServiceContainer {
   if (cached) return cached;
-
-  // When a capability gains a real adapter, branch on capabilities() here.
-  // Reading it now keeps the check honest rather than decorative: the health
-  // endpoint and the product pages both report from the same source.
-  void capabilities();
+  const caps = capabilities();
 
   cached = {
-    auth: unconfiguredAuth,
-    workspaces: unconfiguredWorkspaces,
-    projects: unconfiguredProjects,
+    auth: caps.auth ? supabaseAuth : unconfiguredAuth,
+    workspaces: caps.database ? supabaseWorkspaces : unconfiguredWorkspaces,
+    projects: caps.database ? supabaseProjects : unconfiguredProjects,
+    // Revisions arrive with the generation engine; the table does not exist yet.
     revisions: unconfiguredRevisions,
-    storage: unconfiguredStorage,
+    storage: caps.storage ? supabaseStorage : unconfiguredStorage,
     generation: unconfiguredGeneration,
     publisher: unconfiguredPublisher,
   };

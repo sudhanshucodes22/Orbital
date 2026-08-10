@@ -19,6 +19,8 @@ lib/services/   Business logic. Validation, authorisation, orchestration.
 lib/ports/      Interfaces a backend must satisfy. No runtime imports at all.
 lib/domain/     Data models. Pure types and small pure helpers. Zero I/O.
 lib/server/     Adapters that implement ports. SERVER ONLY.
+  supabase/       Supabase-backed adapters: auth, repositories, storage.
+  unconfigured.ts Fallbacks that throw NotConfiguredError.
 lib/config/     Typed environment access.
 ```
 
@@ -32,6 +34,30 @@ client component.
 membership, which role may delete — and calls `ProjectRepository`. Swapping
 Supabase for Postgres, or Postgres for anything else, is a new file in
 `lib/server` plus one line in `container.ts`. Services and pages do not change.
+
+## Authentication
+
+Auth runs entirely through Server Actions, so no Supabase client is ever
+constructed in the browser and the anon key stays out of the client bundle.
+That is stricter than the usual Next.js setup, which publishes the anon key as
+`NEXT_PUBLIC_`. The key is designed to be publishable and RLS is what protects
+the data, but nothing in the browser needs it, so it is not shipped. Verified:
+a production build made with every secret present contains none of them.
+
+`middleware.ts` does two jobs. Supabase access tokens are short-lived and only
+middleware can write the refreshed cookie back — a Server Component cannot set
+cookies. And it gates `/projects`, so an unauthenticated request is redirected
+before any page code runs, with the intended path preserved in `?next=`.
+
+Middleware reads `process.env` directly rather than going through
+`lib/config/env.ts`, because it runs on the Edge runtime where that module's
+Node assumptions do not hold. It is the one deliberate exception to the
+single-entry rule.
+
+`getSession()` calls Supabase's `getUser()`, which revalidates the JWT against
+the auth server. `getSession()` on the Supabase client would be cheaper but
+returns whatever is in the cookie, which a client can tamper with — never
+trust it for authorisation.
 
 ## Honesty rule
 

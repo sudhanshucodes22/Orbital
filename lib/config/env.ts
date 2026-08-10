@@ -16,7 +16,6 @@ export const publicEnv = {
 
 /** Server-only variables. Add new ones here so the audit is in one place. */
 export interface ServerEnv {
-  databaseUrl: string | undefined;
   supabaseUrl: string | undefined;
   supabaseAnonKey: string | undefined;
   supabaseServiceRoleKey: string | undefined;
@@ -32,7 +31,6 @@ export function serverEnv(): ServerEnv {
     );
   }
   return {
-    databaseUrl: process.env.DATABASE_URL,
     supabaseUrl: process.env.SUPABASE_URL,
     supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -59,8 +57,12 @@ export function capabilities(): CapabilityReport {
   const supabase = Boolean(e.supabaseUrl && e.supabaseAnonKey);
   return {
     auth: supabase,
-    database: Boolean(e.databaseUrl) || supabase,
-    storage: supabase && Boolean(e.storageBucket),
+    // Projects and workspaces are Supabase tables reached through the same
+    // credentials, so the database is live exactly when auth is.
+    database: supabase,
+    // Signed upload URLs need the service-role key; the anon key cannot mint
+    // them.
+    storage: supabase && Boolean(e.supabaseServiceRoleKey) && Boolean(e.storageBucket),
     generation: Boolean(e.generationApiKey),
     publishing: false,
   };
@@ -68,8 +70,13 @@ export function capabilities(): CapabilityReport {
 
 export const CAPABILITY_REQUIREMENTS: Readonly<Record<keyof CapabilityReport, readonly string[]>> = {
   auth: ["SUPABASE_URL", "SUPABASE_ANON_KEY"],
-  database: ["DATABASE_URL (or SUPABASE_URL + SUPABASE_ANON_KEY)"],
-  storage: ["SUPABASE_URL", "SUPABASE_ANON_KEY", "STORAGE_BUCKET"],
+  database: ["SUPABASE_URL", "SUPABASE_ANON_KEY"],
+  storage: [
+    "SUPABASE_URL",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "STORAGE_BUCKET",
+  ],
   generation: ["GENERATION_API_KEY"],
   publishing: ["a deploy target integration (not yet chosen)"],
 };

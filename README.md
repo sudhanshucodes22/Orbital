@@ -125,8 +125,9 @@ Engineer.dc.html` is an earlier draft, retained for history only.
 | 4 | Production hardening (components, metadata, a11y, images) | **done** |
 | 5 | Responsive design (new design work, not a port) | **done** |
 | 6 | Product foundation: layering, routes, ports | **done** — see ARCHITECTURE.md |
-| 7 | Backend adapters (auth, database, storage, engine) | not started |
-| 8 | Deployment | not started |
+| 7 | Supabase: auth, database, storage, real /projects | **done** — needs credentials to run |
+| 8 | Generation engine | not started |
+| 9 | Deployment | not started |
 
 The governing constraint: **the visual design is final.** Baselines exist to
 prove that. Since Phase 4 they are captured from the application rather than

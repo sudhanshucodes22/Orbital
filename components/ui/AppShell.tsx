@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { signOutAction } from "@/app/(auth)/actions";
 import { tokens } from "./tokens";
 
 /** Chrome for the signed-in product area.
@@ -9,7 +10,15 @@ import { tokens } from "./tokens";
  * globe has no business running behind a project list. Same palette, same
  * type, different job.
  */
-export function AppShell({ title, children }: { title: string; children: ReactNode }) {
+export function AppShell({
+  title,
+  children,
+  signedIn = false,
+}: {
+  title: string;
+  children: ReactNode;
+  signedIn?: boolean;
+}) {
   return (
     <div style={{ minHeight: "100vh", background: tokens.bg, color: tokens.text }}>
       <header
@@ -61,6 +70,29 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
         </Link>
         <span style={{ color: tokens.textFaint }}>/</span>
         <span style={{ fontSize: 14, color: tokens.textMuted }}>{title}</span>
+        {signedIn && (
+          <>
+            <span style={{ flex: 1 }} />
+            {/* A plain form post, so signing out works without client JS. */}
+            <form action={signOutAction}>
+              <button
+                type="submit"
+                style={{
+                  padding: "7px 14px",
+                  borderRadius: 999,
+                  border: `1px solid ${tokens.borderSoft}`,
+                  background: "transparent",
+                  color: tokens.textMuted,
+                  fontFamily: tokens.body,
+                  fontSize: 13,
+                  cursor: "pointer",
+                }}
+              >
+                Sign out
+              </button>
+            </form>
+          </>
+        )}
       </header>
       <main style={{ maxWidth: 1180, margin: "0 auto", padding: "40px 24px 80px" }}>
         {children}

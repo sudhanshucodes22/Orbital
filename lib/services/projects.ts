@@ -65,14 +65,30 @@ export async function getProject(session: Session, id: ProjectId): Promise<Proje
   return project;
 }
 
+export const PROJECT_DESCRIPTION_MAX = 280;
+
+export function validateProjectDescription(value: string | null | undefined): string | null {
+  if (value == null) return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (trimmed.length > PROJECT_DESCRIPTION_MAX) {
+    throw new ValidationError(
+      `Keep the description under ${PROJECT_DESCRIPTION_MAX} characters.`,
+      "description"
+    );
+  }
+  return trimmed;
+}
+
 export async function createProject(
   session: Session,
   input: Omit<CreateProjectInput, "workspaceId">
 ): Promise<Project> {
   const name = validateProjectName(input.name);
+  const description = validateProjectDescription(input.description);
   await requireRole(session, session.activeWorkspaceId, "member");
   return getContainer().projects.create(
-    { workspaceId: session.activeWorkspaceId, name },
+    { workspaceId: session.activeWorkspaceId, name, description },
     session.user.id
   );
 }
@@ -86,6 +102,9 @@ export async function renameProject(
   await requireRole(session, project.workspaceId, "member");
   const next: UpdateProjectInput = {};
   if (patch.name !== undefined) next.name = validateProjectName(patch.name);
+  if (patch.description !== undefined) {
+    next.description = validateProjectDescription(patch.description);
+  }
   return getContainer().projects.update(id, next);
 }
 

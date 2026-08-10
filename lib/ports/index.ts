@@ -40,7 +40,7 @@ export interface WorkspaceRepository {
 export interface ProjectRepository {
   list(workspaceId: WorkspaceId): Promise<Project[]>;
   get(id: ProjectId): Promise<Project | null>;
-  create(input: CreateProjectInput, createdBy: UserId): Promise<Project>;
+  create(input: CreateProjectInput, ownerId: UserId): Promise<Project>;
   update(id: ProjectId, patch: UpdateProjectInput): Promise<Project>;
   delete(id: ProjectId): Promise<void>;
 }
