@@ -1,6 +1,15 @@
 # Orbital
 
-Landing page for Orbital, a multimodal AI website engineer.
+Landing page and product foundation for Orbital, a multimodal AI website
+engineer.
+
+```bash
+npm install
+npm run dev     # http://localhost:3000
+```
+
+Runs end to end with **no configuration** — see [DEMO.md](DEMO.md). Supabase
+takes over automatically once credentials are present.
 
 ## Repository layout
 
@@ -126,6 +135,7 @@ Engineer.dc.html` is an earlier draft, retained for history only.
 | 5 | Responsive design (new design work, not a port) | **done** |
 | 6 | Product foundation: layering, routes, ports | **done** — see ARCHITECTURE.md |
 | 7 | Supabase: auth, database, storage, real /projects | **done** — needs credentials to run |
+| 7b | Local demo backend so the app runs with no configuration | **done** |
 | 8 | Generation engine | not started |
 | 9 | Deployment | not started |
 

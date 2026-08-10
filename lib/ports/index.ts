@@ -24,10 +24,21 @@ import type {
   WorkspaceMember,
 } from "../domain";
 
+/** Discriminated so callers handle failure explicitly instead of catching. */
+export type AuthResult =
+  | { ok: true; needsConfirmation?: boolean }
+  | { ok: false; message: string };
+
 export interface AuthPort {
   /** The current session, or null when signed out. Never throws for the
    *  signed-out case — that is a normal state, not an error. */
   getSession(): Promise<Session | null>;
+  signIn(email: string, password: string): Promise<AuthResult>;
+  signUp(input: {
+    email: string;
+    password: string;
+    displayName?: string;
+  }): Promise<AuthResult>;
   signOut(): Promise<void>;
 }
 

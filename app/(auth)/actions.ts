@@ -2,11 +2,10 @@
 
 import { redirect } from "next/navigation";
 import { isNotConfigured } from "@/lib/errors";
-import { getSupabaseServerClient } from "@/lib/server/supabase/client";
 import { getContainer } from "@/lib/server/container";
 
 /** Result of an auth attempt. Only serialisable data crosses back to the
- *  client, and never the underlying provider error verbatim. */
+ *  client, and never a provider error verbatim. */
 export type AuthFormState = { error: string | null };
 
 const PASSWORD_MIN = 8;
@@ -28,18 +27,14 @@ export async function signInAction(
   if (typeof parsed === "string") return { error: parsed };
 
   try {
-    const supabase = await getSupabaseServerClient();
-    const { error } = await supabase.auth.signInWithPassword(parsed);
-    if (error) {
-      // Deliberately not distinguishing "no such account" from "wrong
-      // password" — that difference is an account-enumeration oracle.
-      return { error: "Those credentials did not work." };
-    }
+    const result = await getContainer().auth.signIn(parsed.email, parsed.password);
+    if (!result.ok) return { error: result.message };
   } catch (error) {
     if (isNotConfigured(error)) return { error: error.message };
     throw error;
   }
 
+  // redirect() throws to unwind, so it must sit outside the try.
   redirect("/projects");
 }
 
@@ -56,15 +51,13 @@ export async function signUpAction(
 
   let needsConfirmation = false;
   try {
-    const supabase = await getSupabaseServerClient();
-    const { data, error } = await supabase.auth.signUp({
+    const result = await getContainer().auth.signUp({
       email: parsed.email,
       password: parsed.password,
-      options: displayName ? { data: { display_name: displayName } } : undefined,
+      displayName: displayName || undefined,
     });
-    if (error) return { error: error.message };
-    // With email confirmation on, sign-up returns a user but no session.
-    needsConfirmation = !data.session;
+    if (!result.ok) return { error: result.message };
+    needsConfirmation = result.needsConfirmation === true;
   } catch (error) {
     if (isNotConfigured(error)) return { error: error.message };
     throw error;

@@ -44,7 +44,10 @@ export function serverEnv(): ServerEnv {
  * Safe to surface to operators (it reports booleans, never values) and used by
  * /api/health and the product pages to explain precisely what is missing.
  */
+export type BackendMode = "supabase" | "demo";
+
 export interface CapabilityReport {
+  mode: BackendMode;
   auth: boolean;
   database: boolean;
   storage: boolean;
@@ -52,23 +55,44 @@ export interface CapabilityReport {
   publishing: boolean;
 }
 
+/** Supabase when credentials exist, otherwise the local demo backend.
+ *
+ * Demo mode is the default rather than an opt-in flag so the project runs
+ * end to end on a fresh clone with no configuration at all. Adding
+ * SUPABASE_URL and SUPABASE_ANON_KEY switches every capability over; nothing
+ * else changes. */
+export function backendMode(): BackendMode {
+  const e = serverEnv();
+  return e.supabaseUrl && e.supabaseAnonKey ? "supabase" : "demo";
+}
+
 export function capabilities(): CapabilityReport {
   const e = serverEnv();
-  const supabase = Boolean(e.supabaseUrl && e.supabaseAnonKey);
+  const mode = backendMode();
+
+  if (mode === "demo") {
+    // The local backend implements every port against a file-backed store, so
+    // all of these are genuinely live — nothing here is aspirational.
+    // `generation` is a deterministic stub, clearly labelled wherever its
+    // output is shown; it is not AI.
+    return { mode, auth: true, database: true, storage: true, generation: true, publishing: true };
+  }
+
   return {
-    auth: supabase,
+    mode,
+    auth: true,
     // Projects and workspaces are Supabase tables reached through the same
     // credentials, so the database is live exactly when auth is.
-    database: supabase,
+    database: true,
     // Signed upload URLs need the service-role key; the anon key cannot mint
     // them.
-    storage: supabase && Boolean(e.supabaseServiceRoleKey) && Boolean(e.storageBucket),
+    storage: Boolean(e.supabaseServiceRoleKey) && Boolean(e.storageBucket),
     generation: Boolean(e.generationApiKey),
     publishing: false,
   };
 }
 
-export const CAPABILITY_REQUIREMENTS: Readonly<Record<keyof CapabilityReport, readonly string[]>> = {
+export const CAPABILITY_REQUIREMENTS: Readonly<Record<Exclude<keyof CapabilityReport, "mode">, readonly string[]>> = {
   auth: ["SUPABASE_URL", "SUPABASE_ANON_KEY"],
   database: ["SUPABASE_URL", "SUPABASE_ANON_KEY"],
   storage: [

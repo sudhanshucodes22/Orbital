@@ -20,6 +20,8 @@ lib/ports/      Interfaces a backend must satisfy. No runtime imports at all.
 lib/domain/     Data models. Pure types and small pure helpers. Zero I/O.
 lib/server/     Adapters that implement ports. SERVER ONLY.
   supabase/       Supabase-backed adapters: auth, repositories, storage.
+  demo/           Local file-backed backend. The default when Supabase is
+                  absent, so a fresh clone runs end to end.
   unconfigured.ts Fallbacks that throw NotConfiguredError.
 lib/config/     Typed environment access.
 ```
@@ -34,6 +36,28 @@ client component.
 membership, which role may delete — and calls `ProjectRepository`. Swapping
 Supabase for Postgres, or Postgres for anything else, is a new file in
 `lib/server` plus one line in `container.ts`. Services and pages do not change.
+
+## Two backends, one set of ports
+
+`lib/server/container.ts` picks a backend from configuration:
+
+| Condition | Backend |
+|-----------|---------|
+| `SUPABASE_URL` and `SUPABASE_ANON_KEY` present | Supabase |
+| otherwise | local demo, file-backed under `.orbital-demo/` |
+
+Demo mode is the default rather than an opt-in flag, because a project that
+only works after someone pastes credentials is a project that does not run.
+Both implement the same ports, so no service, page or component knows which is
+active — the only difference visible above the adapter layer is what
+`GET /api/health` reports.
+
+The demo backend is real code, not stubs: scrypt-hashed passwords, signed
+http-only session cookies, ownership filtering on every read, atomic
+write-then-rename persistence, and a promise mutex so concurrent requests
+cannot clobber each other. The one exception is the generation engine, which
+is a deterministic sample generator and is labelled as such on every surface
+that shows its output.
 
 ## Authentication
 

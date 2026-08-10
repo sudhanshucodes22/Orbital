@@ -46,3 +46,6 @@ yarn-error.log*
 
 # symlinked to tools/baseline/node_modules
 tools/verify/node_modules
+
+# local demo backend state (gitignored: contains a session key and user data)
+.orbital-demo/

@@ -43,6 +43,27 @@ export const supabaseAuth: AuthPort = {
     };
   },
 
+  async signIn(email, password) {
+    const supabase = await getSupabaseServerClient();
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    // Deliberately not distinguishing "no such account" from "wrong password":
+    // that difference is an account-enumeration oracle.
+    if (error) return { ok: false, message: "Those credentials did not work." };
+    return { ok: true };
+  },
+
+  async signUp({ email, password, displayName }) {
+    const supabase = await getSupabaseServerClient();
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: displayName ? { data: { display_name: displayName } } : undefined,
+    });
+    if (error) return { ok: false, message: error.message };
+    // With email confirmation on, sign-up returns a user but no session.
+    return { ok: true, needsConfirmation: !data.session };
+  },
+
   async signOut(): Promise<void> {
     const supabase = await getSupabaseServerClient();
     await supabase.auth.signOut();

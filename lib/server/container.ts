@@ -1,42 +1,65 @@
 /** Resolves the ports the application depends on.
  *
- * SERVER ONLY. Importing this from a client component pulls server
- * configuration into the browser bundle. There is no `server-only` package
- * installed to enforce that mechanically — it was not worth a dependency — so
- * the rule is: nothing under lib/server may be imported by a file carrying
+ * SERVER ONLY. Nothing under lib/server may be imported by a file carrying
  * "use client", directly or transitively.
  *
- * Each capability is selected independently from its own configuration, so a
- * project with auth and a database but no storage gets real adapters for the
- * first two and honest "not configured" errors for the third, rather than
- * all-or-nothing.
+ * Two backends implement the same ports:
+ *
+ *   supabase  when SUPABASE_URL and SUPABASE_ANON_KEY are present
+ *   demo      otherwise — a file-backed local backend, so a fresh clone runs
+ *             end to end with no configuration
+ *
+ * Demo mode is the default rather than an opt-in flag, because a project that
+ * only works after someone pastes credentials is a project that does not run.
+ * Adding the Supabase variables switches every capability over; no other code
+ * changes.
  */
-import { capabilities } from "../config/env";
+import { backendMode, capabilities } from "../config/env";
 import type { ServiceContainer } from "../ports";
+import {
+  demoAuth,
+  demoGeneration,
+  demoProjects,
+  demoPublisher,
+  demoRevisions,
+  demoStorage,
+} from "./demo";
 import { supabaseAuth } from "./supabase/auth";
 import { supabaseProjects, supabaseWorkspaces } from "./supabase/repositories";
 import { supabaseStorage } from "./supabase/storage";
+import { demoWorkspaces } from "./demo/repositories";
 import {
-  unconfiguredAuth,
   unconfiguredGeneration,
-  unconfiguredProjects,
   unconfiguredPublisher,
   unconfiguredRevisions,
   unconfiguredStorage,
-  unconfiguredWorkspaces,
 } from "./unconfigured";
 
 let cached: ServiceContainer | null = null;
 
 export function getContainer(): ServiceContainer {
   if (cached) return cached;
-  const caps = capabilities();
 
+  if (backendMode() === "demo") {
+    cached = {
+      auth: demoAuth,
+      workspaces: demoWorkspaces,
+      projects: demoProjects,
+      revisions: demoRevisions,
+      storage: demoStorage,
+      generation: demoGeneration,
+      publisher: demoPublisher,
+    };
+    return cached;
+  }
+
+  const caps = capabilities();
   cached = {
-    auth: caps.auth ? supabaseAuth : unconfiguredAuth,
-    workspaces: caps.database ? supabaseWorkspaces : unconfiguredWorkspaces,
-    projects: caps.database ? supabaseProjects : unconfiguredProjects,
-    // Revisions arrive with the generation engine; the table does not exist yet.
+    auth: supabaseAuth,
+    workspaces: supabaseWorkspaces,
+    projects: supabaseProjects,
+    // Revisions and generation arrive with a real engine; the Supabase path
+    // has no table or provider for them yet.
     revisions: unconfiguredRevisions,
     storage: caps.storage ? supabaseStorage : unconfiguredStorage,
     generation: unconfiguredGeneration,

@@ -3,25 +3,44 @@ import { NextResponse, type NextRequest } from "next/server";
 
 /** Session refresh and route protection.
  *
- * Two jobs. Supabase access tokens are short-lived, and only middleware can
- * write the refreshed cookie back on every request — a Server Component
- * cannot set cookies. And the signed-in area is gated here rather than in a
- * layout, so an unauthenticated request never reaches page code at all.
+ * Reads process.env directly rather than going through lib/config/env.ts
+ * because middleware runs on the Edge runtime, where that module's Node
+ * assumptions do not hold. It is the one deliberate exception to the
+ * single-entry rule.
  *
- * Reads configuration directly rather than through lib/config/env.ts because
- * middleware runs on the Edge runtime, where that module's Node assumptions
- * do not hold. It is the one deliberate exception to the single-entry rule.
+ * This is a fast redirect, not the security boundary. Pages call getSession()
+ * themselves and redirect when it returns null, so a forged cookie that slips
+ * past the presence check here still reaches nothing.
  */
 const PROTECTED = ["/projects"];
+const DEMO_COOKIE = "orbital_demo_session";
+
+function isProtected(pathname: string) {
+  return PROTECTED.some((p) => pathname.startsWith(p));
+}
+
+function toSignIn(request: NextRequest) {
+  const signIn = new URL("/sign-in", request.url);
+  signIn.searchParams.set("next", request.nextUrl.pathname);
+  return NextResponse.redirect(signIn);
+}
 
 export async function middleware(request: NextRequest) {
   const url = process.env.SUPABASE_URL;
   const anonKey = process.env.SUPABASE_ANON_KEY;
 
-  // Unconfigured: let everything through so the landing page works and the
-  // product routes can render their "not configured" notice.
-  if (!url || !anonKey) return NextResponse.next();
+  // ---- demo mode -----------------------------------------------------------
+  // No Supabase to refresh against. Presence of the signed cookie is enough to
+  // decide whether to redirect; the signature is verified server-side by
+  // getSession(), which is what actually gates the data.
+  if (!url || !anonKey) {
+    if (isProtected(request.nextUrl.pathname) && !request.cookies.get(DEMO_COOKIE)) {
+      return toSignIn(request);
+    }
+    return NextResponse.next();
+  }
 
+  // ---- supabase ------------------------------------------------------------
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(url, anonKey, {
@@ -38,21 +57,16 @@ export async function middleware(request: NextRequest) {
   });
 
   // Revalidates the token against the auth server and refreshes it if needed.
+  // Only middleware can write the refreshed cookie back; a Server Component
+  // cannot set cookies.
   const { data } = await supabase.auth.getUser();
 
-  const isProtected = PROTECTED.some((p) => request.nextUrl.pathname.startsWith(p));
-  if (isProtected && !data.user) {
-    const signIn = new URL("/sign-in", request.url);
-    // So the user lands where they were headed once signed in.
-    signIn.searchParams.set("next", request.nextUrl.pathname);
-    return NextResponse.redirect(signIn);
-  }
-
+  if (isProtected(request.nextUrl.pathname) && !data.user) return toSignIn(request);
   return response;
 }
 
 export const config = {
-  // Everything except static assets and image files. The landing page is
-  // included so its session cookie stays fresh, but it is never gated.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico)$).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico)$).*)",
+  ],
 };

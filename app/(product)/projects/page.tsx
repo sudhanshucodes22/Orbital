@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { AppShell } from "@/components/ui/AppShell";
 import { CreateProjectForm } from "@/components/ui/CreateProjectForm";
 import { DeleteProjectButton } from "@/components/ui/DeleteProjectButton";
@@ -36,20 +37,10 @@ export default async function ProjectsPage() {
     );
   }
 
-  // Middleware redirects unauthenticated requests before they reach here, so
-  // this is a guard against a misconfigured matcher rather than a normal path.
+  // Verified here rather than trusted from middleware: middleware only checks
+  // that a session cookie is present, this checks that it is valid.
   const session = await getSession();
-  if (!session) {
-    return (
-      <AppShell title="Projects">
-        <Panel>
-          <p style={{ margin: 0, color: tokens.textMuted }}>
-            <Link href="/sign-in" style={{ color: tokens.accent }}>Sign in</Link> to see your projects.
-          </p>
-        </Panel>
-      </AppShell>
-    );
-  }
+  if (!session) redirect("/sign-in?next=%2Fprojects");
 
   // Errors deliberately propagate to error.tsx rather than being flattened
   // into an empty list — "you have no projects" and "the query failed" must

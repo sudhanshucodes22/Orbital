@@ -31,6 +31,12 @@ export const unconfiguredAuth: AuthPort = {
   async getSession() {
     return null;
   },
+  async signIn() {
+    return { ok: false as const, message: "Authentication is not configured." };
+  },
+  async signUp() {
+    return { ok: false as const, message: "Authentication is not configured." };
+  },
   async signOut() {
     return;
   },

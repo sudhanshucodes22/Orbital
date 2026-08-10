@@ -94,8 +94,8 @@ try {
     check("A: new account starts with no projects", /Nothing in orbit yet/.test(empty ?? ""));
 
     await a.page.fill('input[name="name"]', "Alpha private project");
-    await a.page.click('button[type="submit"]');
-    await a.page.waitForTimeout(2000);
+    await a.page.getByRole("button", { name: "Create project" }).click();
+    await a.page.waitForTimeout(2500);
 
     const link = a.page.locator('a[href^="/projects/"]').first();
     projectHref = await link.getAttribute("href");
@@ -111,6 +111,44 @@ try {
         "A: can open own project",
         /Alpha private project/.test((await a.page.textContent("body")) ?? "")
       );
+
+      // ---- generation workflow -------------------------------------------
+      await a.page.fill("textarea", "A landing page for a small architecture studio.");
+      await a.page.getByRole("button", { name: /Generate site/ }).click();
+
+      // The engine derives its stage from elapsed time; polling advances it.
+      await a.page
+        .waitForSelector('iframe[title="Generated site preview"]', { timeout: 25000 })
+        .catch(() => {});
+      const afterBuild = (await a.page.textContent("body")) ?? "";
+      check("A: generation produces a preview", /Live preview/.test(afterBuild));
+      check("A: revision recorded in history", /Initial build from/.test(afterBuild));
+      check("A: project status becomes READY", /READY/.test(afterBuild));
+
+      // The preview iframe serves real generated HTML.
+      const frameSrc = await a.page
+        .locator('iframe[title="Generated site preview"]')
+        .getAttribute("src")
+        .catch(() => null);
+      if (frameSrc) {
+        const res = await a.page.request.get(URL_ + frameSrc);
+        const html = await res.text();
+        check("A: preview route returns HTML", res.status() === 200 && /<!doctype html>/i.test(html));
+        check("A: preview is the project's own content", html.includes("Alpha private project"));
+      }
+
+      // A second pass should append a revision rather than replace one.
+      await a.page.fill("textarea", "Make the hero darker.");
+      await a.page.getByRole("button", { name: /Apply change/ }).click();
+      // The engine takes ~3.8s, then the panel refreshes the Server Component
+      // before history re-renders. Wait for the text rather than a fixed delay.
+      const revised = await a.page
+        .waitForFunction(() => document.body.innerText.includes("Revision from"), null, {
+          timeout: 25000,
+        })
+        .then(() => true)
+        .catch(() => false);
+      check("A: revising adds a second revision", revised);
     }
   }
 
