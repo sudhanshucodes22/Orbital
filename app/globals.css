@@ -1,9 +1,10 @@
 /* GENERATED in part by tools/port/port.mjs — see below.
  *
  * Everything down to the marker is the <style> block from the <helmet>
- * element of reference/artifact-export/Orbital Launch.dc.html, verbatim,
- * except that quoted font-family names are rewritten to the next/font CSS
- * variables declared in app/layout.tsx. Same fonts, self-hosted.
+ * element of reference/artifact-export/Orbital Launch.dc.html, verbatim.
+ * Font families are deliberately not rewritten; next/font registers each
+ * family under its real name, so these declarations already resolve to the
+ * self-hosted files.
  */
 
 :root{--hp:0;--sy:0}
