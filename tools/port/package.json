@@ -1,0 +1,13 @@
+{
+  "name": "orbital-port-codemod",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "One-time mechanical transform of the dc-runtime template into JSX.",
+  "scripts": {
+    "port": "node port.mjs"
+  },
+  "dependencies": {
+    "parse5": "^8.0.1"
+  }
+}

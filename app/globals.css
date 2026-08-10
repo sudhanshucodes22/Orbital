@@ -1,18 +1,46 @@
-/* Intentionally almost empty.
+/* GENERATED in part by tools/port/port.mjs — see below.
  *
- * The create-next-app default globals.css was NOT kept. It ships a reset
- * (`* { padding: 0; margin: 0 }`), `body { display: flex; flex-direction:
- * column; font-family: Arial }` and light/dark `--background` tokens. The
- * Orbital design does none of that: its own reset is only
- * `* { box-sizing: border-box }` plus `body { margin: 0 }`, and it relies on
- * user-agent defaults for element padding and margins. Inheriting Next's
- * reset would silently change spacing throughout the ported page.
- *
- * Phase 2 replaces this file with the <style> block from the <helmet> element
- * of reference/artifact-export/Orbital Launch.dc.html, verbatim.
+ * Everything down to the marker is the <style> block from the <helmet>
+ * element of reference/artifact-export/Orbital Launch.dc.html, verbatim,
+ * except that quoted font-family names are rewritten to the next/font CSS
+ * variables declared in app/layout.tsx. Same fonts, self-hosted.
  */
 
-/* Placeholder only — carries no styling the ported design does not ask for. */
-:root {
-  color-scheme: dark;
-}
+:root{--hp:0;--sy:0}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#03040 8;background:#030408;color:#e9ebf2;font-family:var(--font-ibm-plex-sans),system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.035;background-image:radial-gradient(rgba(255,255,255,.9) .5px,transparent .5px);background-size:3px 3px;mix-blend-mode:overlay}
+a{color:#e9ebf2;text-decoration:none}
+a:hover{color:#8fe3ff}
+summary::-webkit-details-marker{display:none}
+::selection{background:rgba(120,225,255,.28)}
+@keyframes pulseRing{0%{transform:scale(1);opacity:.55}70%{transform:scale(2);opacity:0}100%{transform:scale(2);opacity:0}}
+@keyframes bar{0%,100%{transform:scaleY(.22)}50%{transform:scaleY(1)}}
+@keyframes caret{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes spinSlow{to{transform:rotate(360deg)}}
+@keyframes ticker{0%{opacity:0;transform:translateY(6px)}12%{opacity:1;transform:none}88%{opacity:1}100%{opacity:0}}
+@keyframes scanY{0%{transform:translateY(-8%)}100%{transform:translateY(108%)}}
+@keyframes orbitDot{0%{offset-distance:0%}100%{offset-distance:100%}}
+@keyframes flowDash{to{background-position:220px 0}}
+
+/* ---- generated :hover classes ------------------------------------------
+ * The design expresses hover via dc-runtime's `style-hover` attribute, which
+ * the runtime compiled into a class whose :hover rule had !important appended
+ * to every declaration. The !important is load-bearing: these elements carry
+ * their base styles inline, and an inline style beats a class selector.
+ */
+.orb-h0:hover { background:rgba(255,255,255,.07) !important; color:#fff !important; }
+.orb-h1:hover { filter:brightness(1.08) !important; }
+.orb-h2:hover { transform:translateY(-2px) !important; filter:brightness(1.06) !important; }
+.orb-h3:hover { background:rgba(255,255,255,.08) !important; }
+.orb-h4:hover { border-color:rgba(150,225,255,.34) !important; transform:translateY(-4px) !important; }
+.orb-h5:hover { background:rgba(255,255,255,.02) !important; }
+.orb-h6:hover { border-color:rgba(150,225,255,.45) !important; color:#fff !important; }
+.orb-h7:hover { border-color:rgba(150,225,255,.5) !important; }
+.orb-h8:hover { border-color:rgba(150,225,255,.3) !important; transform:translateY(-3px) !important; }
+.orb-h9:hover { background:rgba(255,255,255,.055) !important; }
+.orb-h10:hover { border-color:rgba(150,225,255,.4) !important; background:rgba(150,225,255,.08) !important; }
+.orb-h11:hover { color:#fff !important; }
+.orb-h12:hover { transform:translateY(-2px) !important; }
