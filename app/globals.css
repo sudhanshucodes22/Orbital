@@ -45,3 +45,25 @@ summary::-webkit-details-marker{display:none}
 .orb-h10:hover { border-color:rgba(150,225,255,.4) !important; background:rgba(150,225,255,.08) !important; }
 .orb-h11:hover { color:#fff !important; }
 .orb-h12:hover { transform:translateY(-2px) !important; }
+
+/* ---- accessibility additions -------------------------------------------
+ * Not part of the export. Neither rule changes the page at rest.
+ */
+
+/* The design defines no focus styling at all, so keyboard users get whatever
+ * the user agent decides on top of a dark background. :focus-visible only
+ * paints for keyboard focus, so pointer users see no change. */
+:focus-visible {
+  outline: 2px solid #7ce6ff;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto !important; }
+}

@@ -282,6 +282,23 @@ function emitChildren(node, depth, scope) {
 }
 
 // ---- main ----------------------------------------------------------------
+
+// ---- retirement guard ----------------------------------------------------
+// The generated components are hand-maintained from Phase 4 onward: they now
+// carry accessibility attributes, a reduced-motion path and a defect fix that
+// this codemod knows nothing about. Re-running it silently discarded all of
+// them once during development, which is why this exists.
+if (!process.argv.includes('--force')) {
+  console.error(
+    'tools/port/port.mjs is retired.\n' +
+    'components/orbital/** and app/globals.css are hand-maintained now;\n' +
+    'regenerating would discard the a11y, reduced-motion and defect fixes\n' +
+    'applied after the port. Pass --force only if you mean it, and re-run\n' +
+    'the parity check afterwards.'
+  );
+  process.exit(1);
+}
+
 const raw = await readFile(SRC, 'utf8');
 
 const dc = raw.match(/<x-dc>([\s\S]*)<\/x-dc>/);
@@ -433,6 +450,28 @@ ${designCss}
  * their base styles inline, and an inline style beats a class selector.
  */
 ${hoverCss}
+
+/* ---- accessibility additions -------------------------------------------
+ * Not part of the export. Neither rule changes the page at rest.
+ */
+
+/* The design defines no focus styling at all, so keyboard users get whatever
+ * the user agent decides on top of a dark background. :focus-visible only
+ * paints for keyboard focus, so pointer users see no change. */
+:focus-visible {
+  outline: 2px solid #7ce6ff;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto !important; }
+}
 `;
 
 await writeFile(path.join(REPO, 'app/globals.css'), css);

@@ -39,6 +39,11 @@ const CHECK = process.argv.includes('--check');
 const TARGET = process.argv.find((a) => a.startsWith('--target='))?.slice(9) ?? 'export';
 if (!['export', 'next'].includes(TARGET)) throw new Error(`unknown --target: ${TARGET}`);
 const NEXT_URL = process.env.NEXT_URL ?? 'http://localhost:3000';
+
+// Re-baselining from the app is how a regression gets blessed by accident, so
+// it needs saying out loud: --accept. Use it only after reviewing the diff and
+// concluding the change was intended.
+const ACCEPT = process.argv.includes('--accept');
 const WIDTHS = [1440, 1024, 768, 375];
 const VIEWPORT_H = 900;
 const SETTLE_MS = 900;
@@ -89,7 +94,7 @@ function expectCount(group, actual, expected) {
 
 /** In --check mode captures go to a scratch tree so the baselines are never
  *  overwritten by the very run that is supposed to validate them. */
-const WRITE_DIR = CHECK ? path.join(REPO, 'reference/.baseline-check') : OUT_DIR;
+const WRITE_DIR = CHECK && !ACCEPT ? path.join(REPO, 'reference/.baseline-check') : OUT_DIR;
 
 async function shoot(target, name, opts = {}) {
   const file = path.join(WRITE_DIR, `${name}.png`);
@@ -178,12 +183,16 @@ async function main() {
   const chromeVersion = browser.version();
   console.log(`chrome ${chromeVersion} · target=${TARGET} · ${TARGET === 'next' ? NEXT_URL : `:${port}`}\n`);
 
-  if (TARGET === 'next' && !CHECK) {
-    throw new Error('--target=next is only valid with --check; baselines come from the export');
+  if (TARGET === 'next' && !CHECK && !ACCEPT) {
+    throw new Error(
+      '--target=next needs either --check (verify) or --accept (re-baseline).'
+    );
   }
   const outExisting = existsSync(OUT_DIR) ? await readdir(OUT_DIR) : [];
-  if (!CHECK && outExisting.length) await rm(OUT_DIR, { recursive: true, force: true });
-  if (CHECK) await rm(WRITE_DIR, { recursive: true, force: true });
+  if ((!CHECK || ACCEPT) && outExisting.length) {
+    await rm(OUT_DIR, { recursive: true, force: true });
+  }
+  if (CHECK && !ACCEPT) await rm(WRITE_DIR, { recursive: true, force: true });
 
   // ---- layout: full page, every width, hero morph pinned to its end state ----
   console.log('layout/');
@@ -315,8 +324,10 @@ async function main() {
   // ---- manifest ----
   const manifestPath = path.join(OUT_DIR, 'manifest.json');
   const manifest = {
-    capturedFrom: `reference/artifact-export/${PAGE}`,
-    gitTag: 'artifact-export',
+    capturedFrom: TARGET === 'next'
+      ? 'the Next.js application (approved design)'
+      : `reference/artifact-export/${PAGE}`,
+    target: TARGET,
     chrome: chromeVersion,
     playwright: JSON.parse(await readFile(path.join(HERE, 'node_modules/playwright/package.json'), 'utf8')).version,
     deviceScaleFactor: 1,
@@ -327,7 +338,7 @@ async function main() {
     shots: Object.fromEntries(shots.map((s) => [s.name, s.hash])),
   };
 
-  if (CHECK) {
+  if (CHECK && !ACCEPT) {
     const diffDir = path.join(REPO, 'reference/.baseline-check/_diff');
     const failures = [];
     let worst = { name: null, ratio: 0 };

@@ -87,11 +87,38 @@ const fontVariables = [
   caveat.variable,
 ].join(" ");
 
-// Minimal and honest. Open Graph, Twitter cards, canonical and a real favicon
-// are Phase 4 — the export has none of them.
+/* metadataBase drives absolute URLs for Open Graph and canonical. Set
+ * NEXT_PUBLIC_SITE_URL in the deployment environment; the localhost fallback
+ * keeps local builds working and is harmless because crawlers never see it.
+ */
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "Orbital",
-  description: "A multimodal AI website engineer.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Orbital — multimodal AI website engineer",
+    template: "%s · Orbital",
+  },
+  description:
+    "Draw it, show it, or say it. Orbital reads intent from a sketch, a photo, "
+    + "your voice or a PDF and hands back a production website you can keep "
+    + "talking to.",
+  applicationName: "Orbital",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: "Orbital",
+    url: "/",
+    title: "Orbital — multimodal AI website engineer",
+    description:
+      "Stop describing it. Show the machine what you mean.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Orbital — multimodal AI website engineer",
+    description: "Stop describing it. Show the machine what you mean.",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -54,10 +54,11 @@ outputs were **not** taken:
   light/dark tokens. The Orbital design resets only `box-sizing` and
   `body { margin: 0 }`, and otherwise relies on user-agent defaults. Keeping
   Next's reset would have silently changed spacing across the ported page.
-  The file is now a near-empty placeholder; Phase 2 replaces it with the
-  design's own `<style>` block verbatim.
+  It now holds the design's own `<style>` block verbatim, plus the
+  `:focus-visible` and `prefers-reduced-motion` rules added in Phase 4.
 - **`app/favicon.ico`** and **`public/*.svg`** — Vercel branding and demo
-  assets. A real favicon is Phase 4.
+  assets. Replaced in Phase 4 by `app/icon.svg` (the Orbital mark) and
+  `app/opengraph-image.png` (rendered from the real page).
 - **Tailwind** was declined. The design is 100% inline styles; Tailwind's
   preflight is a CSS reset and would change rendering.
 - **`README.md`** — this file already existed.
@@ -108,11 +109,17 @@ Engineer.dc.html` is an earlier draft, retained for history only.
 | 1 | Scaffold Next.js (App Router, TypeScript, server runtime) | **done** |
 | 2 | Mechanical port of the template to JSX via codemod | **done** |
 | 3 | Verify parity against baselines | **done** — 28/28 pixel-identical |
-| 4 | Production hardening (metadata, a11y, images, CTA) | not started |
+| 4 | Production hardening (components, metadata, a11y, images) | **done** |
 | 5 | Responsive design (new design work, not a port) | not started |
+| 6 | Product foundation, backend, deployment | not started |
 
-The governing constraint: **the visual design is final.** No phase before 5
-may change how the page looks. Baselines exist to prove that.
+The governing constraint: **the visual design is final.** Baselines exist to
+prove that. Since Phase 4 they are captured from the application rather than
+the export, so they now represent *the approved design*; re-baselining needs
+`--accept` and a reviewed diff.
+
+One intentional visual change has been accepted so far: the stray screenshot
+(defect 1) was removed with sign-off.
 
 ## Parity notes
 
@@ -137,25 +144,31 @@ before touching fonts or the hero:
 
 Recorded at freeze time; none are fixed in `reference/artifact-export/`.
 
-1. **Stray screenshot rendered six times.** `Orbital Launch.dc.html:217`
-   places a 2940x1912, 3.0 MB PNG inside `<sc-for list="{{ steps }}">`, so it
-   renders once per step at 540x351, forcing the step rows apart. The image is
-   a screenshot of the artifact editor displaying this same page. Unintended.
+1. ~~**Stray screenshot rendered six times.**~~ **Fixed in the app** (Phase 4,
+   with sign-off). `Orbital Launch.dc.html:217` places a 2940x1912, 3.0 MB PNG
+   inside `<sc-for list="{{ steps }}">`, so it rendered once per step at
+   540x351, forcing the step rows apart by 2108px in total. It was a screenshot
+   of the artifact editor displaying this same page.
 2. **No `@media` queries in either file.** Type is fluid via `clamp()`;
    layout is fixed multi-column grids. There is no mobile design yet.
-3. **No document metadata.** No `<title>`, `<html lang>`, description,
-   Open Graph, canonical, or favicon.
-4. **Accessibility.** One `alt` attribute project-wide; zero `aria-*` or
-   `role`. FAQ and step rows are `<div onClick>`, so they are not keyboard
-   reachable. No `prefers-reduced-motion` guard despite three continuous
-   `requestAnimationFrame` loops.
+3. ~~**No document metadata.**~~ **Fixed in the app** (Phase 4): title,
+   description, Open Graph, Twitter card, canonical, `lang`, an SVG favicon
+   and an `opengraph-image.png` rendered from the real page.
+4. **Accessibility.** Largely **fixed in the app** (Phase 4): the 11 FAQ and
+   step rows are keyboard operable with `role="button"`, `tabIndex`, Enter/Space
+   and `aria-pressed`; the FAQ answer panel is `aria-live`; the background
+   canvases and scrims are `aria-hidden`; `:focus-visible` gives a visible
+   keyboard focus ring; `prefers-reduced-motion` is respected in both CSS and
+   the animation loops. A full audit (contrast, screen-reader pass) is still
+   outstanding.
 5. **Corrupted CSS.** Line 18: `background:#03040 8` (overridden by the
    following declaration, so currently harmless).
 6. **Fragile texture path.** `load.load('earth-equirect.jpg')` is relative
    without `./` and breaks when served from a nested route.
 7. **Unused keyframe.** `orbitDot` is declared and never referenced.
 8. **~21 MB of unreferenced assets.** `uploads/` and `.thumbnail` are export
-   leftovers. Kept in git as history; excluded from any deploy.
+   leftovers, confined to `reference/` and never deployed. `public/` carries
+   only `earth-equirect.jpg` (764 KB), the globe texture.
 
 ## Runtime dependencies of the export
 

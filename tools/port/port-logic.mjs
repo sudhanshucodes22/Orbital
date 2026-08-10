@@ -37,6 +37,23 @@ const SRC = path.join(REPO, 'reference/artifact-export/Orbital Launch.dc.html');
 // referencing the variables at all is the reliable fix.
 const FONT_VARS = [];
 
+
+// ---- retirement guard ----------------------------------------------------
+// The generated components are hand-maintained from Phase 4 onward: they now
+// carry accessibility attributes, a reduced-motion path and a defect fix that
+// this codemod knows nothing about. Re-running it silently discarded all of
+// them once during development, which is why this exists.
+if (!process.argv.includes('--force')) {
+  console.error(
+    'tools/port/port-logic.mjs is retired.\n' +
+    'components/orbital/OrbitalLanding.tsx is hand-maintained now;\n' +
+    'regenerating would discard the a11y, reduced-motion and defect fixes\n' +
+    'applied after the port. Pass --force only if you mean it, and re-run\n' +
+    'the parity check afterwards.'
+  );
+  process.exit(1);
+}
+
 const raw = await readFile(SRC, 'utf8');
 const script = raw.match(
   /<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/

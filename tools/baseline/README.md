@@ -13,12 +13,21 @@ node capture.mjs --check --target=next   # PARITY GATE: ported app vs them
 `check` never writes to `reference/baselines/`. It captures into
 `reference/.baseline-check/` (gitignored) and compares.
 
+`verify.mjs` covers what pixels cannot: reduced-motion behaviour, keyboard
+operation of the FAQ and step rows, and the document head. Run it against the
+same production server.
+
 `--target=next` captures from a running Next server (`NEXT_URL`, default
 `http://localhost:3000`) instead of the frozen export, and diffs it against the
 same baselines. Run it against a **production** build (`npm run build && npm
 run start`): the dev server paints a Next indicator badge that lands in every
-diff. It refuses to run without `--check`, so it can never overwrite the
-baselines with output from the thing being tested.
+diff. It refuses to run without `--check`, so it can never overwrite the baselines
+with output from the thing being tested.
+
+Once an intentional visual change has been reviewed, `--target=next --accept`
+re-baselines from the app. Since Phase 4 the baselines therefore represent the
+**approved design**, not the export's rendering; `manifest.json` records which
+target produced them.
 
 ## Why this is not just "take a screenshot"
 

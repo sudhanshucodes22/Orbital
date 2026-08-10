@@ -18,6 +18,7 @@
 
 import React from "react";
 import * as THREE from "three";
+import { prefersReducedMotion } from "./a11y";
 import { Template } from "./template";
 
 type State = {
@@ -54,20 +55,34 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
   private onCometResize: (() => void) | undefined;
   private _globeResize: (() => void) | undefined;
 
+  /* When the user has asked the OS to minimise animation, the three canvas
+   * loops each draw a single frame and stop, and the timer-driven text stops
+   * cycling. The scroll-linked hero morph is left alone: it only advances in
+   * response to deliberate scrolling and it carries the section's meaning
+   * rather than decorating it. Resolved once at mount, since matchMedia is
+   * unavailable during server rendering. */
+  private reduce = false;
+
   constructor(props: Record<string, never>) {
     super(props);
     this.state = { step: 0, voice: '', vs: 0, device: 1, faq: 0, evTick: 0, detect: 0 };
   }
 
   componentDidMount() {
+    this.reduce = prefersReducedMotion();
     this.initStars();
     this.initComet();
     this.initGlobe();
     this.initScroll();
     this.initReveal();
-    this.startVoice();
-    this.evTimer = setInterval(() => this.setState(s => ({ evTick: s.evTick + 1 })), 1700);
-    this.vsTimer = setInterval(() => this.setState(s => ({ vs: (s.vs + 1) % 4 })), 5200);
+    if (this.reduce) {
+      // Show a completed instruction instead of an empty, blinking caret.
+      this.setState({ voice: 'Make the hero section darker.' });
+    } else {
+      this.startVoice();
+      this.evTimer = setInterval(() => this.setState(s => ({ evTick: s.evTick + 1 })), 1700);
+      this.vsTimer = setInterval(() => this.setState(s => ({ vs: (s.vs + 1) % 4 })), 5200);
+    }
   }
 
   componentWillUnmount() {
@@ -178,7 +193,7 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
           ctx.stroke(); ctx.globalAlpha = 1;
         }
       }
-      this.starRaf = requestAnimationFrame(draw);
+      if (!this.reduce) this.starRaf = requestAnimationFrame(draw);
     };
     draw();
   }
@@ -234,7 +249,7 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
         ctx.beginPath(); ctx.arc(comet.x, comet.y, 16, 0, Math.PI * 2); ctx.fill();
         if (comet.x > w + 340 || comet.y < -340) comet = null;
       }
-      this.cometRaf = requestAnimationFrame(tick);
+      if (!this.reduce) this.cometRaf = requestAnimationFrame(tick);
     };
     tick();
   }
@@ -259,7 +274,11 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
 
     const R = 2.5;
     const load = new T.TextureLoader();
-    const tex = load.load('/earth-equirect.jpg');
+    const tex = load.load('/earth-equirect.jpg', () => {
+      // Under reduced motion the render loop stops after one frame, which can
+      // land before the texture resolves. Repaint once it has.
+      if (this.reduce) renderer.render(scene, cam);
+    });
     tex.wrapS = T.RepeatWrapping;
     tex.anisotropy = Math.min(16, renderer.capabilities.getMaxAnisotropy());
     tex.encoding = T.sRGBEncoding;
@@ -323,7 +342,7 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
       holder.rotation.z = t * 1.6;
       group.position.y = Math.sin(t * 1.1) * 0.06;
       renderer.render(scene, cam);
-      this.globeRaf = requestAnimationFrame(tick);
+      if (!this.reduce) this.globeRaf = requestAnimationFrame(tick);
     };
     tick();
   }
@@ -355,6 +374,7 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
     const steps = stepData.map((s, i) => ({
       n: s.n, t: s.t, d: s.d, ref: this.stepRefs[i],
       go: () => this.setState({ step: i }),
+      on: S.step === i,
       dim: S.step === i ? 1 : 0.42,
       numColor: S.step === i ? 'rgba(124,230,255,.9)' : 'rgba(233,235,242,.35)',
       titleColor: S.step === i ? '#f2f6ff' : 'rgba(233,235,242,.72)',
@@ -423,6 +443,7 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
     const faq = faqData.map((f, i) => ({
       q: f.q, n: '0' + (i + 1),
       go: () => this.setState({ faq: i }),
+      on: S.faq === i,
       color: S.faq === i ? '#ffffff' : 'rgba(233,235,242,.6)',
       numColor: S.faq === i ? 'rgba(124,230,255,.9)' : 'rgba(233,235,242,.3)'
     }));
