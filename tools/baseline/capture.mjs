@@ -44,7 +44,9 @@ const NEXT_URL = process.env.NEXT_URL ?? 'http://localhost:3000';
 // it needs saying out loud: --accept. Use it only after reviewing the diff and
 // concluding the change was intended.
 const ACCEPT = process.argv.includes('--accept');
-const WIDTHS = [1440, 1024, 768, 375];
+// 834 covers the 769-1023 tablet tier, where the workspace switches to two
+// columns. Without it that tier had no pixel guard.
+const WIDTHS = [1440, 1024, 834, 768, 375];
 const VIEWPORT_H = 900;
 const SETTLE_MS = 900;
 

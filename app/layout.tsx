@@ -8,6 +8,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import "./responsive.css";
+import { publicEnv } from "@/lib/config/env";
 
 /* The five families the design loads, with the exact weights and styles
  * requested by the Google Fonts <link> in the artifact export:
@@ -88,11 +89,10 @@ const fontVariables = [
   caveat.variable,
 ].join(" ");
 
-/* metadataBase drives absolute URLs for Open Graph and canonical. Set
- * NEXT_PUBLIC_SITE_URL in the deployment environment; the localhost fallback
- * keeps local builds working and is harmless because crawlers never see it.
- */
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+/* metadataBase drives absolute URLs for Open Graph and canonical. Read through
+ * publicEnv rather than process.env directly, so lib/config/env.ts stays the
+ * single audited place configuration enters the app. */
+const siteUrl = publicEnv.siteUrl;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

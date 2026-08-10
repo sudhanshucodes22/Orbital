@@ -8,11 +8,24 @@ Landing page for Orbital, a multimodal AI website engineer.
 reference/
   artifact-export/   Frozen, byte-identical copy of the original design export.
                      Read-only. Never edit — it is the source of visual truth.
-  baselines/         28 deterministic screenshots + 2 live references, used to
+  baselines/         29 deterministic screenshots + 2 live references, used to
                      prove the port does not change how the page looks.
 tools/
   baseline/          The capture harness. See tools/baseline/README.md.
+lib/
+  domain/            Data models. Pure types, zero I/O.
+  ports/             Interfaces a backend must satisfy.
+  services/          Business logic. Depends on ports, not vendors.
+  server/            Adapters. SERVER ONLY. Currently unimplemented.
+  config/            Typed environment access.
+components/
+  orbital/           The landing page. Guarded by the baselines.
+  ui/                Shared primitives for the product area.
 ```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the layering rules and
+[.env.example](.env.example) for configuration. Nothing needs configuring to
+run the landing page; `GET /api/health` reports which capabilities are live.
 
 Before and after any work that could touch rendering:
 
@@ -25,8 +38,8 @@ node capture.mjs --check --target=next            # 28 shots, expect zero drift
 This pixel-diffs the running app against `reference/baselines/` and exits
 non-zero on drift. It never overwrites the baselines.
 
-**Current status: 28/28 shots reproduce with zero differing pixels** — 4 full
-page layouts (1440/1024/768/375), 18 interactive states driven by real clicks,
+**Current status: 29/29 shots reproduce with zero differing pixels** — 5 full
+page layouts (1440/1024/834/768/375), 18 interactive states driven by real clicks,
 and 6 hero scroll positions.
 
 Tags: `artifact-export` (the untouched export) and `baselines-v1`.
@@ -111,7 +124,9 @@ Engineer.dc.html` is an earlier draft, retained for history only.
 | 3 | Verify parity against baselines | **done** — 28/28 pixel-identical |
 | 4 | Production hardening (components, metadata, a11y, images) | **done** |
 | 5 | Responsive design (new design work, not a port) | **done** |
-| 6 | Product foundation, backend, deployment | not started |
+| 6 | Product foundation: layering, routes, ports | **done** — see ARCHITECTURE.md |
+| 7 | Backend adapters (auth, database, storage, engine) | not started |
+| 8 | Deployment | not started |
 
 The governing constraint: **the visual design is final.** Baselines exist to
 prove that. Since Phase 4 they are captured from the application rather than

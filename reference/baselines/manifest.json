@@ -8,6 +8,7 @@
   "widths": [
     1440,
     1024,
+    834,
     768,
     375
   ],
@@ -16,6 +17,7 @@
   "shots": {
     "layout/full-1440": "6b407161b443f7ab",
     "layout/full-1024": "9c856a232f8490c7",
+    "layout/full-834": "89c39c3d48c809b4",
     "layout/full-768": "c5c05223d371fc26",
     "layout/full-375": "49fc973652b9c3b7",
     "states/device-mobile": "3f84c25387220a75",
@@ -43,5 +45,5 @@
     "hero/scroll-0320-hp0.8358": "b49a0faf5983e27f",
     "hero/scroll-0400-hp1.0000": "f8ed584105dda302"
   },
-  "capturedAt": "2026-08-10T05:05:35.799Z"
+  "capturedAt": "2026-08-10T05:10:07.612Z"
 }
