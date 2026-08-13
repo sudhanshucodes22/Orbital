@@ -18,6 +18,7 @@
 
 import React from "react";
 import * as THREE from "three";
+import { createStarfield } from "@/lib/space/starfield";
 import { prefersReducedMotion } from "./a11y";
 import { Template } from "./template";
 
@@ -42,7 +43,7 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
   };
   private stepRefs = [0, 1, 2, 3, 4, 5].map(() => React.createRef<HTMLDivElement>());
 
-  private starRaf = 0;
+  private disposeStars: (() => void) | undefined;
   private globeRaf = 0;
   private cometRaf = 0;
   private scrollRaf = 0;
@@ -51,7 +52,6 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
   private vsTimer: ReturnType<typeof setInterval> | undefined;
   private io: IntersectionObserver | undefined;
   private stepIo: IntersectionObserver | undefined;
-  private onResize: (() => void) | undefined;
   private onCometResize: (() => void) | undefined;
   private _globeResize: (() => void) | undefined;
 
@@ -94,9 +94,8 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
 
   componentWillUnmount() {
     clearInterval(this.vTimer); clearInterval(this.evTimer); clearInterval(this.vsTimer);
-    cancelAnimationFrame(this.starRaf); cancelAnimationFrame(this.globeRaf);
+    this.disposeStars?.(); cancelAnimationFrame(this.globeRaf);
     cancelAnimationFrame(this.cometRaf); cancelAnimationFrame(this.scrollRaf);
-    if (this.onResize) window.removeEventListener('resize', this.onResize);
     if (this.onCometResize) window.removeEventListener('resize', this.onCometResize);
     if (this._globeResize) window.removeEventListener('resize', this._globeResize);
     if (this.io) this.io.disconnect();
@@ -160,49 +159,16 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
   }
 
   initStars() {
-    const cv = this.nodeRefs.starRef.current; if (!cv) return;
-    const ctx = cv.getContext('2d'); if (!ctx) return;
-    let stars: { x: number; y: number; z: number; r: number; tw: number }[] = [], w = 0, h = 0;
-    const dpr = Math.min(window.devicePixelRatio || 1, this.small ? 1.5 : 2);
-    const resize = () => {
-      w = cv.clientWidth; h = cv.clientHeight;
-      cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const n = Math.round((w * h) / (this.small ? 6200 : 3400));
-      stars = Array.from({ length: n }, () => ({
-        x: Math.random() * w, y: Math.random() * h,
-        z: Math.random() * 0.85 + 0.15,
-        r: Math.random() * 1.25 + 0.25,
-        tw: Math.random() * Math.PI * 2
-      }));
-    };
-    this.onResize = resize; resize();
-    window.addEventListener('resize', resize);
-    let t = 0;
-    const draw = () => {
-      t += 0.016;
-      ctx.clearRect(0, 0, w, h);
-      for (const s of stars) {
-        s.y -= s.z * 0.14; s.x += s.z * 0.04;
-        if (s.y < -2) { s.y = h + 2; s.x = Math.random() * w; }
-        if (s.x > w + 2) s.x = -2;
-        const tw = 0.45 + 0.55 * Math.pow(Math.abs(Math.sin(t * (0.9 + s.z * 1.7) + s.tw)), 2.2);
-        const a = (0.24 + 0.76 * s.z) * tw;
-        ctx.beginPath();
-        ctx.fillStyle = s.z > 0.72 ? 'rgba(196,238,255,' + a.toFixed(3) + ')' : 'rgba(255,255,255,' + (a * 0.72).toFixed(3) + ')';
-        ctx.arc(s.x, s.y, s.r * s.z, 0, Math.PI * 2); ctx.fill();
-        if (s.z > 0.9 && tw > 0.94) {
-          ctx.globalAlpha = (tw - 0.94) * 8;
-          ctx.strokeStyle = 'rgba(190,235,255,.7)'; ctx.lineWidth = 0.7;
-          const g = s.r * 4.5;
-          ctx.beginPath();
-          ctx.moveTo(s.x - g, s.y); ctx.lineTo(s.x + g, s.y);
-          ctx.moveTo(s.x, s.y - g); ctx.lineTo(s.x, s.y + g);
-          ctx.stroke(); ctx.globalAlpha = 1;
-        }
-      }
-      if (!this.reduce) this.starRaf = requestAnimationFrame(draw);
-    };
-    draw();
+    const cv = this.nodeRefs.starRef.current;
+    if (!cv) return;
+    // Shared with the product pages' SpaceBackground. These are the values
+    // this page has always used, passed explicitly so the extraction cannot
+    // drift its appearance.
+    this.disposeStars = createStarfield(cv, {
+      density: this.small ? 6200 : 3400,
+      dprCap: this.small ? 1.5 : 2,
+      animate: !this.reduce,
+    });
   }
 
   initComet() {

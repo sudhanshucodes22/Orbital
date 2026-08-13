@@ -8,6 +8,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import "./responsive.css";
+import "./space.css";
 import { publicEnv } from "@/lib/config/env";
 
 /* The five families the design loads, with the exact weights and styles

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { signOutAction } from "@/app/(auth)/actions";
+import { SpaceBackground } from "./SpaceBackground";
 import { tokens } from "./tokens";
 
 /** Chrome for the signed-in product area.
@@ -20,7 +21,9 @@ export function AppShell({
   signedIn?: boolean;
 }) {
   return (
-    <div style={{ minHeight: "100vh", background: tokens.bg, color: tokens.text }}>
+    <>
+      <SpaceBackground />
+      <div className="space-content" style={{ minHeight: "100vh", color: tokens.text }}>
       <header
         style={{
           display: "flex",
@@ -28,6 +31,14 @@ export function AppShell({
           gap: 14,
           padding: "16px 24px",
           borderBottom: `1px solid ${tokens.borderSoft}`,
+          /* The bar sits over the starfield too, so it needs to be a surface
+           * rather than a line floating in space. */
+          background: "rgba(6,8,14,.72)",
+          backdropFilter: "blur(20px) saturate(1.3)",
+          WebkitBackdropFilter: "blur(20px) saturate(1.3)",
+          position: "sticky",
+          top: 0,
+          zIndex: 5,
         }}
       >
         <Link
@@ -96,7 +107,8 @@ export function AppShell({
       </header>
       <main style={{ maxWidth: 1180, margin: "0 auto", padding: "40px 24px 80px" }}>
         {children}
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   );
 }
