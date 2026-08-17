@@ -322,6 +322,85 @@ language understanding. Runs record `mode: "demo"` and the panel says TEMPLATE,
 so its output cannot be mistaken for a model's. Its purpose is to make the loop
 real and testable without an API key.
 
+### Editing intelligence — IMPLEMENTED, VERIFIED IN DEMO MODE
+
+**Intent classification** (`domain/intent.ts`) runs before any model call, in
+microseconds, for free. It hints at the request's kind — create, fix, style,
+responsive, addFeature, remove, explain — and extracts the page parts it names
+("hero", "cta"). A model call to decide whether something is a style change
+would double the cost and latency of every edit to answer a question keywords
+answer adequately. It reports `confident: false` when it falls back, so a
+caller can tell a finding from a guess, and the planner may disagree.
+
+**Context selection** uses those subjects to score retrieval, so "change the
+hero CTA colour" pulls the page containing the hero ahead of one that merely
+shares vocabulary. The classification is rendered into the prompt as a *hint*
+with its confidence attached, never as fact.
+
+**Validation** (`domain/references.ts`) now checks the tree a batch would
+produce, not just operations in isolation:
+
+| Check | Severity | Why |
+|---|---|---|
+| Malformed HTML/JSON | error | A truncated response is the characteristic model failure; applying it replaces something that worked |
+| Protected path | error | Names *why* (`.env` holds credentials) rather than "unsafe path" |
+| Link to a file this batch deletes | error | A contradiction inside one change |
+| Link to a file that never existed | **warning** | May be a page the user plans to add next; refusing the generation over a regex's opinion would be worse |
+
+Reference parsing is regex over HTML and CSS — adequate for the self-contained
+static files Orbital generates, and explicitly not semantic correctness.
+
+**The repair loop.** A rejected change goes back to the producer with the
+validator's exact complaints, at most `MAX_REPAIR_ATTEMPTS` (2) times. Bounded
+because every attempt is a real model call, and a producer that cannot fix its
+output given a precise diagnosis in two tries is unlikely to in five. A
+producer that cannot use a diagnosis — the template engine, which would return
+identical output — omits `repair()` and is not retried.
+
+Nothing is applied until validation passes, so an exhausted repair loop leaves
+the project exactly as it was: last working revision still the head, failure
+and its reasons still in history, retry still available.
+
+**Validation is recorded on success too**, in `GenerationRun.validation`
+(migration 0007). It was previously kept only on failure, which meant warnings
+on an applied change were computed and discarded — invisible exactly when they
+were informative rather than fatal.
+
+### Real provider — IMPLEMENTED, NOT VERIFIED
+
+The provider path is complete: `ModelProvider` abstraction, Anthropic adapter
+with errors translated at its boundary, planner and code generator as separate
+calls, strict schemas, repair.
+
+**No live call has ever been made.** No `GENERATION_API_KEY` is configured on
+this machine. What *is* verified is the contract, by 23 tests driving the real
+producer, prompts, parsers, validator, pipeline and revision creation with only
+the network hop faked — using the exact `ModelCallError` shapes the adapter
+emits. Invalid key, timeout, rate limiting, malformed and non-JSON output,
+unsafe paths and empty batches all produce: no revision, working tree
+untouched, head unmoved, failure in history, retry available.
+
+Unverified: that a live call succeeds, that the SDK wiring is correct, and that
+the prompts elicit good output.
+
+### Supabase — IMPLEMENTED, NOT VERIFIED
+
+Migrations 0001–0007 and both adapters are complete. **Nothing has been
+executed against a live Postgres** — no credentials, no `psql`, no CLI.
+
+`npm run verify` performs the whole live check (tables, adapter columns, status
+constraint, indexes, lifecycle, one-active-run enforcement, retry lineage, RLS,
+cleanup) and **refuses to run without credentials** rather than reporting a
+partial pass. `tests/schema.test.ts` statically cross-checks migrations against
+the adapter meanwhile.
+
+### FUTURE — semantic indexing
+
+Context selection is lexical: term overlap, subject keywords, recency. The
+`ContextBuilder` interface takes a scored candidate list, so an embedding index
+would replace `scoreFile` and nothing above it. That is the natural next step
+when projects grow past what keyword scoring can rank.
+
 ### Deliberately not in this slice
 
 - **No code editor.** Files are read-only. A text area that looked editable but

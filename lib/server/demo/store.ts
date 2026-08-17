@@ -111,6 +111,7 @@ export interface DemoRun {
   plan: unknown;
   operations: unknown;
   report: unknown;
+  validation?: unknown;
   model: unknown;
   events: { at: string; status: string; message: string }[];
   error: string | null;

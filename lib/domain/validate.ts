@@ -17,6 +17,7 @@
  * Pure: no I/O, no imports beyond domain types.
  */
 import type { FileSnapshot } from "./file";
+import { checkReferences, malformationOf, protectedReason } from "./references";
 import { MAX_TEXT_FILE_BYTES, byteLength, looksTextual, normalizeFilePath } from "./file";
 import { MAX_OPERATIONS_PER_BATCH } from "./apply";
 import type { FileOperation } from "./operation";
@@ -34,7 +35,14 @@ export type ValidationCode =
   | "targetExists"
   | "emptyBatch"
   | "noEffect"
-  | "binaryContent";
+  | "binaryContent"
+  /* Structural and relational checks. These look at the tree an operation
+   * batch would produce rather than at operations in isolation — a batch can
+   * be individually valid and still leave a page linking to nothing. */
+  | "malformedFile"
+  | "protectedFile"
+  | "missingReference"
+  | "brokenReference";
 
 export interface ValidationIssue {
   code: ValidationCode;
@@ -257,6 +265,86 @@ export function validateOperations(
     const hasEntry = [...present].some((p) => /^(index\.html|app\/page\.[jt]sx?|src\/index\.[jt]sx?)$/.test(p));
     if (!hasEntry) {
       warnings.push(issue("noEffect", "The project has no recognisable entry point."));
+    }
+  }
+
+  /* ---- structural and relational checks ---------------------------- */
+  //
+  // Everything above judges operations one at a time. These judge the *tree*
+  // the batch would produce, which is where a different class of problem lives:
+  // a file that will not parse, a path that must never be written, a page that
+  // links to something nobody created.
+
+  for (const [index, operation] of operations.entries()) {
+    if (operation.kind !== "createFile" && operation.kind !== "updateFile") continue;
+
+    // Protected paths are already refused by `normalizeFilePath`. Repeating
+    // the check here means the *reason* reaches the user, rather than a
+    // generic "unsafe path".
+    const reason = protectedReason(operation.path);
+    if (reason) {
+      errors.push(
+        issue("protectedFile", `${operation.path} cannot be written: ${reason}.`, index, operation.path)
+      );
+      continue;
+    }
+
+    const malformed = malformationOf(operation.path, operation.content);
+    if (malformed) {
+      // An error, not a warning: a file that does not parse is broken by any
+      // definition, and applying it would replace something that worked.
+      errors.push(
+        issue("malformedFile", `${operation.path} is malformed — ${malformed}.`, index, operation.path)
+      );
+    }
+  }
+
+  // Reference checks run against the resulting tree, so they see what the
+  // batch actually leaves behind.
+  if (errors.length === 0) {
+    const deletedPaths = operations
+      .filter((op): op is Extract<FileOperation, { kind: "deleteFile" }> => op.kind === "deleteFile")
+      .map((op) => op.path);
+
+    const resulting = new Map(existing.map((f) => [f.path, { path: f.path, content: f.content }]));
+    for (const operation of operations) {
+      if (operation.kind === "createFile" || operation.kind === "updateFile") {
+        resulting.set(operation.path, { path: operation.path, content: operation.content });
+      } else if (operation.kind === "deleteFile") {
+        resulting.delete(operation.path);
+      }
+    }
+
+    const { missing, broken } = checkReferences(
+      [...resulting.values()] as FileSnapshot[],
+      deletedPaths
+    );
+
+    // Pointing at a file this same batch deleted is a contradiction within one
+    // change — the batch is internally inconsistent, so it is an error.
+    for (const reference of broken) {
+      errors.push(
+        issue(
+          "brokenReference",
+          `${reference.from} still links to ${reference.raw}, which this change deletes.`,
+          null,
+          reference.from
+        )
+      );
+    }
+
+    // A reference that was already dangling is a warning. It may well be
+    // intentional — a link to a page the user plans to add next — and refusing
+    // the generation over a regex's opinion would be worse than applying it.
+    for (const reference of missing.slice(0, 10)) {
+      warnings.push(
+        issue(
+          "missingReference",
+          `${reference.from} references ${reference.raw}, which is not in the project.`,
+          null,
+          reference.from
+        )
+      );
     }
   }
 

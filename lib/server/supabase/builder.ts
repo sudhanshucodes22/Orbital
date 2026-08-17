@@ -32,6 +32,7 @@ import {
   type RevisionId,
   type RunFailure,
   type RunModelInfo,
+  type ValidationResult,
   type RunPage,
   type RunQuery,
 } from "../../domain";
@@ -101,6 +102,7 @@ interface RunRow {
   plan: unknown;
   operations: unknown;
   report: unknown;
+  validation: unknown;
   model: unknown;
   events: unknown;
   error: string | null;
@@ -116,7 +118,7 @@ const REVISION_COLUMNS =
  * list at the type level, and `"a" + "b"` widens it to `string`, which loses
  * the row typing and lands you with GenericStringError. */
 const RUN_COLUMNS =
-  "id, project_id, generation_id, prompt, intent, mode, idempotency_key, retry_of_run_id, attempt, base_revision_id, produced_revision_id, status, started_at, lease_expires_at, failure, plan, operations, report, model, events, error, created_at, completed_at";
+  "id, project_id, generation_id, prompt, intent, mode, idempotency_key, retry_of_run_id, attempt, base_revision_id, produced_revision_id, status, started_at, lease_expires_at, failure, plan, operations, report, validation, model, events, error, created_at, completed_at";
 
 const toFile = (r: FileRow): ProjectFile => ({
   projectId: asProjectId(r.project_id),
@@ -162,6 +164,7 @@ const toRun = (r: RunRow): GenerationRun => ({
   plan: (r.plan as BuildPlan | null) ?? null,
   operations: (r.operations as FileOperation[] | null) ?? [],
   report: (r.report as ApplyReport | null) ?? null,
+  validation: (r.validation as ValidationResult | null) ?? null,
   model: (r.model as RunModelInfo | null) ?? null,
   events: (r.events as GenerationEvent[] | null) ?? [],
   error: r.error,
@@ -430,6 +433,7 @@ const supabaseRuns: RunRepository = {
     if (patch.plan !== undefined) values.plan = patch.plan;
     if (patch.operations !== undefined) values.operations = patch.operations;
     if (patch.report !== undefined) values.report = patch.report;
+    if (patch.validation !== undefined) values.validation = patch.validation;
     if (patch.model !== undefined) values.model = patch.model;
     if (patch.events !== undefined) values.events = patch.events;
     if (patch.error !== undefined) values.error = patch.error;

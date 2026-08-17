@@ -83,6 +83,56 @@ Carry out the plan exactly. Return the complete set of file operations.
 
 Respond with JSON matching the provided schema. No prose outside it.`;
 
+/** The user turn for a repair attempt.
+ *
+ * Deliberately concrete: it names the operations that were rejected and the
+ * validator's exact complaints. "Your change was rejected, try again" invites
+ * the same output; "index.html opens a <style> that is never closed" is
+ * something a model can act on.
+ *
+ * It also restates the constraint that the repair must still carry out the
+ * original instruction — a model told only to satisfy a validator will happily
+ * return something trivially valid that does nothing the user asked for.
+ */
+export function repairPrompt(input: {
+  instruction: string;
+  planJson: string;
+  rejectedJson: string;
+  problems: readonly string[];
+  attempt: number;
+  context: string;
+}): string {
+  return `<original_instruction>
+${input.instruction}
+</original_instruction>
+
+<plan>
+${input.planJson}
+</plan>
+
+<rejected_operations>
+${input.rejectedJson}
+</rejected_operations>
+
+<validation_errors>
+${input.problems.map((p) => `- ${p}`).join("\n")}
+</validation_errors>
+
+<project_context>
+${input.context}
+</project_context>
+
+Your previous operations were rejected by a deterministic validator. This is
+repair attempt ${input.attempt}.
+
+Fix every problem listed above and return a corrected, complete set of file
+operations. The corrected change must still carry out the original instruction
+— returning something valid that does not do what was asked is a worse failure
+than the one you are fixing.
+
+Respond with JSON matching the provided schema. No prose outside it.`;
+}
+
 /** The user-turn framing for a planning request. */
 export function plannerPrompt(args: {
   projectName: string;

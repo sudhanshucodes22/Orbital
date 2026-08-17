@@ -63,6 +63,14 @@ import type { OperationProducer } from "./types";
  * or it fails, and either way the run reaches a terminal state. */
 export const LEASE_MS = 5 * 60 * 1000;
 
+/** How many times a rejected change may be sent back for repair.
+ *
+ * Two, deliberately. Each attempt is a real model call, and a producer that
+ * cannot fix its output in two tries given the validator's exact complaint is
+ * unlikely to fix it in five — at which point the honest answer is to fail and
+ * let a person decide, not to keep spending. */
+export const MAX_REPAIR_ATTEMPTS = 2;
+
 function event(status: GenerationStatus, message: string): GenerationEvent {
   return { at: new Date().toISOString(), status, message };
 }
@@ -272,11 +280,81 @@ export async function advance(runId: string, producer: OperationProducer): Promi
       byteSize: f.byteSize,
     }));
 
-    const validation = validateOperations(snapshots, produced.operations);
+    /* ---- validation, with a bounded repair loop --------------------- */
+    //
+    // A rejected change gets at most MAX_REPAIR_ATTEMPTS chances to be fixed,
+    // and only from a producer that can actually use a diagnosis. The bound is
+    // the important part: an unbounded loop is an autonomous agent spending
+    // money on a problem it may not be able to solve, and every attempt here
+    // is a real model call.
+    //
+    // Nothing is applied until validation passes. A repair that also fails
+    // leaves the project exactly as it was — the last working revision stays
+    // the head, and the failure stays in history with the reasons attached.
+
+    let validation = validateOperations(snapshots, produced.operations);
+    let repairs = 0;
+
+    while (!validation.valid && producer.repair && repairs < MAX_REPAIR_ATTEMPTS) {
+      repairs++;
+      await push(
+        "validating",
+        `change rejected (${summariseValidation(validation)}) — repair attempt ${repairs}`
+      );
+
+      try {
+        produced = await producer.repair({
+          project,
+          instruction: claimed.prompt,
+          context,
+          report: (message) => events.push(event("building", message)),
+          stage: (next) => {
+            producerStage = next;
+          },
+          notePlan: (plan) => {
+            plannedSoFar = plan;
+          },
+          rejected: produced.operations,
+          validation,
+          plan: produced.plan,
+          attempt: repairs,
+        });
+      } catch (error) {
+        // A repair that throws is not a validation failure; it is the
+        // producer failing, and it is recorded as such.
+        await fail(
+          producerStage,
+          error instanceof Error ? error.message : "The repair attempt failed."
+        );
+        return (await container.runs.get(runId))!;
+      }
+
+      await container.runs.update(runId, {
+        plan: produced.plan,
+        operations: produced.operations,
+        model: produced.model,
+        events,
+      });
+
+      validation = validateOperations(snapshots, produced.operations);
+    }
+
     if (!validation.valid) {
-      await fail("validation", summariseValidation(validation), { validation });
+      // Out of attempts, or a producer that cannot repair. Either way the
+      // project is untouched.
+      const exhausted = repairs > 0 ? ` after ${repairs} repair attempt(s)` : "";
+      await fail("validation", `${summariseValidation(validation)}${exhausted}`, { validation });
       return (await container.runs.get(runId))!;
     }
+
+    if (repairs > 0) {
+      await push("validating", `repaired after ${repairs} attempt(s)`);
+    }
+
+    // Recorded whether or not it passed. Warnings on an applied change are
+    // the validator's main output for a successful run, and discarding them
+    // would make the checks invisible exactly when they are informative.
+    await container.runs.update(runId, { validation });
 
     /* ---- apply, then freeze ---------------------------------------- */
 

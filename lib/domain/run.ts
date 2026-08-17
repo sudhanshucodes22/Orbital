@@ -171,6 +171,13 @@ export interface GenerationRun {
   plan: BuildPlan | null;
   operations: readonly FileOperation[];
   report: ApplyReport | null;
+  /** What the validator concluded, on success as well as failure.
+   *
+   * Previously only failures carried it, via `failure.validation` — which meant
+   * warnings on an *applied* change were computed and then discarded. A change
+   * that went in but links to a page nobody wrote is exactly the thing worth
+   * telling someone about. */
+  validation: ValidationResult | null;
   model: RunModelInfo | null;
   events: readonly GenerationEvent[];
   error: string | null;
@@ -293,7 +300,9 @@ export function toRunSummary(run: GenerationRun): RunSummary {
           })),
         }
       : null,
-    validation: run.failure?.validation ?? null,
+    // The run's own result first; the failure's copy is the fallback for rows
+    // written before validation was recorded on success.
+    validation: run.validation ?? run.failure?.validation ?? null,
     model: run.model
       ? { providerId: run.model.providerId, modelId: run.model.modelId }
       : null,

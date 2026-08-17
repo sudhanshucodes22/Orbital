@@ -5,8 +5,13 @@
  * application, revisions and failure recording all moved to the pipeline,
  * which the template producer shares.
  */
-import type { OperationProducer, ProducedChange, ProducerContext } from "../types";
-import { generate, plan } from "../../ai/planner";
+import type {
+  OperationProducer,
+  ProducedChange,
+  ProducerContext,
+  RepairContext,
+} from "../types";
+import { generate, plan, repair } from "../../ai/planner";
 import { getModelProvider, hasModelProvider } from "../../ai/registry";
 import { CAPABILITY_REQUIREMENTS } from "../../../config/env";
 import { NotConfiguredError } from "../../../errors";
@@ -54,6 +59,44 @@ export const modelProducer: OperationProducer = {
       plan: planned.plan,
       // Usage from the generation call: it is the larger of the two and the
       // one worth attributing the run's cost to.
+      model: {
+        providerId: generated.providerId,
+        modelId: generated.modelId,
+        inputTokens: generated.usage.inputTokens,
+        outputTokens: generated.usage.outputTokens,
+      },
+    };
+  },
+
+  /** A second attempt, told what the validator objected to.
+   *
+   * The plan is reused rather than replanned: the plan was not what failed,
+   * the code was, and replanning would risk the repair drifting away from what
+   * the user asked for. Only the generation step runs again. */
+  async repair(ctx: RepairContext): Promise<ProducedChange> {
+    if (!hasModelProvider()) {
+      throw new NotConfiguredError("generation", CAPABILITY_REQUIREMENTS.generation);
+    }
+
+    const provider = getModelProvider();
+    const previousPlan = ctx.plan;
+
+    ctx.stage("generation");
+    ctx.report(`repairing ${ctx.validation.errors.length} validation problem(s)`);
+
+    const generated = await repair(provider, {
+      projectName: ctx.project.name,
+      instruction: ctx.instruction,
+      plan: previousPlan,
+      context: ctx.context,
+      rejected: ctx.rejected,
+      problems: ctx.validation.errors.map((e) => e.message),
+      attempt: ctx.attempt,
+    });
+
+    return {
+      operations: generated.operations,
+      plan: previousPlan,
       model: {
         providerId: generated.providerId,
         modelId: generated.modelId,

@@ -19,10 +19,10 @@ import type { BuildPlan, FileOperation, ProjectContext } from "../../domain";
 import { renderContext } from "../../services/context";
 import { parseOperations, parsePlan, extractJson } from "../../ai/parse";
 import { OPERATIONS_SCHEMA, PLAN_SCHEMA } from "../../ai/schema";
-import type { ModelProvider, ModelUsage } from "../../ai/types";
+import type { ModelProvider, ModelUsage, ModelResponse } from "../../ai/types";
 import { textMessage } from "../../ai/types";
 import { ValidationError } from "../../errors";
-import { CODEGEN_SYSTEM, PLANNER_SYSTEM, codegenPrompt, plannerPrompt } from "./prompts";
+import { CODEGEN_SYSTEM, PLANNER_SYSTEM, codegenPrompt, plannerPrompt, repairPrompt } from "./prompts";
 
 /** A plan is a small document; a generated project is not. Separate ceilings
  *  so a planning call cannot be billed as if it were a build. */
@@ -97,6 +97,40 @@ export interface GenerateInput {
   context: ProjectContext;
 }
 
+/** A second attempt at code generation, given the validator's complaints.
+ *
+ * Reuses the code-generator system prompt and parser, because a repair is a
+ * generation with more information — not a different kind of call. A separate
+ * schema or parser here would be a second thing to keep in step with the
+ * first. */
+export async function repair(
+  provider: ModelProvider,
+  input: GenerateInput & { rejected: readonly unknown[]; problems: readonly string[]; attempt: number }
+): Promise<GenerateOutcome> {
+  const rendered = renderContext(input.context);
+
+  const response = await provider.complete({
+    system: CODEGEN_SYSTEM,
+    messages: [
+      textMessage(
+        "user",
+        repairPrompt({
+          instruction: input.instruction,
+          planJson: JSON.stringify(input.plan, null, 2),
+          rejectedJson: JSON.stringify(input.rejected, null, 2),
+          problems: input.problems,
+          attempt: input.attempt,
+          context: rendered,
+        })
+      ),
+    ],
+    maxOutputTokens: CODEGEN_MAX_TOKENS,
+    jsonSchema: OPERATIONS_SCHEMA,
+  });
+
+  return finishGeneration(response);
+}
+
 export async function generate(
   provider: ModelProvider,
   input: GenerateInput
@@ -122,6 +156,15 @@ export async function generate(
     jsonSchema: OPERATIONS_SCHEMA,
   });
 
+  return finishGeneration(response);
+}
+
+/** Parses and validates a code-generation response.
+ *
+ * Shared by `generate` and `repair` so the two cannot drift: a repair that
+ * accepted output the first pass would have rejected is a hole in the
+ * validator, not a feature. */
+function finishGeneration(response: ModelResponse): GenerateOutcome {
   const json = extractJson(response.text);
   if (!json.ok) {
     throw new ValidationError(`The code generator returned unusable output: ${json.error}`);

@@ -111,7 +111,7 @@ async function main() {
   const RUN_COLUMNS =
     "id, project_id, generation_id, prompt, intent, mode, idempotency_key, " +
     "retry_of_run_id, attempt, base_revision_id, produced_revision_id, status, " +
-    "started_at, lease_expires_at, failure, plan, operations, report, model, " +
+    "started_at, lease_expires_at, failure, plan, operations, report, validation, model, " +
     "events, error, created_at, completed_at";
   const { error: columnError } = await admin.from("generation_runs").select(RUN_COLUMNS).limit(0);
   check(

@@ -27,6 +27,7 @@ import {
   type ProjectFile,
   type ProjectId,
   type RunModelInfo,
+  type ValidationResult,
   type RunPage,
   type RunQuery,
 } from "../../domain";
@@ -75,6 +76,7 @@ function toRun(row: DemoRun): GenerationRun {
     plan: (row.plan as BuildPlan | null) ?? null,
     operations: (row.operations as FileOperation[] | null) ?? [],
     report: (row.report as ApplyReport | null) ?? null,
+    validation: (row.validation as ValidationResult | null) ?? null,
     model: (row.model as RunModelInfo | null) ?? null,
     events: row.events as GenerationEvent[],
     error: row.error,
@@ -208,6 +210,7 @@ export const demoRuns: RunRepository = {
         plan: null,
         operations: [],
         report: null,
+        validation: null,
         model: null,
         events: [{ at: nowIso(), status: "queued", message: "run created" }],
         error: null,
@@ -337,6 +340,7 @@ export const demoRuns: RunRepository = {
       if (patch.plan !== undefined) row.plan = patch.plan;
       if (patch.operations !== undefined) row.operations = patch.operations;
       if (patch.report !== undefined) row.report = patch.report;
+      if (patch.validation !== undefined) row.validation = patch.validation;
       if (patch.model !== undefined) row.model = patch.model;
       if (patch.error !== undefined) row.error = patch.error;
       if (patch.failure !== undefined) row.failure = patch.failure;

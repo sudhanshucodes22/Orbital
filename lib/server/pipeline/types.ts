@@ -9,6 +9,7 @@
  * producer that could do those things would be a second pipeline.
  */
 import type {
+  ValidationResult,
   BuildPlan,
   FileOperation,
   GenerationMode,
@@ -58,4 +59,31 @@ export interface ProducedChange {
 export interface OperationProducer {
   readonly mode: GenerationMode;
   produce(ctx: ProducerContext): Promise<ProducedChange>;
+  /** A second attempt, told exactly what was wrong with the first.
+   *
+   * Optional: a producer that cannot use a diagnosis — the template engine
+   * cannot, because it is keyword matching and would produce the same output
+   * again — simply omits it, and the pipeline does not retry. Offering a
+   * repair that is guaranteed to be identical would just burn a run.
+   */
+  repair?(ctx: RepairContext): Promise<ProducedChange>;
+}
+
+/** What a repair attempt is told.
+ *
+ * The rejected operations *and* the validator's reasons, because "your change
+ * was rejected" is not actionable and "line 4 of index.html opens a <style>
+ * that is never closed" is. */
+export interface RepairContext extends ProducerContext {
+  /** What the previous attempt proposed. */
+  rejected: readonly FileOperation[];
+  /** Why it was refused. */
+  validation: ValidationResult;
+  /** The plan the rejected operations were meant to carry out.
+   *
+   * Reused rather than replanned: the plan was not what failed, and
+   * replanning would risk the repair drifting away from the request. */
+  plan: BuildPlan;
+  /** 1 for the first repair, 2 for the second. Bounded by the pipeline. */
+  attempt: number;
 }

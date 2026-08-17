@@ -207,6 +207,7 @@ export function fakeContainer(): { container: ServiceContainer; state: FakeState
           plan: null,
           operations: [],
           report: null,
+          validation: null,
           model: null,
           events: [],
           error: null,

@@ -115,6 +115,55 @@ function Reply({
         </p>
       )}
 
+      {/* Which files changed, named rather than counted. "2 files" is a
+          number; "index.html, styles.css" is an answer to what happened. */}
+      {reply.kind === "success" && reply.changedPaths.length > 0 && (
+        <ul
+          style={{
+            margin: "9px 0 0",
+            padding: 0,
+            listStyle: "none",
+            display: "flex",
+            gap: 6,
+            flexWrap: "wrap",
+          }}
+        >
+          {reply.changedPaths.slice(0, 6).map((path) => (
+            <li
+              key={path}
+              style={{
+                ...mono,
+                color: "rgba(196,236,255,.9)",
+                padding: "3px 8px",
+                borderRadius: 999,
+                border: `1px solid ${tokens.borderSoft}`,
+              }}
+            >
+              {path}
+            </li>
+          ))}
+          {reply.changedPaths.length > 6 && (
+            <li style={mono}>+{reply.changedPaths.length - 6} more</li>
+          )}
+        </ul>
+      )}
+
+      {/* Warnings on a change that went in. The validator let it through, but
+          "this links to a page that does not exist" is worth saying. */}
+      {reply.kind === "success" && (reply.validation?.warnings.length ?? 0) > 0 && (
+        <ul style={{ margin: "9px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 4 }}>
+          {reply.validation!.warnings.slice(0, 3).map((issue, i) => (
+            <li
+              key={`${issue.code}-${i}`}
+              style={{ display: "flex", gap: 8, fontSize: 12, color: "rgba(233,213,140,.9)" }}
+            >
+              <span style={{ ...mono, flexShrink: 0 }}>!</span>
+              <span style={{ lineHeight: 1.5 }}>{issue.message}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
       {reply.kind === "success" && (
         <div
           style={{

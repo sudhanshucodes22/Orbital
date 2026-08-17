@@ -9,6 +9,7 @@
  * So context is a budgeted selection, and the selection is recorded on the run
  * so a bad answer can be traced to what the model was actually looking at.
  */
+import type { IntentClassification } from "./intent";
 import type { ProjectId, RevisionId, Timestamp } from "./ids";
 
 /** Why a file made it into the window. Kept because when output is wrong, the
@@ -76,6 +77,11 @@ export interface ContextRequest {
 
 /** The assembled window, and the record of how it was assembled. */
 export interface ProjectContext {
+  /** What the request appears to be asking for, classified deterministically
+   *  before any model call. A hint for the planner and the retrieval scorer —
+   *  never an override, and `confident: false` marks a fallback rather than a
+   *  finding. */
+  intent?: IntentClassification;
   projectId: ProjectId;
   revisionId: RevisionId | null;
   map: ProjectMap;

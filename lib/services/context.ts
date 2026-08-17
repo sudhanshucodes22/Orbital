@@ -24,7 +24,7 @@ import type {
   SelectionReason,
   Session,
 } from "../domain";
-import { DEFAULT_CONTEXT_BUDGET, normalizeFilePath } from "../domain";
+import { DEFAULT_CONTEXT_BUDGET, classifyIntent, normalizeFilePath } from "../domain";
 import { getContainer } from "../server/container";
 import { listFiles } from "./files";
 import { getProject } from "./projects";
@@ -77,7 +77,11 @@ function scoreFile(
   file: ProjectFile,
   terms: readonly string[],
   focus: ReadonlySet<string>,
-  recent: ReadonlySet<string>
+  recent: ReadonlySet<string>,
+  /** Parts of a page the request named — "hero", "navbar", "cta". A file that
+   *  mentions one is about the thing being asked for, which is stronger
+   *  evidence than a general term match. */
+  subjects: readonly string[] = []
 ): Candidate | null {
   if (focus.has(file.path)) {
     return { file, score: 1000, reason: "explicit" };
@@ -85,6 +89,22 @@ function scoreFile(
 
   let score = 0;
   let reason: SelectionReason = "contentMatch";
+
+  // Subject hits come first because they are the most specific signal
+  // available before anything is read: "change the hero CTA colour" should
+  // pull the page containing the hero ahead of a page that merely shares
+  // vocabulary with the instruction.
+  if (subjects.length > 0 && file.content) {
+    const body = file.content.toLowerCase();
+    let subjectHits = 0;
+    for (const subject of subjects) {
+      if (body.includes(subject) || file.path.toLowerCase().includes(subject)) subjectHits++;
+    }
+    if (subjectHits > 0) {
+      score += subjectHits * 60;
+      reason = "pathMatch";
+    }
+  }
 
   const lowerPath = file.path.toLowerCase();
   let pathHits = 0;
@@ -192,8 +212,12 @@ export async function buildProjectContext(
   });
   const recent = new Set<string>(runs[0]?.report?.changedPaths ?? []);
 
+  // The request's shape, computed once. Deterministic and free: no model call
+  // is spent deciding what kind of edit this is before the edit is planned.
+  const classification = classifyIntent(request.prompt);
+
   const candidates = files
-    .map((f) => scoreFile(f, terms, focus, recent))
+    .map((f) => scoreFile(f, terms, focus, recent, classification.subjects))
     .filter((c): c is Candidate => c !== null)
     .sort((a, b) => b.score - a.score);
 
@@ -242,6 +266,20 @@ export async function buildProjectContext(
  */
 export function renderContext(context: ProjectContext): string {
   const parts: string[] = [];
+
+  // The classification, when there is one. The planner is told it is a hint
+  // computed from keywords, so it can disagree — a wrong label presented as
+  // fact would be worse than no label.
+  if (context.intent) {
+    parts.push(
+      `<request_kind confidence="${context.intent.confident ? "keyword-match" : "default"}">`
+    );
+    parts.push(context.intent.intent);
+    if (context.intent.subjects.length > 0) {
+      parts.push(`subjects: ${context.intent.subjects.join(", ")}`);
+    }
+    parts.push("</request_kind>");
+  }
 
   parts.push("<project_map>");
   for (const p of context.map.paths) parts.push(p);
