@@ -219,6 +219,81 @@ describe("run authorisation", () => {
   });
 });
 
+describe("cross-user isolation — every read and write surface", () => {
+  it("refuses a stranger on every project-scoped service", async () => {
+    const run = await failedRun();
+    const stranger = strangerSession();
+    const { asProjectId: pid } = await import("../lib/domain");
+    const { listFiles, getFile, restoreRevision } = await import("../lib/services/files");
+    const { getPreviewTarget, restartPreview, stopPreview } = await import(
+      "../lib/services/preview"
+    );
+    const { listRevisions } = await import("../lib/services/runs");
+    const { getProject } = await import("../lib/services/projects");
+
+    state.revisions.push({
+      id: asRevisionId("rev-x"),
+      projectId: PROJECT_ID,
+      parentId: null,
+      generationId: null,
+      summary: "s",
+      site: { pages: [], assets: [], tokens: {}, generatedAt: "" } as never,
+      tree: [],
+      createdAt: new Date().toISOString(),
+    });
+
+    // Every surface a client can reach, checked at the *service*, not the UI.
+    // Hiding a button is not authorisation; this is what actually holds.
+    const surfaces: [string, () => Promise<unknown>][] = [
+      ["getProject", () => getProject(stranger, PROJECT_ID)],
+      ["listFiles", () => listFiles(stranger, PROJECT_ID)],
+      ["getFile", () => getFile(stranger, PROJECT_ID, "index.html")],
+      ["listRuns", () => listRuns(stranger, PROJECT_ID)],
+      ["getRun", () => getRun(stranger, run.id)],
+      ["retryRun", () => retryRun(stranger, run.id)],
+      ["listRevisions", () => listRevisions(stranger, PROJECT_ID)],
+      [
+        "compareRevisions",
+        () => compareRevisions(stranger, PROJECT_ID, asRevisionId("rev-x"), asRevisionId("rev-x")),
+      ],
+      ["restoreRevision", () => restoreRevision(stranger, PROJECT_ID, asRevisionId("rev-x"))],
+      ["getPreviewTarget", () => getPreviewTarget(stranger, PROJECT_ID)],
+      ["restartPreview", () => restartPreview(stranger, PROJECT_ID)],
+      ["stopPreview", () => stopPreview(stranger, PROJECT_ID)],
+    ];
+
+    for (const [name, call] of surfaces) {
+      await assert.rejects(call, NotFoundError, `${name} let a stranger through`);
+    }
+
+    void pid;
+  });
+
+  it("reports refusal as missing, never as forbidden", async () => {
+    const run = await failedRun();
+    // Confirming a resource exists is the whole of the disclosure when ids
+    // travel in URLs, so the error must not distinguish the two cases.
+    await assert.rejects(
+      () => getRun(strangerSession(), run.id),
+      (error: Error) => {
+        assert.ok(error instanceof NotFoundError);
+        assert.doesNotMatch(error.message, /workspace|member|forbidden|permission/i);
+        return true;
+      }
+    );
+  });
+
+  it("leaves the owner's project untouched by a refused call", async () => {
+    const run = await failedRun();
+    const before = JSON.stringify(state.runs);
+
+    await assert.rejects(() => retryRun(strangerSession(), run.id), NotFoundError);
+
+    // A refused write must have no side effect at all.
+    assert.equal(JSON.stringify(state.runs), before);
+  });
+});
+
 describe("history paging", () => {
   beforeEach(async () => {
     for (let i = 0; i < 25; i++) await seed(`run ${i}`, "succeeded");

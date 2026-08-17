@@ -26,7 +26,26 @@ export interface ProducerContext {
   context: ProjectContext;
   /** Progress reporting. The pipeline persists these as run events. */
   report: (message: string) => void;
+  /** Declares which stage the producer is in.
+   *
+   * Without this the pipeline can only say a producer threw, and every
+   * failure — a planner that returned prose, a code generator that timed out —
+   * is labelled "generation". The stage is the machine-readable half of a
+   * failure, so collapsing them makes it useless for telling apart two
+   * problems with very different causes. */
+  stage: (stage: ProducerStage) => void;
+  /** Hands the plan up as soon as there is one.
+   *
+   * The pipeline persists it immediately rather than waiting for the producer
+   * to return. A run that fails during code generation would otherwise lose
+   * the plan it had already made — which is exactly the run where knowing what
+   * Orbital intended is most useful. */
+  notePlan: (plan: BuildPlan) => void;
 }
+
+/** Stages a producer can be in. A subset of `FailureStage`: the ones a
+ *  producer is actually responsible for. */
+export type ProducerStage = "context" | "planning" | "generation";
 
 export interface ProducedChange {
   operations: readonly FileOperation[];

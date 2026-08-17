@@ -23,6 +23,10 @@ export const modelProducer: OperationProducer = {
 
     const provider = getModelProvider();
 
+    // Declared so a throw from the planner is recorded as a planning failure
+    // rather than being flattened into "generation" — two very different
+    // problems with two different fixes.
+    ctx.stage("planning");
     ctx.report("planning the change");
     const planned = await plan(provider, {
       projectName: ctx.project.name,
@@ -31,6 +35,10 @@ export const modelProducer: OperationProducer = {
       context: ctx.context,
     });
 
+    // The plan exists now, so the pipeline gets it now. If code generation
+    // fails after this, the run still shows what Orbital intended to do.
+    ctx.notePlan(planned.plan);
+    ctx.stage("generation");
     ctx.report(planned.plan.summary);
     ctx.report(`writing ${planned.plan.steps.length} step(s)`);
 

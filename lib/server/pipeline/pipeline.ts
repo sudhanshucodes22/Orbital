@@ -32,6 +32,7 @@ import {
   summariseValidation,
   treeAfter,
   validateOperations,
+  type BuildPlan,
   type FailureStage,
   type FileSnapshot,
   type GeneratedSite,
@@ -217,6 +218,15 @@ export async function advance(runId: string, producer: OperationProducer): Promi
     await push("understanding", "producing changes");
 
     let produced;
+    // Tracked so a throw is attributed to the stage the producer was actually
+    // in. Defaults to "generation" because that is where a producer spends
+    // most of its time and is the safest thing to assume of a producer that
+    // never says.
+    let producerStage: FailureStage = "generation";
+    // Held so a failure after planning still reports what Orbital intended.
+    // The run where the plan is most useful is the one that did not finish.
+    let plannedSoFar: BuildPlan | null = null;
+
     try {
       produced = await producer.produce({
         project,
@@ -225,9 +235,18 @@ export async function advance(runId: string, producer: OperationProducer): Promi
         report: (message) => {
           events.push(event("building", message));
         },
+        stage: (next) => {
+          producerStage = next;
+        },
+        notePlan: (plan) => {
+          plannedSoFar = plan;
+        },
       });
     } catch (error) {
-      const stage: FailureStage = isNotConfigured(error) ? "configuration" : "generation";
+      const stage: FailureStage = isNotConfigured(error) ? "configuration" : producerStage;
+      // Persisted before the failure is recorded, so the plan is on the run
+      // whatever happened next.
+      if (plannedSoFar) await container.runs.update(runId, { plan: plannedSoFar, events });
       await fail(stage, error instanceof Error ? error.message : "Generation failed.");
       return (await container.runs.get(runId))!;
     }
