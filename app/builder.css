@@ -1,0 +1,441 @@
+/* Builder Workspace — layout and interaction. Class hooks prefixed `b-`.
+ *
+ * The product's other surfaces are documents: they scroll, they stack, and
+ * their height is whatever the content needs. The workspace is not a document.
+ * It is three panels that fill the viewport exactly once and scroll
+ * internally, because a builder whose page scrolls loses the preview off the
+ * bottom of the screen the moment the chat gets long.
+ *
+ * Written as CSS rather than inline styles for the reasons the rest of the
+ * product area is: media queries and pseudo-classes have no inline form, and
+ * this file needs both heavily.
+ */
+
+/* ======================================================== the shell ====== */
+
+.b-shell {
+  /* Fixed rather than 100vh: on mobile browsers the visual viewport shrinks
+   * when the URL bar retracts, and a 100vh grid would push the prompt input
+   * under the fold at exactly the moment someone reaches for it. */
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  /* Opaque. The workspace sits over the starfield, and text on a live preview
+   * bleeding through would be unreadable. */
+  background: #05060b;
+  color: #e9ebf2;
+  overflow: hidden;
+}
+
+.b-body {
+  display: grid;
+  /* Files, preview, chat. The preview takes the slack because it is the thing
+   * being made; the side panels are instruments. */
+  grid-template-columns: 264px minmax(0, 1fr) 380px;
+  min-height: 0;
+  gap: 1px;
+  /* The gap is the divider: one background showing through three panels is
+   * cheaper and crisper than three borders that can double up. */
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.b-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  background: #05060b;
+}
+
+/* The scrolling region inside a panel. Never the panel itself — a panel that
+ * scrolls takes its own header with it. */
+.b-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+}
+
+.b-scroll::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+.b-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+.b-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+  background-clip: content-box;
+}
+
+/* A panel's own header strip. Sticky within the panel, not the page. */
+.b-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(8, 10, 16, 0.7);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* ======================================================== the header ===== */
+
+.b-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 16px;
+  height: 54px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(6, 8, 14, 0.86);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  position: relative;
+  z-index: 6;
+}
+
+/* The one ambient flourish in the chrome: a hairline that catches the light,
+ * so the header reads as a lit edge rather than a ruled line. */
+.b-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(124, 230, 255, 0.32) 30%,
+    rgba(164, 139, 255, 0.24) 62%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* ==================================================== the file tree ====== */
+
+.b-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 5px 10px 5px 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: rgba(233, 235, 242, 0.62);
+  font: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    color 160ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.b-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #e9ebf2;
+}
+
+.b-row:focus-visible {
+  outline: 2px solid rgba(124, 230, 255, 0.6);
+  outline-offset: -2px;
+}
+
+/* Selection is a state, not a hover that stuck. It gets a left marker so it
+ * stays legible against the hover of whatever the pointer is over. */
+.b-row--on {
+  background: rgba(124, 230, 255, 0.1);
+  color: #e9ebf2;
+  box-shadow: inset 2px 0 0 #7ce6ff;
+}
+
+.b-row--on:hover {
+  background: rgba(124, 230, 255, 0.14);
+}
+
+/* A file this generation touched. */
+.b-row--changed {
+  color: rgba(196, 236, 255, 0.92);
+}
+
+.b-caret {
+  flex-shrink: 0;
+  width: 12px;
+  transition: transform 160ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.b-caret--open {
+  transform: rotate(90deg);
+}
+
+/* ======================================================= the chat ======== */
+
+.b-turn {
+  display: grid;
+  gap: 8px;
+  animation: b-rise 320ms cubic-bezier(0.2, 0.6, 0.2, 1) both;
+}
+
+@keyframes b-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The user's instruction. Right-aligned and bounded, so a conversation reads
+ * as an exchange rather than a log. */
+.b-said {
+  justify-self: end;
+  max-width: 86%;
+  padding: 9px 13px;
+  border-radius: 14px 14px 4px 14px;
+  background: linear-gradient(135deg, rgba(124, 230, 255, 0.16), rgba(164, 139, 255, 0.14));
+  border: 1px solid rgba(124, 230, 255, 0.22);
+  font-size: 13px;
+  line-height: 1.5;
+  color: #e9ebf2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.b-reply {
+  padding: 11px 13px;
+  border-radius: 4px 14px 14px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.b-reply--bad {
+  border-color: rgba(255, 150, 140, 0.28);
+  background: rgba(255, 150, 140, 0.06);
+}
+
+.b-reply--live {
+  border-color: rgba(164, 139, 255, 0.3);
+  background: rgba(164, 139, 255, 0.06);
+}
+
+/* The prompt box, lifting on focus the way the rest of the product's inputs
+ * do. */
+.b-compose {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 160ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    box-shadow 220ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.b-compose:focus-within {
+  border-color: rgba(124, 230, 255, 0.45);
+  box-shadow: 0 0 0 3px rgba(124, 230, 255, 0.09);
+}
+
+.b-compose textarea {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: transparent;
+  color: #e9ebf2;
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.55;
+  padding: 12px 13px 4px;
+}
+
+.b-compose textarea::placeholder {
+  color: rgba(233, 235, 242, 0.32);
+}
+
+/* ==================================================== the preview ======== */
+
+.b-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  /* White, not transparent: a generated page without its own background over
+   * a near-black shell renders as unreadable dark-on-dark. */
+  background: #fff;
+}
+
+/* A quiet sweep while the frame loads, so the empty area reads as pending
+ * rather than broken.
+ *
+ * Above the frame, not behind it. The iframe comes later in the DOM and paints
+ * its own white background over anything underneath, so without the z-index
+ * the indicator is invisible for exactly the period it exists to cover. */
+.b-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* The frame's white background would otherwise show through the sweep on a
+   * slow load, which reads as a flash rather than as loading. */
+  background-color: #0a0c12;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.02) 30%,
+    rgba(124, 230, 255, 0.07) 50%,
+    rgba(255, 255, 255, 0.02) 70%
+  );
+  background-size: 220% 100%;
+  animation: b-sweep 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes b-sweep {
+  from {
+    background-position: 140% 0;
+  }
+  to {
+    background-position: -40% 0;
+  }
+}
+
+/* ======================================================= drawers ========= */
+
+/* Below the three-panel threshold the side panels become overlays. They are
+ * always in the DOM — mounting a panel on open would drop its scroll position
+ * and its in-flight state every time the viewport crossed the breakpoint. */
+.b-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 4, 8, 0.66);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 8;
+  animation: b-fade 180ms ease both;
+}
+
+@keyframes b-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.b-drawer-toggle,
+.b-chat-toggle {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  /* Chat first: at this width the preview and the conversation are the two
+   * things in play, and the file tree is reference material. */
+  .b-body {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+
+  /* The files toggle appears when the files panel becomes a drawer. The chat
+   * toggle waits for its own breakpoint below — a control that opens a panel
+   * already on screen is worse than no control. */
+  .b-drawer-toggle {
+    display: inline-flex;
+  }
+
+  .b-panel--files {
+    position: fixed;
+    top: 54px;
+    bottom: 0;
+    left: 0;
+    width: min(300px, 82vw);
+    z-index: 9;
+    border-right: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: 40px 0 80px -40px rgba(0, 0, 0, 0.9);
+    transform: translateX(-101%);
+    transition: transform 220ms cubic-bezier(0.2, 0.6, 0.2, 1);
+    visibility: hidden;
+  }
+
+  .b-panel--files.b-open {
+    transform: none;
+    visibility: visible;
+  }
+}
+
+@media (max-width: 900px) {
+  .b-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .b-chat-toggle {
+    display: inline-flex;
+  }
+
+  .b-panel--chat {
+    position: fixed;
+    top: 54px;
+    bottom: 0;
+    right: 0;
+    width: min(400px, 92vw);
+    z-index: 9;
+    border-left: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: -40px 0 80px -40px rgba(0, 0, 0, 0.9);
+    transform: translateX(101%);
+    transition: transform 220ms cubic-bezier(0.2, 0.6, 0.2, 1);
+    visibility: hidden;
+  }
+
+  .b-panel--chat.b-open {
+    transform: none;
+    visibility: visible;
+  }
+}
+
+/* The project name is the first thing to go; the controls are not. */
+@media (max-width: 720px) {
+  .b-header {
+    gap: 9px;
+    padding: 0 10px;
+  }
+
+  .b-hide-sm {
+    display: none;
+  }
+}
+
+/* ================================================= reduced motion ======== */
+
+/* globals.css collapses durations globally. This is the stronger statement for
+ * the pieces added here: the ambient sweep stops existing rather than running
+ * very fast, and the drawers snap instead of sliding — a 0.01ms slide is a
+ * flicker, which is worse than no animation at all. */
+@media (prefers-reduced-motion: reduce) {
+  .b-turn {
+    animation: none;
+  }
+
+  .b-loading {
+    animation: none;
+    background: rgba(124, 230, 255, 0.05);
+  }
+
+  .b-panel--files,
+  .b-panel--chat,
+  .b-caret,
+  .b-row {
+    transition: none;
+  }
+
+  .b-scrim {
+    animation: none;
+  }
+}

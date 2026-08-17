@@ -13,9 +13,16 @@ export function Background({ starRef, globeRef, cometRef }: Pick<Refs, "starRef"
   return (
 <>
       <canvas aria-hidden="true" ref={starRef} style={{ position: "fixed", inset: "0", width: "100%", height: "100%", zIndex: "0", pointerEvents: "none" }} />
-      <canvas aria-hidden="true" className="r-globe" ref={globeRef} style={{ position: "fixed", top: "50%", right: "-4%", transform: "translateY(-50%)", width: "min(1080px,58vw)", height: "min(1080px,58vw)", zIndex: "1", opacity: ".95", pointerEvents: "none" }} />
-      <div aria-hidden="true" className="r-scrim" style={{ position: "fixed", inset: "0", zIndex: "2", pointerEvents: "none", background: "linear-gradient(90deg,#030408 0%,rgba(3,4,8,.9) 30%,rgba(3,4,8,.5) 52%,rgba(3,4,8,.18) 74%,transparent 100%)" }} />
-      <div aria-hidden="true" className="r-scrim2" style={{ position: "fixed", inset: "0", zIndex: "3", pointerEvents: "none", background: "radial-gradient(1200px 700px at 76% 12%,rgba(74,168,255,.1),transparent 62%),radial-gradient(900px 760px at 4% 78%,rgba(140,116,255,.09),transparent 66%),linear-gradient(180deg,rgba(3,4,8,.15),rgba(3,4,8,.55))" }} />
+      {/* Larger and at full opacity. The globe is the page's one photographic
+          element and it was being held at .95 behind a scrim that stayed half
+          dark until 74% of the viewport — most of the planet was being thrown
+          away. */}
+      <canvas aria-hidden="true" className="r-globe" ref={globeRef} style={{ position: "fixed", top: "50%", right: "-2%", transform: "translateY(-50%)", width: "min(1240px,64vw)", height: "min(1240px,64vw)", zIndex: "1", opacity: "1", pointerEvents: "none" }} />
+      {/* Protects the headline column, then gets out of the way. The stops up
+          to ~48% are close to the original, because that is the band the hero
+          type actually crosses; everything past it releases far sooner. */}
+      <div aria-hidden="true" className="r-scrim" style={{ position: "fixed", inset: "0", zIndex: "2", pointerEvents: "none", background: "linear-gradient(90deg,#030408 0%,rgba(3,4,8,.9) 28%,rgba(3,4,8,.56) 48%,rgba(3,4,8,.18) 66%,rgba(3,4,8,.03) 80%,transparent 92%)" }} />
+      <div aria-hidden="true" className="r-scrim2" style={{ position: "fixed", inset: "0", zIndex: "3", pointerEvents: "none", background: "radial-gradient(1200px 700px at 76% 12%,rgba(74,168,255,.1),transparent 62%),radial-gradient(900px 760px at 4% 78%,rgba(140,116,255,.09),transparent 66%),linear-gradient(180deg,rgba(3,4,8,.1),rgba(3,4,8,.42))" }} />
       <canvas aria-hidden="true" ref={cometRef} style={{ position: "fixed", inset: "0", width: "100%", height: "100%", zIndex: "4", pointerEvents: "none" }} />
     </>
   );

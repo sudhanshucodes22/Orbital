@@ -1,3 +1,4 @@
+import type { FileSnapshot } from "./file";
 import type { GenerationId, ProjectId, RevisionId, Timestamp } from "./ids";
 import type { GeneratedSite } from "./site";
 
@@ -13,4 +14,19 @@ export interface Revision {
   summary: string;
   site: GeneratedSite;
   createdAt: Timestamp;
+  /** The working tree as it stood when this revision was cut.
+   *
+   * Optional because revisions written before the builder core existed have
+   * none, and a migration that invented one would be inventing history. A
+   * revision without a tree can be shown but not restored. */
+  tree?: readonly FileSnapshot[];
+}
+
+export interface CreateRevisionInput {
+  projectId: ProjectId;
+  parentId: RevisionId | null;
+  generationId: GenerationId | null;
+  summary: string;
+  site: GeneratedSite;
+  tree: readonly FileSnapshot[];
 }

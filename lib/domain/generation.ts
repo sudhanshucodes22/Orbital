@@ -1,14 +1,47 @@
 import type { GenerationId, ProjectId, RevisionId, Timestamp } from "./ids";
 import type { InputArtifact } from "./input";
 
+/** Every state a generation can be in.
+ *
+ * Two groups, one union. The lifecycle states — queued, running, validating
+ * and the three terminals — are what the durable pipeline stores and what a
+ * worker transitions between. The three in the middle (reading, understanding,
+ * building) are progress markers the engine emits as *events* while it is
+ * running; they exist because the UI shows them and because splitting them
+ * into a second enum would mean two vocabularies for one process.
+ */
 export type GenerationStatus =
   | "queued"
+  | "running"
   | "reading"
   | "understanding"
   | "building"
+  | "validating"
   | "succeeded"
   | "failed"
   | "cancelled";
+
+/** The lifecycle states a run may be persisted in. */
+export const RUN_STATES: readonly GenerationStatus[] = [
+  "queued",
+  "running",
+  "validating",
+  "succeeded",
+  "failed",
+  "cancelled",
+];
+
+export const TERMINAL_RUN_STATES: readonly GenerationStatus[] = [
+  "succeeded",
+  "failed",
+  "cancelled",
+];
+
+/** A run that is still ours to finish. Used for the one-active-run-per-project
+ *  rule and for deciding whether a poll should advance the work. */
+export function isActiveState(status: GenerationStatus): boolean {
+  return !TERMINAL_RUN_STATES.includes(status);
+}
 
 /** A single step the engine reports. The landing page calls these "events, not
  *  chain-of-thought" — a status line, not a reasoning trace. */

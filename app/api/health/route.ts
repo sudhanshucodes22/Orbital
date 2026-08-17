@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { previewCapability } from "@/lib/server/preview";
 import { capabilities } from "@/lib/config/env";
 
 /** Deployment health and capability report.
@@ -15,5 +16,8 @@ export function GET() {
     service: "orbital",
     time: new Date().toISOString(),
     capabilities: capabilities(),
+    // Reported so an operator can see what isolation previews actually get on
+    // this host, rather than reading the source or trusting a claim.
+    preview: previewCapability(),
   });
 }

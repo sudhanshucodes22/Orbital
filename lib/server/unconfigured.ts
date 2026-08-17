@@ -14,8 +14,10 @@ import type {
   ArtifactStorage,
   AuthPort,
   GenerationEngine,
+  ProjectFileRepository,
   ProjectRepository,
   RevisionRepository,
+  RunRepository,
   SitePublisher,
   WorkspaceRepository,
 } from "../ports";
@@ -59,6 +61,29 @@ export const unconfiguredProjects: ProjectRepository = {
 export const unconfiguredRevisions: RevisionRepository = {
   async listForProject() { return fail("database"); },
   async get() { return fail("database"); },
+  async create() { return fail("database"); },
+};
+
+/** The working tree and the run log both live in tables that migration 0003
+ *  proposes but that are not yet applied or adapted. Reported as "database"
+ *  because that is the capability an operator would need to enable. */
+export const unconfiguredFiles: ProjectFileRepository = {
+  async list() { return fail("database"); },
+  async get() { return fail("database"); },
+  async applyBatch() { return fail("database"); },
+  async replaceAll() { return fail("database"); },
+};
+
+export const unconfiguredRuns: RunRepository = {
+  async create() { return fail("database"); },
+  async get() { return fail("database"); },
+  async getByGenerationId() { return fail("database"); },
+  async query() { return fail("database"); },
+  async update() { return fail("database"); },
+  async findActive() { return fail("database"); },
+  async findByIdempotencyKey() { return fail("database"); },
+  async claim() { return fail("database"); },
+  async listClaimable() { return fail("database"); },
 };
 
 export const unconfiguredStorage: ArtifactStorage = {

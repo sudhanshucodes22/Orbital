@@ -1,0 +1,452 @@
+/* Orbital 2.0 — the product surface layer.
+ *
+ * Why a stylesheet at all, in a codebase that styles everything inline: a
+ * style attribute cannot express :hover, :focus-visible, @keyframes or
+ * @media. The repo already solved this twice — `orb-h*` in globals.css for
+ * the landing page's hover states, `r-*` in responsive.css for its
+ * breakpoints — and this is the same mechanism for the signed-in product.
+ *
+ * The prefix is `o-`. Two rules for anything added here:
+ *
+ *   1. Base appearance belongs in the class, not in a style attribute, so a
+ *      hover rule does not have to fight inline specificity with !important.
+ *      Components in components/ui were rewritten to hand their surface
+ *      styling to these classes; the `style` prop is still honoured for
+ *      per-instance overrides like padding.
+ *   2. Every transition and animation is switched off by the
+ *      prefers-reduced-motion block at the foot of this file. Motion here is
+ *      decoration — nothing communicates state through movement alone.
+ */
+
+/* ============================================================ surfaces === */
+
+/* The card. Glass over the starfield rather than a flat fill: the background
+ * is a live canvas, and an opaque panel over it looks pasted on. */
+.o-panel {
+  position: relative;
+  padding: 26px 24px 28px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0) 42%),
+    rgba(9, 12, 19, 0.62);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  transition:
+    border-color 220ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    transform 220ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    box-shadow 220ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+/* A one-pixel gradient hairline along the top edge, brightest at the left.
+ * This is the "edge lighting" — it implies a light source above the card and
+ * costs one pseudo-element rather than a border image. */
+.o-panel--lit::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: 18px 18px 0 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(124, 230, 255, 0.5) 18%,
+    rgba(164, 139, 255, 0.32) 58%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* The accented variant: used for the one card on a page that is the primary
+ * action. More than one of these on a screen and none of them read. */
+.o-panel--accent {
+  border-color: rgba(124, 230, 255, 0.28);
+  background:
+    linear-gradient(160deg, rgba(124, 230, 255, 0.1), rgba(164, 139, 255, 0.05) 46%, rgba(9, 12, 19, 0.68)),
+    rgba(9, 12, 19, 0.62);
+}
+
+/* Hoverable cards: project rows, starter cards. The lift is small on purpose
+ * — 3px reads as responsive, 8px reads as a toy. */
+.o-lift {
+  transition:
+    border-color 220ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    transform 220ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    box-shadow 220ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    background-color 220ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.o-lift:hover {
+  transform: translateY(-3px);
+  border-color: rgba(124, 230, 255, 0.34);
+  box-shadow:
+    0 0 0 1px rgba(124, 230, 255, 0.12),
+    0 26px 60px -30px rgba(124, 230, 255, 0.4),
+    0 22px 60px -26px rgba(0, 0, 0, 0.9);
+}
+
+/* Keyboard parity: a card that lifts under a mouse must lift under Tab, or
+ * the affordance only exists for pointer users. */
+.o-lift:focus-within {
+  border-color: rgba(124, 230, 255, 0.34);
+}
+
+/* ============================================================= buttons === */
+
+.o-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform 160ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    filter 160ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    border-color 160ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    background-color 160ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    opacity 160ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.o-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Busy, not disabled: the control still owns the interaction, it is just
+ * mid-flight. Distinct cursor, and the label carries the state. */
+.o-btn[data-busy="true"] {
+  cursor: progress;
+  opacity: 0.72;
+}
+
+/* -- primary: the important AI action ------------------------------------ */
+.o-btn--primary {
+  padding: 12px 22px;
+  color: #04060c;
+  background: linear-gradient(135deg, #a8ecff 0%, #7ad6ff 45%, #9db4ff 100%);
+  box-shadow:
+    0 0 0 1px rgba(124, 230, 255, 0.22),
+    0 12px 34px -14px rgba(124, 230, 255, 0.65);
+}
+
+.o-btn--primary:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  filter: brightness(1.06);
+  box-shadow:
+    0 0 0 1px rgba(124, 230, 255, 0.4),
+    0 18px 46px -14px rgba(124, 230, 255, 0.85);
+}
+
+/* Press should feel like it lands. */
+.o-btn--primary:active:not(:disabled) {
+  transform: translateY(0);
+  filter: brightness(0.98);
+  box-shadow:
+    0 0 0 1px rgba(124, 230, 255, 0.3),
+    0 8px 20px -12px rgba(124, 230, 255, 0.6);
+}
+
+/* -- secondary: outlined, for the second action in a pair ---------------- */
+.o-btn--secondary {
+  padding: 11px 19px;
+  color: rgba(205, 242, 255, 0.95);
+  border-color: rgba(124, 230, 255, 0.32);
+  background: rgba(124, 230, 255, 0.08);
+}
+
+.o-btn--secondary:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  border-color: rgba(124, 230, 255, 0.55);
+  background: rgba(124, 230, 255, 0.14);
+  box-shadow: 0 14px 34px -18px rgba(124, 230, 255, 0.7);
+}
+
+.o-btn--secondary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* -- ghost: tertiary, sits quietly until approached ---------------------- */
+.o-btn--ghost {
+  padding: 10px 16px;
+  color: rgba(233, 235, 242, 0.55);
+  border-color: rgba(255, 255, 255, 0.09);
+  background: transparent;
+}
+
+.o-btn--ghost:hover:not(:disabled) {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* -- danger: destructive, and reads as destructive only on approach ------ */
+.o-btn--danger {
+  padding: 10px 16px;
+  color: rgba(233, 235, 242, 0.4);
+  border-color: rgba(255, 255, 255, 0.08);
+  background: transparent;
+}
+
+.o-btn--danger:hover:not(:disabled) {
+  color: rgba(255, 196, 190, 0.95);
+  border-color: rgba(255, 150, 140, 0.4);
+  background: rgba(255, 150, 140, 0.08);
+}
+
+/* Small variant, for controls inside a row. */
+.o-btn--sm {
+  font-size: 12.5px;
+  padding: 8px 14px;
+}
+
+/* ========================================================== starters ===== */
+
+/* A starter is a submit button the size of a card, so it needs every card
+ * property spelled out — a <button> inherits none of them. */
+.o-starter {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-align: left;
+  padding: 17px 18px 16px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 55%),
+    rgba(255, 255, 255, 0.015);
+  color: #e9ebf2;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  cursor: pointer;
+}
+
+/* The arrow slides on approach. It is the only moving part in the card, so it
+ * reads as "this goes somewhere" rather than as ornament. */
+.o-starter__go {
+  display: inline-block;
+  transition: transform 220ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.o-starter:hover .o-starter__go,
+.o-starter:focus-visible .o-starter__go {
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .o-starter:hover .o-starter__go,
+  .o-starter:focus-visible .o-starter__go {
+    transform: none;
+  }
+}
+
+/* ============================================================== inputs === */
+
+.o-field {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.03);
+  color: #e9ebf2;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 14.5px;
+  transition:
+    border-color 160ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    background-color 160ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.o-field::placeholder {
+  color: rgba(233, 235, 242, 0.3);
+}
+
+.o-field:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* The focus state is the one piece of chrome a form really needs. It replaces
+ * the global focus-visible outline for fields, which is why it has to be at
+ * least as loud as that outline was. */
+.o-field:focus {
+  outline: none;
+  border-color: rgba(124, 230, 255, 0.6);
+  background: rgba(124, 230, 255, 0.04);
+  box-shadow:
+    0 0 0 3px rgba(124, 230, 255, 0.14),
+    0 0 26px -6px rgba(124, 230, 255, 0.35);
+}
+
+/* ============================================================== chips ==== */
+
+/* Suggestion chips in the generator. Quiet until approached, because there
+ * are three of them and they are not the primary action on the panel. */
+.o-chip {
+  padding: 8px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.025);
+  color: rgba(233, 235, 242, 0.62);
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    background-color 160ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    color 160ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    transform 160ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.o-chip:hover {
+  transform: translateY(-1.5px);
+  border-color: rgba(124, 230, 255, 0.34);
+  background: rgba(124, 230, 255, 0.08);
+  color: #e9ebf2;
+}
+
+/* ========================================================= file input ==== */
+
+/* The native control cannot be styled, so it is moved out of sight while
+ * staying focusable, and the label carries the button appearance. Focus is
+ * forwarded from the real input to the label so keyboard users still see a
+ * ring on the thing they can see. */
+.o-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.o-file:focus-visible + label {
+  outline: 2px solid #7ce6ff;
+  outline-offset: 3px;
+}
+
+/* ========================================================= status dot ==== */
+
+.o-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Only a running build pulses. A steady state that blinks is a distraction
+ * with nothing to report. */
+.o-dot--live {
+  animation: oPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes oPulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  50% {
+    opacity: 0.62;
+    box-shadow: 0 0 0 4px rgba(164, 139, 255, 0);
+  }
+}
+
+/* ========================================================== entrances ==== */
+
+/* Sections settle in on load. Short, small, and once — this is the page
+ * arriving, not an effect. The stagger is applied inline as a delay so a
+ * caller can order its own children without a class per index. */
+.o-enter {
+  animation: oEnter 520ms cubic-bezier(0.2, 0.6, 0.2, 1) both;
+}
+
+@keyframes oEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ========================================================== skeletons ==== */
+
+.o-skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.o-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(124, 230, 255, 0.11),
+    transparent
+  );
+  animation: oShimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes oShimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ====================================================== reduced motion === */
+
+/* globals.css already collapses durations globally. This is the stronger
+ * statement for the pieces added here: the decorative ones stop existing as
+ * motion rather than running very fast, and the transform-based hovers stop
+ * moving so a lift cannot flicker at 0.01ms.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .o-enter {
+    animation: none;
+  }
+  .o-dot--live,
+  .o-skeleton::after {
+    animation: none;
+  }
+  .o-lift:hover,
+  .o-btn:hover:not(:disabled),
+  .o-btn:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* ========================================================= screen reader === */
+
+/* Visible to assistive technology, not to the eye. Used where colour and a
+ * glyph carry meaning — a diff marker says "added" only if you can see it. */
+.o-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

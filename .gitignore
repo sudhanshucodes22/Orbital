@@ -49,3 +49,6 @@ tools/verify/node_modules
 
 # local demo backend state (gitignored: contains a session key and user data)
 .orbital-demo/
+
+# Test build output (npm test compiles here).
+/.test-build/

@@ -12,6 +12,7 @@ import {
   asUserId,
   asWorkspaceId,
   type CreateProjectInput,
+  type CreateRevisionInput,
   type Project,
   type ProjectId,
   type Revision,
@@ -46,6 +47,7 @@ const toRevision = (r: DemoRevision): Revision => ({
   summary: r.summary,
   site: r.site as GeneratedSite,
   createdAt: r.createdAt,
+  tree: (r.tree as Revision["tree"]) ?? undefined,
 });
 
 export const demoWorkspaces: WorkspaceRepository = {
@@ -123,16 +125,30 @@ export const demoProjects: ProjectRepository = {
       if (!row) throw new Error("Project not found");
       if (patch.name !== undefined) row.name = patch.name;
       if (patch.description !== undefined) row.description = patch.description;
+      if (patch.status !== undefined) row.status = patch.status;
+      if (patch.currentRevisionId !== undefined) row.currentRevisionId = patch.currentRevisionId;
       row.updatedAt = nowIso();
       return toProject(row);
     });
   },
 
+  /** Deletes a project and everything belonging to it.
+   *
+   * Every table keyed by `projectId` has to be listed here. Under Supabase
+   * these are `on delete cascade` foreign keys (migration 0003), so the
+   * database does it; the demo store has no foreign keys, which means this
+   * function *is* the cascade and forgetting a table silently orphans rows.
+   *
+   * `files` and `runs` were exactly that: added after this function was
+   * written, cascaded correctly in Postgres, and left behind here — a deleted
+   * project's file contents and prompt history outliving it in the store. */
   async delete(id: ProjectId): Promise<void> {
     await mutate((db) => {
       db.projects = db.projects.filter((x) => x.id !== id);
       db.revisions = db.revisions.filter((r) => r.projectId !== id);
       db.jobs = db.jobs.filter((j) => j.projectId !== id);
+      db.files = db.files.filter((f) => f.projectId !== id);
+      db.runs = db.runs.filter((r) => r.projectId !== id);
     });
   },
 };
@@ -151,6 +167,23 @@ export const demoRevisions: RevisionRepository = {
     return read((db) => {
       const r = db.revisions.find((x) => x.id === id);
       return r ? toRevision(r) : null;
+    });
+  },
+
+  async create(input: CreateRevisionInput): Promise<Revision> {
+    return mutate((db) => {
+      const row: DemoRevision = {
+        id: randomUUID(),
+        projectId: input.projectId,
+        parentId: input.parentId,
+        generationId: input.generationId,
+        summary: input.summary,
+        site: input.site,
+        tree: input.tree,
+        createdAt: nowIso(),
+      };
+      db.revisions.push(row);
+      return toRevision(row);
     });
   },
 };

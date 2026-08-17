@@ -21,6 +21,20 @@ export interface ServerEnv {
   supabaseServiceRoleKey: string | undefined;
   storageBucket: string | undefined;
   generationApiKey: string | undefined;
+  /** Which vendor answers, and which model. Read as opaque strings and passed
+   *  through: pinning a list of valid model ids here would go stale, and a
+   *  wrong one should fail at the vendor with the vendor's own message. */
+  generationProvider: string | undefined;
+  generationModel: string | undefined;
+  /** Shared secret for the worker trigger. Not a user credential: the caller
+   *  is a scheduler acting on the whole queue, so there is no session to
+   *  check. Absent means the trigger refuses every request. */
+  workerSecret: string | undefined;
+  /** Vercel Cron's own secret. Vercel sends it as `Authorization: Bearer
+   *  $CRON_SECRET` on scheduled invocations, so accepting it means the cron
+   *  entry in vercel.json needs no extra wiring. Either secret authorises the
+   *  trigger; deployments elsewhere just set WORKER_SECRET. */
+  cronSecret: string | undefined;
 }
 
 export function serverEnv(): ServerEnv {
@@ -36,6 +50,10 @@ export function serverEnv(): ServerEnv {
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
     storageBucket: process.env.STORAGE_BUCKET,
     generationApiKey: process.env.GENERATION_API_KEY,
+    generationProvider: process.env.GENERATION_PROVIDER,
+    generationModel: process.env.GENERATION_MODEL,
+    workerSecret: process.env.WORKER_SECRET,
+    cronSecret: process.env.CRON_SECRET,
   };
 }
 
@@ -87,7 +105,10 @@ export function capabilities(): CapabilityReport {
     // Signed upload URLs need the service-role key; the anon key cannot mint
     // them.
     storage: Boolean(e.supabaseServiceRoleKey) && Boolean(e.storageBucket),
-    generation: Boolean(e.generationApiKey),
+    // All three are needed together: a key with no model, or a model with no
+    // provider, cannot reach a vendor. Reported as one boolean because that
+    // is the question the UI asks — "can this generate?"
+    generation: Boolean(e.generationApiKey && e.generationProvider && e.generationModel),
     publishing: false,
   };
 }
@@ -101,6 +122,6 @@ export const CAPABILITY_REQUIREMENTS: Readonly<Record<Exclude<keyof CapabilityRe
     "SUPABASE_SERVICE_ROLE_KEY",
     "STORAGE_BUCKET",
   ],
-  generation: ["GENERATION_API_KEY"],
+  generation: ["GENERATION_API_KEY", "GENERATION_PROVIDER", "GENERATION_MODEL"],
   publishing: ["a deploy target integration (not yet chosen)"],
 };

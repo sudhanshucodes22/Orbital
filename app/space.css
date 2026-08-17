@@ -39,6 +39,85 @@
     linear-gradient(180deg, rgba(3, 4, 8, 0) 0%, rgba(3, 4, 8, 0.45) 100%);
 }
 
+/* Drifting ambient light for the signed-in product.
+ *
+ * Two pools on different periods — 34s and 41s — so the pair never returns to
+ * the same arrangement and the loop cannot be seen. They are the reason a
+ * long page does not go flat between cards, and they are deliberately below
+ * the threshold where you would notice them moving: if the motion is legible,
+ * the opacity is wrong.
+ *
+ * Both sit inside .space-bg, which is fixed and pointer-events: none, so they
+ * cost nothing in layout and cannot intercept a click.
+ */
+.space-bg__aurora {
+  position: absolute;
+  inset: -10%;
+  filter: blur(20px);
+}
+
+.space-bg__aurora::before,
+.space-bg__aurora::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+}
+
+/* Cyan, upper right — the same hue and corner the landing page's scrim uses,
+ * so the product reads as the same sky. */
+.space-bg__aurora::before {
+  top: -6%;
+  right: -8%;
+  width: min(780px, 76vw);
+  height: min(680px, 68vh);
+  background: radial-gradient(
+    circle,
+    rgba(74, 168, 255, 0.085) 0%,
+    rgba(124, 230, 255, 0.045) 40%,
+    transparent 68%
+  );
+  animation: spaceAuroraA 34s ease-in-out infinite;
+}
+
+/* Violet, lower left. */
+.space-bg__aurora::after {
+  bottom: -12%;
+  left: -10%;
+  width: min(720px, 72vw);
+  height: min(640px, 64vh);
+  background: radial-gradient(
+    circle,
+    rgba(140, 116, 255, 0.075) 0%,
+    rgba(164, 139, 255, 0.04) 42%,
+    transparent 70%
+  );
+  animation: spaceAuroraB 41s ease-in-out infinite;
+}
+
+@keyframes spaceAuroraA {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate3d(-4%, 5%, 0) scale(1.12);
+    opacity: 1;
+  }
+}
+
+@keyframes spaceAuroraB {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.06);
+    opacity: 1;
+  }
+  50% {
+    transform: translate3d(5%, -4%, 0) scale(1);
+    opacity: 0.85;
+  }
+}
+
 /* A soft pool of light behind a centred auth card. Sized in vmin so it stays
  * proportional from a phone to a wide desktop. */
 .space-bg__glow {
@@ -72,7 +151,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .space-bg__glow {
+  .space-bg__glow,
+  .space-bg__aurora::before,
+  .space-bg__aurora::after {
     animation: none;
   }
 }

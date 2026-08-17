@@ -9,6 +9,8 @@ import {
 import "./globals.css";
 import "./responsive.css";
 import "./space.css";
+import "./product.css";
+import "./builder.css";
 import { publicEnv } from "@/lib/config/env";
 
 /* The five families the design loads, with the exact weights and styles

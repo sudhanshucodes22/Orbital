@@ -130,12 +130,13 @@
     right: -26% !important;
     width: min(560px, 104vw) !important;
     height: min(560px, 104vw) !important;
-    /* Desktop keeps the Earth at .95 because the copy sits on the dark left
-     * of the scrim and never crosses it. Stacked, every section is full width
-     * and passes straight over it, so card text was washing out against the
-     * daylit side. Dimmed enough to read through, bright enough to still be
-     * the Earth. */
-    opacity: 0.62 !important;
+    /* Desktop runs the Earth at full opacity because the copy sits on the dark
+     * left of the scrim and never crosses it. Stacked, every section is full
+     * width and passes straight over it, so card text was washing out against
+     * the daylit side. Dimmed enough to read through, bright enough to still
+     * be the Earth — lifted with the texture change, which is darker and more
+     * contrasty than the flat map it replaced. */
+    opacity: 0.74 !important;
   }
 
   /* The scrim runs left-to-right on desktop because the copy is on the left.
@@ -411,4 +412,52 @@
 .r-menu-link[aria-current="true"] {
   background: rgba(255, 255, 255, 0.07);
   color: #fff;
+}
+
+/* ------------------------------------------------ product surfaces ------ */
+/* The signed-in area (projects list, editor, auth) is built from the same
+ * inline styles as the landing page, so it re-flows the same way: hooks here,
+ * !important because a media query cannot reach a style attribute.
+ *
+ * These grids are all `repeat(N, minmax(0,1fr))` at desktop. Below 768 the
+ * four-up rows become two-up rather than one, because their cells are a
+ * number and a label — stacking those makes a very tall column of very short
+ * rows.
+ */
+@media (max-width: 768px) {
+  /* Form beside supporting copy becomes copy under form. The aside is the
+   * secondary column, and source order already puts it second. */
+  .r-auth,
+  .r-starters,
+  .r-steps,
+  .r-sources,
+  .r-projects,
+  .r-detail {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .r-stats,
+  .r-meta,
+  .r-tokens {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* The stat strip's dividers are vertical rules between four cells in one
+   * row. Wrapped to two rows, the second cell's rule lands on the outer edge
+   * of the panel, so they come off and row spacing carries the separation
+   * instead. */
+  .r-stats {
+    row-gap: 22px !important;
+  }
+  .r-stats > div {
+    border-right: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* A token's value can be a full font stack, which does not survive being
+   * halved at this width. */
+  .r-tokens {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
 }

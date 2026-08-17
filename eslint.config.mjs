@@ -21,6 +21,11 @@ const eslintConfig = defineConfig([
 
     // The baseline harness is a standalone package with its own toolchain.
     "tools/baseline/node_modules/**",
+
+    // Compiled output of `npm test`. Generated CommonJS, so every import is a
+    // require() the TypeScript rules correctly object to — in source that
+    // would be a finding, here it is the compiler doing its job.
+    ".test-build/**",
   ]),
 ]);
 

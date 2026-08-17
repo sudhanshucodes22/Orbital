@@ -1,0 +1,22 @@
+{
+  // Tests compile to CommonJS and run on node:test.
+  //
+  // CommonJS rather than ESM because the codebase uses extensionless relative
+  // imports ("./ids"), which Node's ESM resolver rejects and CommonJS resolves
+  // natively. Rewriting every import to carry a .js extension to satisfy a
+  // test runner would be the tail wagging the dog.
+  //
+  // No new dependency: node:test ships with Node, and tsc is already here.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmit": false,
+    "outDir": ".test-build",
+    "incremental": false,
+    "jsx": "react-jsx",
+    "types": ["node"]
+  },
+  "include": ["lib/**/*.ts", "tests/**/*.ts"],
+  "exclude": ["node_modules", "app", "components", "tools", ".next"]
+}

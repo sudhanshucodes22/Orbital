@@ -58,10 +58,30 @@ export async function listProjects(session: Session): Promise<Project[]> {
   return [...projects].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
+/** The read gate for a project, and for everything reached through one.
+ *
+ * A project the caller may not see is reported as missing, not as forbidden.
+ * "You are not a member of this workspace" confirms the project exists, which
+ * is a fact about someone else's data — and with ids in URLs, confirming
+ * existence is the whole of the disclosure. Under Supabase this is already
+ * what happens (RLS returns no row, so `get` yields null); making it explicit
+ * means the two backends agree, and that a workspace the caller can see but
+ * has no role in behaves the same way.
+ *
+ * The write paths are deliberately different: `updateProject` and
+ * `deleteProject` re-check for a higher role and raise ForbiddenError, because
+ * by then the caller has already proven they may see the project, and "you
+ * need the admin role" is useful rather than leaky.
+ */
 export async function getProject(session: Session, id: ProjectId): Promise<Project> {
   const project = await getContainer().projects.get(id);
   if (!project) throw new NotFoundError("Project");
-  await requireRole(session, project.workspaceId, "viewer");
+  try {
+    await requireRole(session, project.workspaceId, "viewer");
+  } catch (error) {
+    if (error instanceof ForbiddenError) throw new NotFoundError("Project");
+    throw error;
+  }
   return project;
 }
 

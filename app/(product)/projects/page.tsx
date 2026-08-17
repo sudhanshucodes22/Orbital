@@ -1,30 +1,52 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/ui/AppShell";
 import { CreateProjectForm } from "@/components/ui/CreateProjectForm";
-import { DeleteProjectButton } from "@/components/ui/DeleteProjectButton";
 import { NotConfigured } from "@/components/ui/NotConfigured";
-import { Panel } from "@/components/ui/Panel";
+import { Eyebrow, Heading, Panel } from "@/components/ui/Panel";
+import { ProjectCard } from "@/components/ui/ProjectCard";
+import { StarterGrid } from "@/components/ui/StarterGrid";
 import { tokens } from "@/components/ui/tokens";
+import { WorkspaceHeader } from "@/components/ui/WorkspaceHeader";
 import { CAPABILITY_REQUIREMENTS, capabilities } from "@/lib/config/env";
-import { getSession, listProjects } from "@/lib/services";
-import { createProjectAction, deleteProjectAction } from "./actions";
+import {
+  getSession,
+  listProjects,
+  PROJECT_DESCRIPTION_MAX,
+  PROJECT_NAME_MAX,
+} from "@/lib/services";
+import { createFromStarterAction, createProjectAction, deleteProjectAction } from "./actions";
 
 export const metadata: Metadata = { title: "Projects" };
 
 // Session state must not be cached across requests.
 export const dynamic = "force-dynamic";
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
+/** What happens after a brief is submitted. Shown only on the empty state,
+ *  where the question "and then what?" is actually being asked. */
+const STEPS: readonly { n: string; title: string; body: string }[] = [
+  {
+    n: "01",
+    title: "Describe or show",
+    body: "A sentence, a screenshot, a sketch or a PDF. Attachments and text can be combined in one brief.",
+  },
+  {
+    n: "02",
+    title: "Watch it build",
+    body: "The engine reports what it is doing — reading, understanding, building — as a status stream, not a reasoning trace.",
+  },
+  {
+    n: "03",
+    title: "Keep talking to it",
+    body: "Describe a change and it patches the existing site. Every revision is kept, so nothing is overwritten.",
+  },
+];
 
-export default async function ProjectsPage() {
+export default async function ProjectsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   if (!capabilities().database) {
     return (
       <AppShell title="Projects">
@@ -46,102 +68,135 @@ export default async function ProjectsPage() {
   // into an empty list — "you have no projects" and "the query failed" must
   // not look the same.
   const projects = await listProjects(session);
+  const { error } = await searchParams;
+  const empty = projects.length === 0;
+
+  // The email local part is a poor name, so it is only used when there is no
+  // display name at all — and never with an "@" in it.
+  const greetingName =
+    session.user.displayName?.trim() || session.user.email.split("@")[0] || null;
 
   return (
     <AppShell title="Projects" signedIn>
-      <div style={{ display: "grid", gap: 26 }}>
-        <Panel>
-          <CreateProjectForm action={createProjectAction} />
-        </Panel>
+      <div style={{ display: "grid", gap: 30 }}>
+        <div className="o-enter">
+          <WorkspaceHeader projects={projects} name={greetingName} />
+        </div>
 
-        {projects.length === 0 ? (
-          <Panel>
-            <h2
-              style={{
-                margin: 0,
-                fontFamily: tokens.display,
-                fontWeight: 500,
-                fontSize: 20,
-                letterSpacing: "-.02em",
-              }}
-            >
-              Nothing in orbit yet.
-            </h2>
-            <p style={{ margin: "10px 0 0", fontSize: 14.5, lineHeight: 1.6, color: tokens.textMuted, maxWidth: 460 }}>
-              Create your first project above. Once the generation engine is
-              connected, this is where a sketch, a screenshot or a sentence
-              becomes a site.
+        {error && (
+          <Panel style={{ padding: "15px 20px", borderColor: "rgba(255,150,140,.35)" }}>
+            <p role="alert" style={{ margin: 0, fontSize: 13.5, color: "rgba(255,196,190,.95)" }}>
+              {error}
             </p>
           </Panel>
-        ) : (
-          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 12 }}>
-            {projects.map((project) => (
-              <li key={project.id}>
-                <Panel style={{ padding: "18px 20px" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: 16,
-                      alignItems: "center",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <div style={{ flex: "1 1 240px", minWidth: 0 }}>
-                      <Link
-                        href={`/projects/${project.id}`}
-                        style={{
-                          fontFamily: tokens.display,
-                          fontSize: 17,
-                          letterSpacing: "-.02em",
-                          color: tokens.text,
-                        }}
-                      >
-                        {project.name}
-                      </Link>
-                      {project.description && (
-                        <p style={{ margin: "6px 0 0", fontSize: 13, lineHeight: 1.5, color: tokens.textMuted }}>
-                          {project.description}
-                        </p>
-                      )}
-                      <p
-                        style={{
-                          margin: "8px 0 0",
-                          fontFamily: tokens.mono,
-                          fontSize: 10.5,
-                          letterSpacing: ".08em",
-                          color: tokens.textFaint,
-                        }}
-                      >
-                        {project.status.toUpperCase()} · UPDATED {formatDate(project.updatedAt)}
-                      </p>
-                    </div>
-                    {/* The title is a link, but a bare title reads as static
-                        text. An explicit control makes the row's primary
-                        action obvious at a glance. */}
-                    <Link
-                      href={`/projects/${project.id}`}
+        )}
+
+        {/* The focal point of the page. Accent + edge lighting mark it as the
+            primary action, and it is the only card on the list that gets
+            either treatment. */}
+        <Panel accent lit enter delay={70} style={{ padding: "24px 24px 26px" }}>
+          <Eyebrow>New project</Eyebrow>
+          <Heading size="md" style={{ marginTop: 14 }}>
+            {empty ? "Start your first site" : "Start something new"}
+          </Heading>
+          <div style={{ marginTop: 18 }}>
+            <CreateProjectForm
+              action={createProjectAction}
+              nameMax={PROJECT_NAME_MAX}
+              descriptionMax={PROJECT_DESCRIPTION_MAX}
+            />
+          </div>
+        </Panel>
+
+        {empty ? (
+          <>
+            <Panel enter delay={140}>
+              <StarterGrid
+                action={createFromStarterAction}
+                heading="Or take one of these"
+                subheading="Each one is a real brief, not a placeholder. Picking it creates the project and opens the editor with the brief already written — you can edit it before generating, or replace it entirely."
+              />
+            </Panel>
+
+            <Panel enter delay={210}>
+              <Eyebrow tone="muted">How it works</Eyebrow>
+              <ol
+                className="r-steps"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, minmax(0,1fr))",
+                  gap: 24,
+                  margin: "22px 0 0",
+                  padding: 0,
+                  listStyle: "none",
+                }}
+              >
+                {STEPS.map((step) => (
+                  <li key={step.n}>
+                    <div
                       style={{
-                        padding: "7px 15px",
-                        borderRadius: 999,
-                        border: `1px solid ${tokens.borderAccent}`,
-                        background: tokens.accentSoft,
-                        color: "#cdf2ff",
-                        fontSize: 12.5,
-                        whiteSpace: "nowrap",
+                        fontFamily: tokens.mono,
+                        fontSize: 10.5,
+                        letterSpacing: ".14em",
+                        color: "rgba(124,230,255,.7)",
                       }}
                     >
-                      Open →
-                    </Link>
-                    <DeleteProjectButton
-                      projectId={project.id}
-                      projectName={project.name}
-                      action={deleteProjectAction}
-                    />
-                  </div>
-                </Panel>
-              </li>
-            ))}
-          </ul>
+                      {step.n}
+                    </div>
+                    <Heading size="sm" as="h3" style={{ marginTop: 11 }}>
+                      {step.title}
+                    </Heading>
+                    <p style={{ margin: "8px 0 0", fontSize: 13, lineHeight: 1.6, color: tokens.textMuted }}>
+                      {step.body}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            </Panel>
+          </>
+        ) : (
+          <>
+            <section>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16 }}>
+                <Eyebrow>Your projects</Eyebrow>
+                <span style={{ flex: 1 }} />
+                <span style={{ fontFamily: tokens.mono, fontSize: 10, letterSpacing: ".12em", color: tokens.textFaint }}>
+                  {projects.length} TOTAL
+                </span>
+              </div>
+
+              <ul
+                className="r-projects"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, minmax(0,1fr))",
+                  gap: 14,
+                  margin: 0,
+                  padding: 0,
+                  listStyle: "none",
+                }}
+              >
+                {projects.map((project, i) => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    deleteAction={deleteProjectAction}
+                    /* Capped so a long list does not end with a card that
+                       arrives a full second after the first. */
+                    delay={Math.min(i, 6) * 45}
+                  />
+                ))}
+              </ul>
+            </section>
+
+            <Panel>
+              <StarterGrid
+                action={createFromStarterAction}
+                heading="Start another from a brief"
+                subheading="Creates a new project and opens it with the brief loaded."
+              />
+            </Panel>
+          </>
         )}
       </div>
     </AppShell>

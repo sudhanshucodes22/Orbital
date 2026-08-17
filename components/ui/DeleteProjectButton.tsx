@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import type { ProjectFormState } from "@/app/(product)/projects/actions";
-import { tokens } from "./tokens";
+import { Button } from "./Button";
 
 export function DeleteProjectButton({
   projectId,
@@ -26,23 +26,16 @@ export function DeleteProjectButton({
       }}
     >
       <input type="hidden" name="projectId" value={projectId} />
-      <button
+      <Button
         type="submit"
+        variant="danger"
+        size="sm"
+        busy={pending}
         disabled={pending}
         aria-label={`Delete ${projectName}`}
-        style={{
-          padding: "7px 13px",
-          borderRadius: 999,
-          border: `1px solid ${tokens.borderSoft}`,
-          background: "transparent",
-          color: tokens.textFaint,
-          fontFamily: tokens.body,
-          fontSize: 12.5,
-          cursor: pending ? "progress" : "pointer",
-        }}
       >
         {pending ? "Deleting…" : "Delete"}
-      </button>
+      </Button>
       {state.error && (
         <span role="alert" style={{ marginLeft: 10, fontSize: 12, color: "rgba(255,196,190,.95)" }}>
           {state.error}

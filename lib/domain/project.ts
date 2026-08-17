@@ -30,4 +30,9 @@ export interface CreateProjectInput {
 export interface UpdateProjectInput {
   name?: string;
   description?: string | null;
+  /** Set by the generation engine as a build moves through its states.
+   *  `renameProject` builds its patch field by field and never populates
+   *  these, so exposing them here does not widen what a user can change. */
+  status?: ProjectStatus;
+  currentRevisionId?: RevisionId | null;
 }

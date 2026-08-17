@@ -29,7 +29,14 @@ export async function GET(
 
   // Throws NotFound if the project is not the caller's, which is the check
   // that matters — a revision id must not be a way around project ownership.
-  await getProject(session, revision.projectId);
+  // Answered as 404 rather than letting the throw become a 500: a revision
+  // belonging to someone else has to be indistinguishable from one that does
+  // not exist, and a distinctive error page is a way to tell them apart.
+  try {
+    await getProject(session, revision.projectId);
+  } catch {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
 
   const site = revision.site as GeneratedSite;
   const wanted = new URL(request.url).searchParams.get("path") ?? "/";

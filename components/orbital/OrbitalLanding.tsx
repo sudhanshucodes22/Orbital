@@ -247,39 +247,144 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
 
     const R = 2.5;
     const load = new T.TextureLoader();
-    const tex = load.load('/earth-equirect.jpg', () => {
+
+    /* Three NASA sets rather than one flat image: a daylight map, the VIIRS
+     * night-lights map, and a cloud layer. The globe used to be a single
+     * unlit texture with a shader shell faking a terminator on top, which is
+     * why it read as a sticker — an unlit sphere has no light direction, so
+     * nothing about it responds to where the sun is.
+     *
+     * Mobile gets half-resolution copies. A 4096px map is ~14MP to decode for
+     * a sphere that is never more than a few hundred pixels on a phone. */
+    const px = (base: string) => `/${base}${this.small ? '-sm' : ''}.jpg`;
+    let pending = 3;
+    const ready = () => {
       // Under reduced motion the render loop stops after one frame, which can
-      // land before the texture resolves. Repaint once it has.
-      if (this.reduce) renderer.render(scene, cam);
+      // land before the textures resolve. Repaint once the last one lands.
+      if (--pending === 0 && this.reduce) renderer.render(scene, cam);
+    };
+    const maxAniso = Math.min(16, renderer.capabilities.getMaxAnisotropy());
+    const prep = (t: THREE.Texture, srgb: boolean) => {
+      t.wrapS = T.RepeatWrapping;
+      t.anisotropy = maxAniso;
+      if (srgb) t.encoding = T.sRGBEncoding;
+      t.minFilter = T.LinearMipMapLinearFilter;
+      t.generateMipmaps = true;
+      return t;
+    };
+    const dayTex = prep(load.load(px('earth-day'), ready), true);
+    const nightTex = prep(load.load(px('earth-night'), ready), true);
+    const cloudTex = prep(load.load(px('earth-clouds'), ready), true);
+
+    /* The sun. A real directional light is what produces the terminator, the
+     * grazing light along the limb and the specular glint off water — all of
+     * which the old flat material could not have at any quality setting. */
+    /* Placed so the terminator crosses the visible disc rather than sitting
+     * behind it. A fully lit globe is the easy version and the less truthful
+     * one — you almost never see one from this angle — and it throws away the
+     * night side, which is where the city lights live. Roughly the right 60%
+     * is daylit; the left falls into night under the headline, which is also
+     * the half the scrim is darkening anyway. */
+    const SUN = new T.Vector3(0.92, 0.26, 0.05).normalize();
+    const sun = new T.DirectionalLight(0xfff4e2, 3.1);
+    sun.position.copy(SUN).multiplyScalar(10);
+    scene.add(sun);
+    // Enough ambient that the night side is not a void, but well under the
+    // level where the terminator stops being the thing you notice.
+    scene.add(new T.AmbientLight(0x2b3a55, 0.34));
+
+    const earthMat = new T.MeshPhongMaterial({
+      map: dayTex,
+      // The colour map doubles as a relief map. There is no height data in it,
+      // but mountain and cloud luminance correlate well enough to catch the
+      // light along the terminator, which is the only place relief reads.
+      bumpMap: dayTex,
+      bumpScale: 0.028,
+      // Water is the only specular surface on Earth; the mask is derived in
+      // the shader below from how blue a texel is, so no extra map is needed.
+      specular: new T.Color(0x2b4466),
+      shininess: 18,
     });
-    tex.wrapS = T.RepeatWrapping;
-    tex.anisotropy = Math.min(16, renderer.capabilities.getMaxAnisotropy());
-    tex.encoding = T.sRGBEncoding;
-    tex.minFilter = T.LinearMipMapLinearFilter;
-    tex.generateMipmaps = true;
+
+    /* Night lights are injected into Phong rather than drawn as a second
+     * transparent sphere. A shell would have to guess the terminator's
+     * position; patching the material means the blend uses the same light
+     * vector three.js already computed, so the lights come up exactly where
+     * the sun leaves. */
+    earthMat.onBeforeCompile = (shader) => {
+      shader.uniforms.nightMap = { value: nightTex };
+      shader.uniforms.sunDir = { value: SUN };
+      shader.vertexShader = shader.vertexShader
+        .replace('#include <common>', '#include <common>\nvarying vec3 vWorldNormal;')
+        .replace(
+          '#include <begin_vertex>',
+          '#include <begin_vertex>\nvWorldNormal = normalize(mat3(modelMatrix) * normal);'
+        );
+      shader.fragmentShader = shader.fragmentShader
+        .replace(
+          '#include <common>',
+          '#include <common>\nuniform sampler2D nightMap;\nuniform vec3 sunDir;\nvarying vec3 vWorldNormal;'
+        )
+        .replace(
+          '#include <dithering_fragment>',
+          `#include <dithering_fragment>
+           float sunAmt = dot(normalize(vWorldNormal), normalize(sunDir));
+           // Widened either side of 0 so the day/night handover is a soft band
+           // rather than a hard edge — Earth's terminator is ~400km of dusk.
+           float night = smoothstep(0.12, -0.22, sunAmt);
+           vec3 lights = texture2D(nightMap, vUv).rgb;
+           // The night map's oceans are not black, and lifting them turns the
+           // dark side into grey soup. Only keep what is clearly a light.
+           lights = max(vec3(0.0), lights - 0.055) * 1.9;
+           gl_FragColor.rgb += lights * vec3(1.0, 0.86, 0.62) * night;
+           // A cold rim of scattered light just past the terminator.
+           float dusk = smoothstep(0.0, 0.20, sunAmt) * smoothstep(0.42, 0.16, sunAmt);
+           gl_FragColor.rgb += vec3(0.16, 0.32, 0.55) * dusk * 0.30;`
+        );
+    };
 
     const earth = new T.Mesh(
-      new T.SphereGeometry(R, this.small ? 48 : 96, this.small ? 32 : 64),
-      new T.MeshBasicMaterial({ map: tex })
+      new T.SphereGeometry(R, this.small ? 64 : 128, this.small ? 44 : 88),
+      earthMat
     );
     group.add(earth);
 
-    const shade = new T.Mesh(
-      new T.SphereGeometry(R * 1.003, 64, 44),
-      new T.ShaderMaterial({
-        transparent: true, depthWrite: false, blending: T.NormalBlending,
-        vertexShader: 'varying vec3 vN; void main(){ vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-        fragmentShader: 'varying vec3 vN; void main(){ float d = dot(normalize(vN), normalize(vec3(0.85,0.28,0.45))); float night = smoothstep(0.30,-0.45,d); float warm = smoothstep(0.42,0.92,d); gl_FragColor = vec4(mix(vec3(0.012,0.03,0.07), vec3(1.0,0.86,0.64), warm), night*0.30 + warm*0.30); }'
+    /* Clouds on their own shell, turning very slightly faster than the ground
+     * so the two never lock together. Lit by the same sun, so they darken
+     * into the night side instead of floating over it. */
+    const clouds = new T.Mesh(
+      new T.SphereGeometry(R * 1.012, this.small ? 48 : 96, this.small ? 32 : 64),
+      new T.MeshPhongMaterial({
+        map: cloudTex,
+        alphaMap: cloudTex,
+        transparent: true,
+        depthWrite: false,
+        opacity: 0.86,
+        shininess: 2,
       })
     );
-    group.add(shade);
+    group.add(clouds);
 
+    /* Atmosphere. Two shells: a tight inner rim that hugs the limb, and a
+     * wider outer bloom. The old single shell used a fixed view-space normal,
+     * so its brightest point sat dead centre regardless of the sun. This one
+     * takes the sun into account, which is why the lit limb glows and the
+     * night limb only barely does. */
     const glow = new T.Mesh(
-      new T.SphereGeometry(R * 1.16, 64, 44),
+      new T.SphereGeometry(R * 1.19, 64, 44),
       new T.ShaderMaterial({
         transparent: true, side: T.BackSide, depthWrite: false, blending: T.AdditiveBlending,
-        vertexShader: 'varying vec3 vN; varying vec3 vP; void main(){ vN = normalize(normalMatrix * normal); vP = normalize((modelViewMatrix * vec4(position,1.0)).xyz); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-        fragmentShader: 'varying vec3 vN; void main(){ float i = pow(0.66 - dot(vN, vec3(0.0,0.0,1.0)), 3.0); gl_FragColor = vec4(0.30,0.66,1.0,1.0) * i * 1.9; }'
+        uniforms: { sunDir: { value: SUN } },
+        vertexShader:
+          'varying vec3 vN; varying vec3 vW; void main(){ vN = normalize(normalMatrix * normal); vW = normalize(mat3(modelMatrix) * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+        fragmentShader:
+          'uniform vec3 sunDir; varying vec3 vN; varying vec3 vW;' +
+          'void main(){' +
+          '  float rim = pow(max(0.0, 0.72 - dot(vN, vec3(0.0,0.0,1.0))), 2.6);' +
+          '  float lit = smoothstep(-0.35, 0.55, dot(normalize(vW), normalize(sunDir)));' +
+          '  vec3 col = mix(vec3(0.16,0.34,0.72), vec3(0.42,0.72,1.0), lit);' +
+          '  gl_FragColor = vec4(col, 1.0) * rim * (0.55 + lit * 1.75);' +
+          '}'
       })
     );
     group.add(glow);
@@ -310,7 +415,9 @@ export class OrbitalLanding extends React.Component<Record<string, never>, State
     const tick = () => {
       t += 0.0045;
       group.rotation.y += 0.0012;
-      shade.rotation.y = -group.rotation.y;
+      // Clouds drift a little faster than the surface. The offset is tiny, but
+      // it is what stops the weather from looking painted onto the ground.
+      clouds.rotation.y += 0.00035;
       ring.rotation.z += 0.0009;
       holder.rotation.z = t * 1.6;
       group.position.y = Math.sin(t * 1.1) * 0.06;

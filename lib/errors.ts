@@ -47,6 +47,18 @@ export class NotFoundError extends Error {
   }
 }
 
+/** The request is valid but conflicts with the resource's current state.
+ *
+ * Distinct from ValidationError: nothing about the request is wrong, it simply
+ * cannot be honoured right now. The caller's correct response is to wait and
+ * retry, not to fix their input. */
+export class ConflictError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ConflictError";
+  }
+}
+
 /** Input failed validation before reaching any service. */
 export class ValidationError extends Error {
   readonly field: string | undefined;

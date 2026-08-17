@@ -16,8 +16,16 @@ import { createStarfield } from "@/lib/space/starfield";
  * z-index 1; the header and menus stay well above that.
  *
  * `glow="center"` adds a soft pool of light behind a centred auth card.
+ * `aurora` adds two slowly drifting pools of cyan and violet, which is what
+ * keeps a long workspace page from going flat between cards.
  */
-export function SpaceBackground({ glow = "none" }: { glow?: "none" | "center" }) {
+export function SpaceBackground({
+  glow = "none",
+  aurora = true,
+}: {
+  glow?: "none" | "center";
+  aurora?: boolean;
+}) {
   const starRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -43,6 +51,7 @@ export function SpaceBackground({ glow = "none" }: { glow?: "none" | "center" })
     <div className="space-bg" aria-hidden="true">
       <canvas ref={starRef} className="space-bg__stars" />
       <div className="space-bg__atmos" />
+      {aurora && <div className="space-bg__aurora" />}
       {glow === "center" && <div className="space-bg__glow" />}
     </div>
   );

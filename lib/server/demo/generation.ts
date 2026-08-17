@@ -1,68 +1,31 @@
-/** GenerationEngine for demo mode. SERVER ONLY.
+/** The deterministic template generator. SERVER ONLY.
  *
- * IMPORTANT: this is not AI. It is a deterministic stub that exercises the
- * real pipeline — job, status transitions, event stream, revision chain,
- * project status — so the product flow can be demonstrated and the wiring
- * proven end to end. Every surface that shows its output says so.
+ * IMPORTANT: this is not AI. It is a fixed template with the brief woven in,
+ * and every surface that shows its output says so.
  *
- * Progress is derived from elapsed time rather than driven by a timer, so it
- * survives a server restart and needs no background process: get() works out
- * which stage the job should be in and persists the transition.
+ * It used to be a whole generation engine with its own job store, its own
+ * time-based staging and its own revision writing. All of that moved to
+ * lib/server/pipeline: the template now supplies *content*, and the pipeline
+ * owns run state, validation and revisions. There is one generation
+ * architecture, and this is one executor plugged into it.
+ *
+ * Served under `default-src 'none'; style-src 'unsafe-inline'; img-src data:`,
+ * so: no scripts, no webfonts, no remote images. Everything below is system
+ * type, CSS gradients and inline SVG.
  */
-import { randomUUID } from "node:crypto";
-import {
-  asGenerationId,
-  asProjectId,
-  asRevisionId,
-  type GenerationId,
-  type GenerationIntent,
-  type GenerationJob,
-  type GenerationStatus,
-  type GeneratedSite,
-  type InputArtifact,
-  type ProjectId,
-  type SitePage,
-} from "../../domain";
+import type { GeneratedSite, InputArtifact, SitePage } from "../../domain";
 import { NotFoundError } from "../../errors";
-import type { GenerationEngine } from "../../ports";
-import { mutate, nowIso, read, type DemoJob } from "./store";
+import { read } from "./store";
 
-/** Stage boundaries in milliseconds from submission. */
-const STAGES: readonly { at: number; status: GenerationStatus; message: string }[] = [
-  { at: 0, status: "queued", message: "queued" },
-  { at: 700, status: "reading", message: "reading inputs · geometry and hierarchy" },
-  { at: 1600, status: "understanding", message: "resolving intent · components lifted" },
-  { at: 2600, status: "building", message: "assembling typed components · responsive rules" },
-  { at: 3800, status: "succeeded", message: "build complete" },
-];
 
-function stageAt(elapsedMs: number) {
-  let current = STAGES[0];
-  for (const s of STAGES) if (elapsedMs >= s.at) current = s;
-  return current;
-}
-
-function describeInputs(inputs: readonly InputArtifact[]): string {
+export function describeInputs(inputs: readonly InputArtifact[]): string {
   if (inputs.length === 0) return "no inputs";
   return inputs
     .map((i) => (i.kind === "text" ? `text (${i.text.length} chars)` : i.kind))
     .join(", ");
 }
 
-/** Builds a small, real, static site from the project name and the inputs.
- *  Deterministic and clearly labelled — no invented metrics, no fake AI
- *  commentary. */
-/** Builds a small, real, three-page site from the project name and the brief.
- *
- * Deterministic and clearly labelled. It is a template with the brief woven
- * in, not a model — but it has to survive being projected onto a wall, so it
- * is a properly designed template rather than three headings on a page.
- *
- * Served under `default-src 'none'; style-src 'unsafe-inline'; img-src data:`,
- * so: no scripts, no webfonts, no remote images. Everything below is system
- * type, CSS gradients and inline SVG.
- */
-function buildSite(projectName: string, inputs: readonly InputArtifact[]): GeneratedSite {
+export function buildSite(projectName: string, inputs: readonly InputArtifact[]): GeneratedSite {
   const brief =
     inputs.find((i): i is Extract<InputArtifact, { kind: "text" }> => i.kind === "text")?.text ??
     "";
@@ -258,122 +221,19 @@ footer{margin-top:36px;padding:26px 0 56px;border-top:1px solid rgba(255,255,255
       "font-body": "system-ui, sans-serif",
       "radius-card": "16px",
     },
-    generatedAt: nowIso(),
+    generatedAt: new Date().toISOString(),
   };
 }
 
-function toJob(row: DemoJob): GenerationJob {
-  return {
-    id: asGenerationId(row.id),
-    projectId: asProjectId(row.projectId),
-    intent: row.intent as GenerationIntent,
-    status: row.status as GenerationStatus,
-    events: row.events.map((e) => ({
-      at: e.at,
-      status: e.status as GenerationStatus,
-      message: e.message,
-    })),
-    producedRevisionId: row.producedRevisionId ? asRevisionId(row.producedRevisionId) : null,
-    error: row.error,
-    createdAt: row.createdAt,
-    completedAt: row.completedAt,
-  };
+/* ------------------------------------------------- builder-core bridge --- */
+
+/** Route path to file path: "/" becomes index.html, "/pricing" becomes
+ *  pricing.html. The generated site is static HTML, so this is a faithful
+ *  representation of it rather than an invented framework layout. */
+export function filePathForRoute(route: string): string {
+  const trimmed = route.replace(/^\/+/, "").replace(/\/+$/, "");
+  return trimmed === "" ? "index.html" : `${trimmed}.html`;
 }
-
-export const demoGeneration: GenerationEngine = {
-  async submit(projectId: ProjectId, intent: GenerationIntent): Promise<GenerationJob> {
-    return mutate((db) => {
-      const project = db.projects.find((p) => p.id === projectId);
-      if (!project) throw new NotFoundError("Project");
-
-      const row: DemoJob = {
-        id: randomUUID(),
-        projectId,
-        intent,
-        status: "queued",
-        events: [{ at: nowIso(), status: "queued", message: "queued" }],
-        producedRevisionId: null,
-        error: null,
-        createdAt: nowIso(),
-        completedAt: null,
-      };
-      db.jobs.push(row);
-
-      project.status = "generating";
-      project.updatedAt = nowIso();
-      return toJob(row);
-    });
-  },
-
-  async get(id: GenerationId): Promise<GenerationJob | null> {
-    return mutate((db) => {
-      const row = db.jobs.find((j) => j.id === id);
-      if (!row) return null;
-      if (row.status === "succeeded" || row.status === "failed" || row.status === "cancelled") {
-        return toJob(row);
-      }
-
-      const elapsed = Date.now() - new Date(row.createdAt).getTime();
-      const stage = stageAt(elapsed);
-      if (stage.status === row.status) return toJob(row);
-
-      // Record every stage crossed since the last read, so the event list is
-      // complete even if the UI polled slowly.
-      for (const s of STAGES) {
-        if (s.at <= elapsed && !row.events.some((e) => e.status === s.status)) {
-          row.events.push({ at: nowIso(), status: s.status, message: s.message });
-        }
-      }
-      row.status = stage.status;
-
-      if (stage.status === "succeeded") {
-        const project = db.projects.find((p) => p.id === row.projectId);
-        if (!project) return toJob(row);
-
-        const intent = row.intent as GenerationIntent;
-        const inputs = intent.inputs ?? [];
-        const revisionId = randomUUID();
-
-        db.revisions.push({
-          id: revisionId,
-          projectId: row.projectId,
-          parentId: intent.type === "revise" ? intent.baseRevisionId : project.currentRevisionId,
-          generationId: row.id,
-          summary:
-            intent.type === "create"
-              ? `Initial build from ${describeInputs(inputs)}`
-              : `Revision from ${describeInputs(inputs)}`,
-          site: buildSite(project.name, inputs),
-          createdAt: nowIso(),
-        });
-
-        project.currentRevisionId = revisionId;
-        project.status = "ready";
-        project.updatedAt = nowIso();
-
-        row.producedRevisionId = revisionId;
-        row.completedAt = nowIso();
-      }
-
-      return toJob(row);
-    });
-  },
-
-  async cancel(id: GenerationId): Promise<void> {
-    await mutate((db) => {
-      const row = db.jobs.find((j) => j.id === id);
-      if (!row || row.status === "succeeded") return;
-      row.status = "cancelled";
-      row.completedAt = nowIso();
-      row.events.push({ at: nowIso(), status: "cancelled", message: "cancelled" });
-      const project = db.projects.find((p) => p.id === row.projectId);
-      if (project && project.status === "generating") {
-        project.status = project.currentRevisionId ? "ready" : "draft";
-        project.updatedAt = nowIso();
-      }
-    });
-  },
-};
 
 export const demoPublisher = {
   async publish(revisionId: string): Promise<{ url: string }> {

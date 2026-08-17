@@ -1,14 +1,13 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { PASSWORD_MIN } from "@/lib/domain/auth";
 import { isNotConfigured } from "@/lib/errors";
 import { getContainer } from "@/lib/server/container";
 
 /** Result of an auth attempt. Only serialisable data crosses back to the
  *  client, and never a provider error verbatim. */
 export type AuthFormState = { error: string | null };
-
-const PASSWORD_MIN = 8;
 
 function readCredentials(formData: FormData): { email: string; password: string } | string {
   const email = String(formData.get("email") ?? "").trim();

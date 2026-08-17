@@ -10,7 +10,7 @@ your users.
 
 ## 2. Apply the migrations
 
-Either paste the two files into **SQL Editor** in order, or use the CLI:
+Paste the files into **SQL Editor** in order, or use the CLI:
 
 ```bash
 supabase link --project-ref <your-project-ref>
@@ -19,10 +19,15 @@ supabase db push
 
 | File | Creates |
 |------|---------|
-| `migrations/0001_initial_schema.sql` | `workspaces`, `workspace_members`, `projects`, the sign-up trigger, the `updated_at` trigger, and all RLS policies |
-| `migrations/0002_storage.sql` | the private `orbital-artifacts` bucket with a 25 MB limit and a MIME allow-list |
+| `0001_initial_schema.sql` | `workspaces`, `workspace_members`, `projects`, the sign-up trigger, the `updated_at` trigger, and all RLS policies |
+| `0002_storage.sql` | the private `orbital-artifacts` bucket with a 25 MB limit and a MIME allow-list |
+| `0003_builder_core.sql` | `project_files`, `project_revisions`, `generation_runs`, and their RLS policies |
+| `0004_durable_runs.sql` | the columns a run needs to outlive its request (`intent`, `mode`, `idempotency_key`, `started_at`, `lease_expires_at`, `failure`), the widened status constraint, and the idempotency index |
+| `0005_worker_and_concurrency.sql` | `claim_generation_run()`, the one-active-run-per-project unique index, and the worker's inbox index |
+| `0006_retry_and_history.sql` | `retry_of_run_id`, `attempt`, and the indexes history paging and retry lineage read |
 
-Both are idempotent, so re-running is safe.
+**Order matters** — each assumes the ones before it. All are idempotent, so
+re-running after a partial failure is safe and is the intended recovery path.
 
 ## 3. Collect four values
 
@@ -76,10 +81,39 @@ bypassed.
   short-lived signed URLs minted server-side after the request has been
   authorised.
 
-## Not verified locally
+## Verification status — read this before believing anything above
 
-The SQL has never been executed — this machine has neither `psql` nor the
-Supabase CLI. It is written against documented Postgres and Supabase
-behaviour, but the first `db push` is also its first real test. The RLS
-isolation claims above are likewise by construction, not by observation;
-verify them with two accounts once the project exists.
+**The SQL has still never been executed.** This machine has no `psql`, no
+Supabase CLI, no Docker, and no `SUPABASE_URL` / `SUPABASE_ANON_KEY` /
+`SUPABASE_SERVICE_ROLE_KEY`. Nothing here has been run against a live Postgres,
+and no claim in this file should be read as "observed".
+
+### What *is* checked automatically
+
+`tests/schema.test.ts` runs in the normal suite and checks, statically:
+
+- every column the Supabase adapter selects is created by some migration —
+  this is the failure that typechecks perfectly and then dies at runtime with
+  `column does not exist`, because `RUN_COLUMNS` is just a string;
+- every run status the pipeline writes is permitted by the status constraint
+  (0003's predated `running` and `validating`; 0004 widened it);
+- the keyset-pagination index and the one-active-run unique index exist;
+- every `create` / `add column` is `if not exists`, so "idempotent" is enforced
+  rather than asserted;
+- migration numbering has no gaps or duplicates.
+
+It is a real check — deliberately verified by introducing drift and watching it
+fail — but it reads SQL as text. It cannot catch a syntax error Postgres would
+reject, a policy that does not do what it says, or a constraint that is
+unsatisfiable in practice.
+
+### What still needs a live project
+
+- Executing the migrations at all. The first `db push` remains their first real
+  test.
+- **RLS isolation.** Every claim in *Security model* above is by construction.
+  Verify it with two accounts: sign in as B and request A's project id, A's
+  revision id via `/api/demo/preview/<id>`, and A's run ids. All must 404.
+- `claim_generation_run()` under genuine concurrency.
+- That the service-role worker can claim runs across all projects while a
+  signed-in user cannot claim anyone else's.

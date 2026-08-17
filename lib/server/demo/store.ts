@@ -54,6 +54,9 @@ export interface DemoRevision {
   generationId: string | null;
   summary: string;
   site: unknown;
+  /** The frozen working tree. Absent on revisions written before the builder
+   *  core existed — a missing tree means "cannot restore", not "empty". */
+  tree?: unknown;
   createdAt: string;
 }
 
@@ -69,6 +72,52 @@ export interface DemoJob {
   completedAt: string | null;
 }
 
+/** A file in a project's working tree. Mirrors domain ProjectFile, kept as a
+ *  separate row shape so the persisted format can change independently. */
+export interface DemoFile {
+  projectId: string;
+  path: string;
+  kind: "text" | "binary";
+  content: string | null;
+  storageKey: string | null;
+  hash: string;
+  byteSize: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** A generation run. `plan`, `operations` and `report` are stored opaquely and
+ *  cast on read, the same way DemoRevision holds `site`. */
+export interface DemoRun {
+  id: string;
+  projectId: string;
+  generationId: string | null;
+  prompt: string;
+  baseRevisionId: string | null;
+  producedRevisionId: string | null;
+  status: string;
+  /** "demo" | "model". Stored as a string so an added mode does not need a
+   *  store migration. */
+  mode?: string;
+  /* Durability fields. Optional so a db.json written before the pipeline
+   * existed still loads — readDb() spreads defaults over whatever it finds. */
+  intent?: unknown;
+  idempotencyKey?: string | null;
+  retryOfRunId?: string | null;
+  attempt?: number;
+  startedAt?: string | null;
+  leaseExpiresAt?: string | null;
+  failure?: unknown;
+  plan: unknown;
+  operations: unknown;
+  report: unknown;
+  model: unknown;
+  events: { at: string; status: string; message: string }[];
+  error: string | null;
+  createdAt: string;
+  completedAt: string | null;
+}
+
 export interface DemoDb {
   version: 1;
   users: DemoUser[];
@@ -77,6 +126,11 @@ export interface DemoDb {
   projects: DemoProject[];
   revisions: DemoRevision[];
   jobs: DemoJob[];
+  /* Added by the builder core. readDb() spreads EMPTY first, so a db.json
+   * written before these existed loads with empty arrays rather than
+   * undefined — no migration step needed. */
+  files: DemoFile[];
+  runs: DemoRun[];
 }
 
 const EMPTY: DemoDb = {
@@ -87,6 +141,8 @@ const EMPTY: DemoDb = {
   projects: [],
   revisions: [],
   jobs: [],
+  files: [],
+  runs: [],
 };
 
 export const DEMO_DIR = path.join(process.cwd(), ".orbital-demo");

@@ -8,7 +8,8 @@ import {
   startGenerationAction,
   type GenerateState,
 } from "@/app/(product)/projects/[projectId]/actions";
-import { Eyebrow, Panel } from "./Panel";
+import { Button } from "./Button";
+import { Eyebrow, Heading, Panel } from "./Panel";
 import { tokens } from "./tokens";
 
 type Attachment = { name: string; kind: string; storageKey: string; mimeType: string; byteSize: number };
@@ -16,17 +17,45 @@ type Attachment = { name: string; kind: string; storageKey: string; mimeType: st
 const KIND_FOR_MIME = (mime: string): string =>
   mime === "application/pdf" ? "pdf" : mime.startsWith("audio/") ? "voice" : "image";
 
+/** One-click briefs. The build set is deliberately different in kind — a
+ *  sentence, a mood, a structure — so the examples read as a range of valid
+ *  inputs rather than one template with the nouns swapped. The revise set is
+ *  phrased as instructions, because that is what a revision is. */
+const BUILD_EXAMPLES: readonly string[] = [
+  "A neighbourhood bakery with a daily menu and a wholesale enquiry page.",
+  "A two-person law practice. Serious, restrained, mostly text.",
+  "A climbing gym: class timetable, membership tiers, and a day-pass CTA.",
+];
+
+const REVISE_EXAMPLES: readonly string[] = [
+  "Make the hero darker and cut the subheading in half.",
+  "Add a testimonials section above the footer.",
+  "Use a warmer palette throughout — less blue.",
+];
+
 export function GenerationPanel({
   projectId,
   hasRevision,
+  mode,
+  modelLabel,
+  initialBrief = "",
   onDone,
 }: {
   projectId: string;
   hasRevision: boolean;
+  /** Which engine will answer. Resolved on the server and passed down, so the
+   *  panel never claims output came from a model that was not involved. */
+  mode: "demo" | "model";
+  /** Provider and model, when one is configured. */
+  modelLabel?: string | null;
+  /** Seeded from the starter a user picked on the projects list. It is a
+   *  suggestion in a text field, not a stored input — editing or clearing it
+   *  is the expected case. */
+  initialBrief?: string;
   onDone?: () => void;
 }) {
   const [state, setState] = useState<GenerateState>({ error: null, jobId: null });
-  const [brief, setBrief] = useState("");
+  const [brief, setBrief] = useState(initialBrief);
   const [files, setFiles] = useState<Attachment[]>([]);
   const [busy, setBusy] = useState(false);
   const [events, setEvents] = useState<{ status: string; message: string }[]>([]);
@@ -93,6 +122,14 @@ export function GenerationPanel({
       setEvents(job.events);
       setStatus(job.status);
       if (job.status === "succeeded" || job.status === "failed" || job.status === "cancelled") {
+        // The panel turns into "describe a change" once a build lands, so
+        // leaving the brief in the box would offer the text that just ran as
+        // the next instruction. A failed job keeps it — that text is the
+        // thing worth retrying.
+        if (job.status === "succeeded") {
+          setBrief("");
+          setFiles([]);
+        }
         onDone?.();
         // The page is a Server Component; refreshing re-runs it so the new
         // revision, preview and history appear without a manual reload.
@@ -116,68 +153,124 @@ export function GenerationPanel({
     status !== "cancelled";
   const disabled = busy || running || (!brief.trim() && files.length === 0);
 
+  /* The pipeline reports its lifecycle state, so the button says what is
+   * actually happening rather than "Building…" for every stage. */
+  const runningLabel =
+    status === "queued"
+      ? "Queued…"
+      : status === "validating"
+        ? "Validating…"
+        : "Building…";
+
   return (
-    <Panel>
-      <Eyebrow>{hasRevision ? "Revise" : "Build"}</Eyebrow>
-      <h2
-        style={{
-          margin: "14px 0 0",
-          fontFamily: tokens.display,
-          fontWeight: 500,
-          fontSize: 22,
-          letterSpacing: "-.02em",
-        }}
-      >
+    <Panel accent lit style={{ padding: "26px 24px 28px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        <Eyebrow>{hasRevision ? "Revise" : "Build"}</Eyebrow>
+        <span style={{ flex: 1 }} />
+        {running && (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 7,
+              fontFamily: tokens.mono,
+              fontSize: 9.5,
+              letterSpacing: ".14em",
+              color: "rgba(214,204,255,.95)",
+            }}
+          >
+            <span
+              className="o-dot o-dot--live"
+              style={{ background: tokens.violet, color: tokens.violet }}
+              aria-hidden
+            />
+            {(status ?? "queued").toUpperCase()}
+          </span>
+        )}
+      </div>
+
+      <Heading size="lg" style={{ marginTop: 14, fontSize: 23 }}>
         {hasRevision ? "Describe a change" : "Describe or show what you want"}
-      </h2>
+      </Heading>
 
       <textarea
         value={brief}
         onChange={(e) => setBrief(e.target.value)}
         rows={3}
+        aria-label={hasRevision ? "Describe a change" : "Describe the site you want"}
         placeholder={hasRevision ? "Make the hero darker…" : "A landing page for an architecture studio…"}
-        style={{
-          width: "100%",
-          marginTop: 16,
-          padding: "12px 14px",
-          borderRadius: 10,
-          border: `1px solid ${tokens.border}`,
-          background: "rgba(255,255,255,.03)",
-          color: tokens.text,
-          fontFamily: tokens.body,
-          fontSize: 14.5,
-          resize: "vertical",
-        }}
+        className="o-field"
+        style={{ marginTop: 18, fontSize: 14.5, lineHeight: 1.6, resize: "vertical" }}
       />
 
-      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 12 }}>
+      {/* Hidden once there is text: the chips are for an empty field, and
+          keeping them visible invites clobbering what was just typed. */}
+      {!brief.trim() && (
+        <div style={{ marginTop: 14 }}>
+          <span
+            style={{
+              display: "block",
+              marginBottom: 9,
+              fontFamily: tokens.mono,
+              fontSize: 9.5,
+              letterSpacing: ".14em",
+              color: tokens.textFaint,
+            }}
+          >
+            {hasRevision ? "OR TRY A CHANGE" : "OR TRY ONE OF THESE"}
+          </span>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {(hasRevision ? REVISE_EXAMPLES : BUILD_EXAMPLES).map((example) => (
+              <button
+                key={example}
+                type="button"
+                className="o-chip"
+                onClick={() => setBrief(example)}
+              >
+                {example}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+          flexWrap: "wrap",
+          marginTop: 18,
+          paddingTop: 18,
+          borderTop: `1px solid ${tokens.borderSoft}`,
+        }}
+      >
         <input
           ref={fileInput}
+          id="attachments"
           type="file"
           multiple
           accept="image/png,image/jpeg,image/webp,application/pdf,audio/webm,audio/mpeg,audio/wav"
           onChange={(e) => attach(e.target.files)}
-          style={{ fontSize: 12.5, color: tokens.textMuted, maxWidth: 260 }}
+          className="o-file"
         />
-        <button
+        <label htmlFor="attachments" className="o-btn o-btn--ghost o-btn--sm">
+          <span aria-hidden>+</span>
+          Attach image, PDF or audio
+        </label>
+
+        <span style={{ flex: 1 }} />
+
+        <Button
           type="button"
+          variant="primary"
           onClick={submit}
           disabled={disabled}
-          style={{
-            padding: "11px 22px",
-            borderRadius: 999,
-            border: "none",
-            fontFamily: tokens.body,
-            fontSize: 14,
-            fontWeight: 500,
-            color: "#04060c",
-            background: "linear-gradient(180deg,#cdf3ff,#7ad6ff)",
-            cursor: busy || running ? "progress" : "pointer",
-            opacity: disabled ? 0.55 : 1,
-          }}
+          busy={busy || running}
         >
-          {running ? "Building…" : hasRevision ? "Apply change" : "Generate site"}
-        </button>
+          {running ? runningLabel : hasRevision ? "Apply change" : "Generate site"}
+          {!running && <span aria-hidden>→</span>}
+        </Button>
       </div>
 
       {files.length > 0 && (
@@ -187,47 +280,83 @@ export function GenerationPanel({
               key={f.storageKey}
               style={{
                 fontFamily: tokens.mono,
-                fontSize: 10.5,
-                padding: "6px 10px",
+                fontSize: 10,
+                letterSpacing: ".06em",
+                padding: "6px 11px",
                 borderRadius: 999,
-                border: `1px solid ${tokens.borderSoft}`,
-                color: "rgba(196,236,255,.9)",
+                border: `1px solid ${tokens.borderAccent}`,
+                background: tokens.accentSoft,
+                color: "rgba(196,236,255,.92)",
               }}
             >
-              {f.kind} · {f.name}
+              {f.kind.toUpperCase()} · {f.name}
             </li>
           ))}
         </ul>
       )}
 
       {state.error && (
-        <p role="alert" style={{ margin: "14px 0 0", fontSize: 13.5, color: "rgba(255,196,190,.95)" }}>
+        <p
+          role="alert"
+          style={{
+            margin: "16px 0 0",
+            padding: "11px 13px",
+            borderRadius: 11,
+            border: "1px solid rgba(255,150,140,.35)",
+            background: "rgba(255,150,140,.08)",
+            fontSize: 13.5,
+            color: "rgba(255,196,190,.95)",
+          }}
+        >
           {state.error}
         </p>
       )}
 
       {events.length > 0 && (
-        <div style={{ marginTop: 18, paddingTop: 14, borderTop: `1px solid ${tokens.borderSoft}` }}>
-          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 6 }} aria-live="polite">
-            {events.map((e, i) => (
-              <li
-                key={`${e.status}-${i}`}
-                style={{
-                  fontFamily: tokens.mono,
-                  fontSize: 11,
-                  color: i === events.length - 1 ? "rgba(196,236,255,.95)" : tokens.textFaint,
-                }}
-              >
-                {i === events.length - 1 ? "▶" : "·"} {e.message}
-              </li>
-            ))}
+        <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${tokens.borderSoft}` }}>
+          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 8 }} aria-live="polite">
+            {events.map((e, i) => {
+              const current = i === events.length - 1;
+              return (
+                <li
+                  key={`${e.status}-${i}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    fontFamily: tokens.mono,
+                    fontSize: 11,
+                    color: current ? "rgba(196,236,255,.95)" : tokens.textFaint,
+                  }}
+                >
+                  <span
+                    className={`o-dot${current && running ? " o-dot--live" : ""}`}
+                    style={{
+                      background: current ? tokens.accent : "rgba(233,235,242,.28)",
+                      color: tokens.accent,
+                    }}
+                    aria-hidden
+                  />
+                  {e.message}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
 
-      <p style={{ margin: "18px 0 0", fontSize: 12, lineHeight: 1.55, color: tokens.textFaint }}>
-        Local demo engine: deterministic sample output, not AI. It exercises the
-        real job, event and revision pipeline so the workflow can be seen end to end.
+      <p style={{ margin: "20px 0 0", fontSize: 12, lineHeight: 1.55, color: tokens.textFaint }}>
+        {mode === "model" ? (
+          <>
+            Generated by {modelLabel ?? "the configured model"}. The plan and every
+            file operation are recorded on the run, so you can see exactly what changed.
+          </>
+        ) : (
+          <>
+            Local demo engine: deterministic sample output, not AI. It exercises the
+            real job, event and revision pipeline so the workflow can be seen end to end.
+          </>
+        )}
       </p>
     </Panel>
   );
