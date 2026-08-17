@@ -12,7 +12,8 @@
     "demo:reset": "node tools/demo-reset.mjs",
     "worker": "node tools/worker.mjs",
     "verify": "node tools/verify/supabase.mjs",
-    "walkthrough": "tsc -p tsconfig.test.json && node .test-build/tests/support/walkthrough.js"
+    "walkthrough": "tsc -p tsconfig.test.json && node .test-build/tests/support/walkthrough.js",
+    "preflight": "node tools/preflight.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",
