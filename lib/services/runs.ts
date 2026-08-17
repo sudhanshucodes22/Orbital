@@ -24,6 +24,7 @@ import type {
   GenerationRun,
   ProjectId,
   RevisionId,
+  Revision,
   RunPage,
   RunQuery,
   Session,
@@ -73,6 +74,21 @@ export async function getActiveRun(
 ): Promise<GenerationRun | null> {
   await getProject(session, projectId);
   return getContainer().runs.findActive(projectId);
+}
+
+/** A project's revisions, newest first.
+ *
+ * The authorised read for the timeline. It existed only as a direct repository
+ * call from the project page; the workspace needs it on every poll so a
+ * revision created mid-session becomes restorable without a reload, and a
+ * repository call from a client-facing action would skip the ownership check.
+ */
+export async function listRevisions(
+  session: Session,
+  projectId: ProjectId
+): Promise<Revision[]> {
+  await getProject(session, projectId);
+  return getContainer().revisions.listForProject(projectId);
 }
 
 /** One run, scoped to a project the caller may see. */

@@ -346,7 +346,9 @@ export function BuilderWorkspace({
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
         projectId={projectId}
-        revisions={revisions}
+        // From the polled state, not the initial prop: a revision created in
+        // this session has to be restorable without a reload.
+        revisions={state.revisions ?? revisions}
         currentRevisionId={state.currentRevisionId}
         initialRuns={initialRuns}
         loadPage={loadPage}

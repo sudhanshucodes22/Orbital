@@ -249,8 +249,14 @@ export function renderContext(context: ProjectContext): string {
   parts.push("</project_map>");
 
   if (context.history.length > 0) {
+    // Prompt *and* outcome. The prompt alone tells the model what was asked;
+    // the summary tells it what actually landed, which is what makes a
+    // follow-up like "now make the CTA brighter" resolvable — "the CTA" refers
+    // to the thing the previous turn changed, not to an idea in the abstract.
     parts.push("<previous_instructions>");
-    for (const turn of context.history) parts.push(`- ${turn.prompt}`);
+    for (const turn of context.history) {
+      parts.push(turn.summary ? `- ${turn.prompt} → ${turn.summary}` : `- ${turn.prompt}`);
+    }
     parts.push("</previous_instructions>");
   }
 

@@ -272,6 +272,56 @@ The project detail page still embeds the revision's frozen HTML same-origin and
 is labelled **Snapshot**. The Builder's is the **live preview** from the
 runtime. They are not the same thing and the UI does not call both "live".
 
+### Iterative editing — CURRENTLY IMPLEMENTED
+
+The loop:
+
+```
+instruction → context → planner → targeted operations → validation
+           → revision → sandbox restart → preview reload
+```
+
+Every turn edits the project the previous turn produced. Nothing regenerates
+from scratch.
+
+**Context.** `services/context.ts` builds a budgeted window: the file map,
+relevant file slices, and recent turns as `prompt → outcome`. Including the
+outcome is what makes "now make the CTA brighter" resolvable — "the CTA" refers
+to the thing the previous turn changed, not to an idea in the abstract. The
+model never receives the whole project; retrieval is scored and capped.
+
+**Targeted operations.** The model path is instructed to prefer editing an
+existing file and not to touch files the plan did not name. The template path
+enforces the same shape deterministically through `demo/edits.ts`: keyword
+rules that each declare which files they apply to, return `null` when the
+structure they expect is absent, and emit an operation **only for files whose
+bytes actually change**. Asking for a navbar no longer rewrites the hero.
+
+The template producer reads files through the repository rather than from the
+context slices, because slices are *budgeted and truncatable* — right for a
+model, and catastrophic for a patcher, which would write a truncated slice back
+over a whole file.
+
+**Concurrency.** Unchanged from Milestone 3: one active run per project,
+enforced by a database partial unique index with the service check as the
+readable error. A second request while one is running is refused with a
+sentence, not queued.
+
+**Failure.** Validation runs before any revision is cut. An invalid change
+produces no revision, so the preview stays on the last working one, and the
+turn offers Retry. The working project is never replaced by output that did not
+pass.
+
+**Rollback.** Restore appends a new revision reproducing an old tree; history
+is never destroyed. A subsequent edit continues from the restored state —
+verified end to end in the browser: hero edit kept, CTA edit rolled back, a new
+responsive edit applied on top.
+
+**Demo vs real.** The template engine is deterministic keyword matching, not
+language understanding. Runs record `mode: "demo"` and the panel says TEMPLATE,
+so its output cannot be mistaken for a model's. Its purpose is to make the loop
+real and testable without an API key.
+
 ### Deliberately not in this slice
 
 - **No code editor.** Files are read-only. A text area that looked editable but

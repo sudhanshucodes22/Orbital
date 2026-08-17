@@ -26,6 +26,7 @@ import {
   toRunSummary,
   type ConversationTurn,
   type InputArtifact,
+  type Revision,
   type TreeNode,
 } from "@/lib/domain";
 import {
@@ -42,6 +43,7 @@ import {
   getProject,
   restartPreview,
   listFiles,
+  listRevisions,
   listRuns,
   requireSession,
   retryRun,
@@ -88,6 +90,13 @@ export interface BuilderState {
   preview: PreviewTarget;
   currentRevisionId: string | null;
   revisionCount: number;
+  /** The project's revisions, newest first.
+   *
+   * Part of the polled state rather than only the initial render: a revision
+   * created during this session has to become restorable without a reload, and
+   * before this the History drawer kept showing the list as it was when the
+   * page loaded. */
+  revisions: Revision[];
   /** True while a generation is in flight, which is also the poll condition. */
   busy: boolean;
   /** More history exists than the conversation shows. */
@@ -105,11 +114,12 @@ export async function getBuilderStateAction(
     // through it, so an id belonging to someone else fails here.
     const project = await getProject(session, id);
 
-    const [files, runPage, preview, active] = await Promise.all([
+    const [files, runPage, preview, active, revisions] = await Promise.all([
       listFiles(session, id),
       listRuns(session, id, { limit: CONVERSATION_TURNS }),
       getPreviewTarget(session, id),
       getActiveRun(session, id),
+      listRevisions(session, id),
     ]);
 
     const tree = buildFileTree(files);
@@ -122,7 +132,8 @@ export async function getBuilderStateAction(
       conversation: conversationFrom(runPage.runs.map(toRunSummary)),
       preview,
       currentRevisionId: project.currentRevisionId,
-      revisionCount: runPage.runs.filter((r) => r.producedRevisionId).length,
+      revisionCount: revisions.length,
+      revisions,
       // From the persisted run, not from anything this request started — so a
       // reload mid-build, or a second tab, sees the same thing.
       busy: active !== null,
