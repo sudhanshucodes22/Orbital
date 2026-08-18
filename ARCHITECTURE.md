@@ -366,6 +366,30 @@ and its reasons still in history, retry still available.
 on an applied change were computed and discarded — invisible exactly when they
 were informative rather than fatal.
 
+### Providers — two adapters, one contract
+
+Adding Gemini required **no architectural change**: a file under
+`server/ai/providers` and one line in the registry's `ADAPTERS` map. `ProviderId`
+already included `google`. That was the property the abstraction existed to
+protect, and it held.
+
+| | Anthropic | Gemini |
+|---|---|---|
+| Transport | `@anthropic-ai/sdk` | `fetch` — no dependency added |
+| Endpoint | Messages API | Interactions API (GA; the one Google recommends for new work) |
+| Structured output | `format: json_schema` | `response_format` with schema |
+| Key | `GENERATION_API_KEY` | `GEMINI_API_KEY`, falling back to `GENERATION_API_KEY` |
+
+`ModelCallError` moved to `providers/errors.ts` when the second adapter
+arrived — two adapters each defining their own would mean the pipeline
+catching two things that meant the same. Anthropic re-exports it, so existing
+imports are unchanged.
+
+The Gemini adapter parses responses defensively and falls back to the older
+`generateContent` shape, because it was written from documentation without a
+live call to check against. A shape it does not recognise raises a clear error
+rather than returning an empty string the planner would blame on the model.
+
 ### Real provider — IMPLEMENTED, NOT VERIFIED
 
 The provider path is complete: `ModelProvider` abstraction, Anthropic adapter

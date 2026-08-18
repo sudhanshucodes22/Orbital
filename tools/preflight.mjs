@@ -21,9 +21,21 @@ const GROUPS = [
     name: "Real AI generation",
     unlocks: "runs recorded as mode:model, naming the provider and model that answered",
     vars: [
+      // Either key satisfies the group; which one depends on the provider, so
+      // neither is individually "required" and the group check below decides.
       [
         "GENERATION_API_KEY",
-        true,
+        false,
+        (v) =>
+          v.length < 20
+            ? "implausibly short — looks truncated"
+            : /\s/.test(v)
+              ? "contains whitespace — check for a line break in the paste"
+              : null,
+      ],
+      [
+        "GEMINI_API_KEY",
+        false,
         (v) =>
           v.length < 20
             ? "implausibly short — looks truncated"
@@ -34,7 +46,10 @@ const GROUPS = [
       [
         "GENERATION_PROVIDER",
         true,
-        (v) => (v === "anthropic" ? null : `unrecognised provider "${v}" (expected: anthropic)`),
+        (v) =>
+          ["anthropic", "google"].includes(v)
+            ? null
+            : `unrecognised provider "${v}" (expected: anthropic or google)`,
       ],
       ["GENERATION_MODEL", true, (v) => (v.length > 3 ? null : "implausibly short")],
     ],
@@ -111,7 +126,26 @@ for (const group of GROUPS) {
     return { key, required, state: `present (${env.origin(key)})` };
   });
 
-  const ready = states.every((s) => !s.required || s.state.startsWith("present"));
+  let ready = states.every((s) => !s.required || s.state.startsWith("present"));
+
+  // "Real AI generation" needs *a* key, and which one depends on the provider.
+  // Marking both individually required would report a false failure for
+  // anyone who correctly set only the one their vendor documents.
+  if (group.name === "Real AI generation") {
+    const provider = env.value("GENERATION_PROVIDER");
+    const key =
+      provider === "google"
+        ? env.value("GEMINI_API_KEY") ?? env.value("GENERATION_API_KEY")
+        : env.value("GENERATION_API_KEY");
+    ready = ready && Boolean(key);
+    if (!key) {
+      states.push({
+        key: provider === "google" ? "GEMINI_API_KEY or GENERATION_API_KEY" : "GENERATION_API_KEY",
+        required: true,
+        state: "missing — no key for the configured provider",
+      });
+    }
+  }
   if (!ready) blocked++;
   invalid += states.filter((s) => s.state.startsWith("INVALID")).length;
 

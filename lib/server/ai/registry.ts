@@ -11,6 +11,7 @@
 import type { ModelProvider, ProviderId } from "../../ai/types";
 import { serverEnv } from "../../config/env";
 import { createAnthropicProvider } from "./providers/anthropic";
+import { createGeminiProvider } from "./providers/gemini";
 import { unconfiguredProvider } from "./unconfigured";
 
 /** Factory per provider. Empty until a vendor adapter is written; the type is
@@ -19,8 +20,20 @@ type ProviderFactory = (config: ResolvedModelConfig) => ModelProvider;
 
 const ADAPTERS: Partial<Record<ProviderId, ProviderFactory>> = {
   anthropic: (config) => createAnthropicProvider(config),
+  google: (config) => createGeminiProvider(config),
   // openai: (config) => createOpenAiProvider(config),
-  // google: (config) => createGoogleProvider(config),
+};
+
+/** Where each provider's key may come from, in order of preference.
+ *
+ * A vendor-specific variable is checked first because that is the name that
+ * vendor's own documentation uses, and someone following those instructions
+ * should not have to discover a generic alias. `GENERATION_API_KEY` remains
+ * the fallback so a single-provider setup needs only one variable and nothing
+ * that already worked stops working. */
+const KEY_SOURCES: Partial<Record<ProviderId, (env: ReturnType<typeof serverEnv>) => string | undefined>> = {
+  google: (env) => env.geminiApiKey ?? env.generationApiKey,
+  anthropic: (env) => env.generationApiKey,
 };
 
 export interface ResolvedModelConfig {
@@ -47,11 +60,16 @@ function parseProviderId(raw: string | undefined): ProviderId | null {
  * error at read time. */
 export function resolveModelConfig(): ResolvedModelConfig | null {
   const env = serverEnv();
-  if (!env.generationApiKey) return null;
+
+  // The provider is resolved first, because which key counts depends on it.
   const providerId = parseProviderId(env.generationProvider);
   if (!providerId) return null;
   if (!env.generationModel) return null;
-  return { providerId, modelId: env.generationModel, apiKey: env.generationApiKey };
+
+  const apiKey = (KEY_SOURCES[providerId] ?? ((e: typeof env) => e.generationApiKey))(env);
+  if (!apiKey) return null;
+
+  return { providerId, modelId: env.generationModel, apiKey };
 }
 
 /** Test seam, mirroring `__setContainer`. Lets a suite drive the engine with a

@@ -34,17 +34,51 @@ npm run preflight
 
 ## Real AI provider
 
-1. Get an API key from <https://console.anthropic.com>.
+Two providers are supported. Pick one — the rest of the system does not care
+which, and no code changes when you switch.
 
-2. Put it in `.env.local` — **never** in source, and never in a file that is
-   committed. `.env.local` is gitignored.
+### Google Gemini (free tier)
 
-   ```bash
-   # .env.local
-   GENERATION_API_KEY=<your key>
-   GENERATION_PROVIDER=anthropic
-   GENERATION_MODEL=claude-opus-4-8
-   ```
+Key from <https://aistudio.google.com/apikey>.
+
+```bash
+# .env.local
+GEMINI_API_KEY=<your key>
+GENERATION_PROVIDER=google
+GENERATION_MODEL=gemini-2.5-flash
+```
+
+`gemini-2.5-flash` is free of charge, stable, and good at structured JSON.
+`gemini-3.7-flash` is also free and Google describes it as built for coding
+and agentic work — a reasonable upgrade once the basics are confirmed
+working. Both were checked against Google's current model list and pricing.
+
+> **Do not use `gemini-2.0-flash` or the 1.5 family** — Google has shut them
+> down. This is exactly the kind of value worth checking rather than recalling.
+
+The adapter targets Google's **Interactions API**, which their reference names
+as generally available and recommended for new integrations. It uses `fetch`
+directly, so no SDK dependency was added.
+
+### Anthropic
+
+Key from <https://console.anthropic.com>.
+
+```bash
+# .env.local
+GENERATION_API_KEY=<your key>
+GENERATION_PROVIDER=anthropic
+GENERATION_MODEL=claude-opus-4-8
+```
+
+### Either way
+
+Put the key in `.env.local` — **never** in source, and never in a committed
+file. `.env.local` is gitignored.
+
+`GENERATION_API_KEY` works for both providers; `GEMINI_API_KEY` is checked
+first when the provider is `google`, because that is the name Google's own
+documentation uses.
 
 3. Restart the dev server. `/api/health` will report
    `capabilities.generation: true`.

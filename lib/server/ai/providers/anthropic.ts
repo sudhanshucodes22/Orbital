@@ -22,6 +22,12 @@
  *    vendor.
  */
 import Anthropic from "@anthropic-ai/sdk";
+// The error type moved to ./errors when a second provider arrived — two
+// adapters defining their own would mean the pipeline catching two things
+// that meant the same. Re-exported so existing imports keep working.
+export { ModelCallError } from "./errors";
+import { ModelCallError } from "./errors";
+
 import type {
   ContentPart,
   ModelMessage,
@@ -42,17 +48,6 @@ const DEFAULT_MAX_OUTPUT_TOKENS = 64_000;
  * A single type rather than a taxonomy: callers here need to record the
  * message on the run and stop. `retryable` is the one distinction that changes
  * behaviour, so it is the one distinction modelled. */
-export class ModelCallError extends Error {
-  readonly retryable: boolean;
-  readonly status: number | null;
-
-  constructor(message: string, options: { retryable?: boolean; status?: number | null } = {}) {
-    super(message);
-    this.name = "ModelCallError";
-    this.retryable = options.retryable ?? false;
-    this.status = options.status ?? null;
-  }
-}
 
 function toAnthropicContent(parts: readonly ContentPart[]): Anthropic.ContentBlockParam[] {
   return parts.map((part) =>

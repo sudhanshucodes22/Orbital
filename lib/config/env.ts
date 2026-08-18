@@ -21,6 +21,12 @@ export interface ServerEnv {
   supabaseServiceRoleKey: string | undefined;
   storageBucket: string | undefined;
   generationApiKey: string | undefined;
+  /** Provider-specific key for Google Gemini.
+   *
+   * Read in addition to `GENERATION_API_KEY` rather than instead of it: naming
+   * the vendor is what people expect from that vendor's docs, and someone with
+   * two providers configured should not have to swap one variable to switch. */
+  geminiApiKey: string | undefined;
   /** Which vendor answers, and which model. Read as opaque strings and passed
    *  through: pinning a list of valid model ids here would go stale, and a
    *  wrong one should fail at the vendor with the vendor's own message. */
@@ -50,6 +56,7 @@ export function serverEnv(): ServerEnv {
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
     storageBucket: process.env.STORAGE_BUCKET,
     generationApiKey: process.env.GENERATION_API_KEY,
+    geminiApiKey: process.env.GEMINI_API_KEY,
     generationProvider: process.env.GENERATION_PROVIDER,
     generationModel: process.env.GENERATION_MODEL,
     workerSecret: process.env.WORKER_SECRET,
