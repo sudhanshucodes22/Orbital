@@ -15,8 +15,9 @@ Nothing here contains a secret value, and none should ever be added to it.
 
 | Variable | Needed for | Without it |
 |---|---|---|
-| `GENERATION_API_KEY` | Real AI generation | Template engine, labelled `TEMPLATE` |
-| `GENERATION_PROVIDER` | Which vendor | Defaults are not assumed — required alongside the key |
+| `GENERATION_API_KEY` | Real AI generation (either vendor) | Template engine, labelled `TEMPLATE` |
+| `GEMINI_API_KEY` | Gemini specifically; preferred over the above when provider is `google` | As above |
+| `GENERATION_PROVIDER` | Which vendor: `google` or `anthropic` | Defaults are not assumed — required alongside the key |
 | `GENERATION_MODEL` | Which model | As above |
 | `SUPABASE_URL` | Real database | Local file store in `.orbital-demo/` |
 | `SUPABASE_ANON_KEY` | Real database, RLS | As above |
@@ -80,13 +81,13 @@ file. `.env.local` is gitignored.
 first when the provider is `google`, because that is the name Google's own
 documentation uses.
 
-3. Restart the dev server. `/api/health` will report
-   `capabilities.generation: true`.
+Restart the dev server afterwards. `/api/health` will report
+`capabilities.generation: true`.
 
-4. Confirm it is real: generate something and open History. The run records
-   `mode: "model"` and names the provider and model that answered. A run the
-   template engine produced records `mode: "demo"` and `model: null`, and the
-   workspace labels it `TEMPLATE`.
+**Confirming it is real:** generate something and open History. The run records
+`mode: "model"` and names the provider and model that answered. A run the
+template engine produced records `mode: "demo"` and `model: null`, and the
+workspace labels it `TEMPLATE`.
 
 **A configured provider always wins.** There is no fallback to the template
 engine if a model call fails — a failure surfaces as a failure. Falling back
@@ -153,8 +154,9 @@ See [`WORKER.md`](WORKER.md) for deployment, including the Vercel cron entry.
 ## Demo mode is not going away
 
 The template engine and file-backed store are kept deliberately, for offline
-work, CI, and deterministic regression tests. 315 tests run against them with
-no credentials and no network.
+work, CI, and deterministic regression tests. The full suite runs against them with
+no credentials and no network — including the Gemini adapter, whose transport
+is mocked.
 
 The distinction is structural, not cosmetic:
 
