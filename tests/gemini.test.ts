@@ -95,20 +95,30 @@ describe("gemini adapter — request mapping", () => {
     assert.equal(payload.system_instruction, "You are a code generator.");
     // And it is not also left in the conversation, which would send it twice.
     assert.equal(payload.input.length, 1);
-    assert.equal(payload.input[0].role, "user");
   });
 
-  it("maps the assistant role to Gemini's 'model'", async () => {
+  it("sends input as a step list, not a turn list", async () => {
     mockFetch({ status: 200, body: GOOD_BODY });
     await provider().complete({
       messages: [textMessage("user", "hi"), textMessage("assistant", "hello")],
     });
 
     const payload = JSON.parse(lastCall!.init.body as string);
-    assert.deepEqual(
-      payload.input.map((m: { role: string }) => m.role),
-      ["user", "model"]
-    );
+
+    // These assertions are the shape the live API actually accepts, checked
+    // against it. The adapter was first written from documentation as a turn
+    // list — `[{role, parts:[{text}]}]` — and the real endpoint rejects that
+    // with "Unknown parameter 'parts'" and "use step_list input format
+    // instead of turn_list". A mock can only assert what its author believed,
+    // which is why these were wrong until a real call corrected them.
+    assert.deepEqual(payload.input, [
+      { type: "text", text: "hi" },
+      { type: "text", text: "hello" },
+    ]);
+    for (const step of payload.input) {
+      assert.equal("role" in step, false, "a step must not carry a role");
+      assert.equal("parts" in step, false, "a step must not carry parts");
+    }
   });
 
   it("passes a JSON schema through as native structured output", async () => {
@@ -119,8 +129,13 @@ describe("gemini adapter — request mapping", () => {
     const payload = JSON.parse(lastCall!.init.body as string);
     // Vendor-enforced beats asking for JSON in the prompt: a response that
     // does not match becomes the vendor's failure rather than the parser's.
-    assert.equal(payload.response_format.mime_type, "application/json");
-    assert.deepEqual(payload.response_format.schema, schema);
+    //
+    // `response_format` *is* the schema. The OpenAI-style wrapper
+    // `{type:"json_schema", schema}` — which is what the documentation reading
+    // suggested — is rejected: "The value 'json_schema' is not supported for
+    // 'type'. Supported values: object, array, string, number…". Verified live.
+    assert.deepEqual(payload.response_format, schema);
+    assert.equal(payload.response_format.type, "object");
   });
 
   it("sends the model and token ceiling", async () => {

@@ -101,6 +101,71 @@ export const PLAN_SCHEMA: Record<string, unknown> = {
   },
 };
 
+/** One operation, per kind.
+ *
+ * A union expressed as a union. It used to be a single object with every
+ * field optional and only `kind` required, which described the shape loosely
+ * enough to be useless to a strict structured-output model: Gemini honoured it
+ * literally and returned `{"kind":"createFile","path":"index.html"}` with no
+ * content at all, which the parser then correctly refused. Verified against
+ * the live API — with `anyOf`, the same prompt returns the content.
+ *
+ * Each branch requires exactly the fields its kind needs, so "a createFile
+ * without content" is no longer a shape the schema permits.
+ */
+const OPERATION_VARIANTS = [
+  {
+    type: "object",
+    ...CLOSED,
+    required: ["kind", "path", "content"],
+    properties: {
+      kind: { type: "string", enum: ["createFile"] },
+      path: { type: "string", description: "Repo-relative POSIX path." },
+      content: {
+        type: "string",
+        description: "The file's COMPLETE contents, never a diff or a fragment.",
+      },
+      reason: { type: ["string", "null"] },
+    },
+  },
+  {
+    type: "object",
+    ...CLOSED,
+    required: ["kind", "path", "content"],
+    properties: {
+      kind: { type: "string", enum: ["updateFile"] },
+      path: { type: "string", description: "Repo-relative POSIX path." },
+      content: {
+        type: "string",
+        description:
+          "The file's COMPLETE new contents, never a diff. This replaces the file entirely.",
+      },
+      reason: { type: ["string", "null"] },
+    },
+  },
+  {
+    type: "object",
+    ...CLOSED,
+    required: ["kind", "path"],
+    properties: {
+      kind: { type: "string", enum: ["deleteFile"] },
+      path: { type: "string", description: "Repo-relative POSIX path." },
+      reason: { type: ["string", "null"] },
+    },
+  },
+  {
+    type: "object",
+    ...CLOSED,
+    required: ["kind", "from", "to"],
+    properties: {
+      kind: { type: "string", enum: ["moveFile"] },
+      from: { type: "string", description: "Current path." },
+      to: { type: "string", description: "New path." },
+      reason: { type: ["string", "null"] },
+    },
+  },
+];
+
 export const OPERATIONS_SCHEMA: Record<string, unknown> = {
   type: "object",
   ...CLOSED,
@@ -109,29 +174,7 @@ export const OPERATIONS_SCHEMA: Record<string, unknown> = {
     operations: {
       type: "array",
       description: "The complete set of changes. Order matters; they apply in sequence.",
-      items: {
-        type: "object",
-        ...CLOSED,
-        required: ["kind"],
-        properties: {
-          kind: {
-            type: "string",
-            enum: ["createFile", "updateFile", "deleteFile", "moveFile"],
-          },
-          path: {
-            type: "string",
-            description: "For createFile, updateFile and deleteFile.",
-          },
-          from: { type: "string", description: "For moveFile." },
-          to: { type: "string", description: "For moveFile." },
-          content: {
-            type: "string",
-            description:
-              "For createFile and updateFile: the file's COMPLETE new contents, not a diff.",
-          },
-          reason: { type: ["string", "null"] },
-        },
-      },
+      items: { anyOf: OPERATION_VARIANTS },
     },
   },
 };

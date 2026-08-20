@@ -49,6 +49,10 @@ GENERATION_PROVIDER=google
 GENERATION_MODEL=gemini-2.5-flash
 ```
 
+**VERIFIED** against the live API on 2026-08-18: real generation and a real
+contextual edit both succeeded end to end, and the failure path was exercised
+with an invalid key.
+
 `gemini-2.5-flash` is free of charge, stable, and good at structured JSON.
 `gemini-3.7-flash` is also free and Google describes it as built for coding
 and agentic work — a reasonable upgrade once the basics are confirmed
@@ -60,6 +64,26 @@ working. Both were checked against Google's current model list and pricing.
 The adapter targets Google's **Interactions API**, which their reference names
 as generally available and recommended for new integrations. It uses `fetch`
 directly, so no SDK dependency was added.
+
+Two shapes are easy to get wrong here, and were — both written from
+documentation, both rejected by the live endpoint, both now pinned by tests:
+
+- `input` is a **step list**: `[{type:"text", text:"…"}]`. The turn list
+  `generateContent` uses — `[{role:"user", parts:[{text:"…"}]}]` — is refused
+  with *"use step_list input format instead of turn_list"*. A step carries no
+  role, so multi-turn role fidelity is not available on this surface. Orbital
+  sends a system instruction plus one user message, so nothing is lost.
+- `response_format` **is** the JSON schema, not a wrapper around it. The
+  OpenAI-style `{type:"json_schema", schema}` is refused: *"The value
+  'json_schema' is not supported for 'type'."*
+
+A third problem was not the adapter's. `OPERATIONS_SCHEMA` used to be one
+object with every field optional and only `kind` required — a union described
+loosely. Gemini honoured it literally and returned
+`{"kind":"createFile","path":"index.html"}` with no content, which the parser
+correctly refused. The schema now uses `anyOf`, one branch per operation kind,
+so a `createFile` without content is not a shape the schema permits. That
+change benefits every provider, not just Gemini.
 
 ### Anthropic
 

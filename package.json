@@ -13,7 +13,8 @@
     "worker": "node tools/worker.mjs",
     "verify": "node tools/verify/supabase.mjs",
     "walkthrough": "tsc -p tsconfig.test.json && node .test-build/tests/support/walkthrough.js",
-    "preflight": "node tools/preflight.mjs"
+    "preflight": "node tools/preflight.mjs",
+    "live:gemini": "tsc -p tsconfig.test.json && node .test-build/tests/support/gemini-live.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",

@@ -55,27 +55,35 @@ export const RECOMMENDED_GEMINI_MODEL = "gemini-2.5-flash";
 
 /** Flattens the neutral message type into the Interactions API's `input`.
  *
- * Gemini takes a system instruction as its own top-level field, so a `system`
- * role in the neutral type is lifted out rather than prepended to the
- * conversation — the same treatment the Anthropic adapter gives it.
+ * The Interactions API takes a **step list**: a flat array of typed content
+ * parts. It is not the turn list `generateContent` uses, and it rejects both
+ * of that shape's markers — `parts` gives "Unknown parameter 'parts'", and a
+ * `role` on a turn gives "use step_list input format instead of turn_list".
+ * Both were verified against the live API, having first been written the other
+ * way from documentation.
+ *
+ * A step carries no role, so assistant turns lose that distinction. Orbital
+ * only ever sends a system instruction plus one user message, so nothing is
+ * lost in practice — but it is a real limit of this shape and is named here
+ * rather than discovered later.
+ *
+ * The system instruction is lifted to its own top-level field, the same
+ * treatment the Anthropic adapter gives it.
  */
 function toInput(request: ModelRequest) {
   return request.messages
     .filter((message) => message.role !== "system")
-    .map((message) => ({
-      // Gemini names the assistant "model".
-      role: message.role === "assistant" ? "model" : "user",
-      parts: message.content.map((part) =>
+    .flatMap((message) =>
+      message.content.map((part) =>
         part.type === "text"
-          ? { text: part.text }
+          ? { type: "text" as const, text: part.text }
           : {
-              inline_data: {
-                mime_type: part.mimeType,
-                data: part.data,
-              },
+              type: "image" as const,
+              mime_type: part.mimeType,
+              data: part.data,
             }
-      ),
-    }));
+      )
+    );
 }
 
 /** The system instruction, whether it arrived as a field or a message. */
@@ -206,12 +214,14 @@ export function createGeminiProvider(config: ResolvedModelConfig): ModelProvider
       // Native structured output. Better than asking for JSON in the prompt:
       // the vendor enforces the shape, so a response that does not match is
       // the vendor's failure rather than something the parser has to survive.
+      //
+      // `response_format` **is** the schema — its `type` is the JSON type of
+      // the response. A `{type:"json_schema", schema}` wrapper, which is the
+      // OpenAI convention and what the documentation reading suggested, is
+      // rejected: "The value 'json_schema' is not supported for 'type'.
+      // Supported values: object, array, string, number, integer, boolean…".
       if (request.jsonSchema) {
-        payload.response_format = {
-          type: "json_schema",
-          mime_type: "application/json",
-          schema: request.jsonSchema,
-        };
+        payload.response_format = request.jsonSchema;
       }
 
       // Its own timeout, combined with any the caller supplied, so a hung
