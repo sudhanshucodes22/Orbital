@@ -13,6 +13,7 @@ import { serverEnv } from "../../config/env";
 import { createAnthropicProvider } from "./providers/anthropic";
 import { createGeminiProvider } from "./providers/gemini";
 import { unconfiguredProvider } from "./unconfigured";
+import { withTransportRetry } from "./transport-retry";
 
 /** Factory per provider. Empty until a vendor adapter is written; the type is
  *  what pins the contract so a later addition cannot drift. */
@@ -89,7 +90,16 @@ export function getModelProvider(): ModelProvider {
   if (!config) return unconfiguredProvider;
   const factory = ADAPTERS[config.providerId];
   if (!factory) return unconfiguredProvider;
-  return factory(config);
+
+  // Every adapter gets the same single transport retry. Wrapping here rather
+  // than inside each one means a dropped connection is handled once, in the
+  // layer that owns transport, and a new vendor inherits it for free.
+  return withTransportRetry(factory(config), {
+    onRetry: (error) =>
+      console.warn(
+        `[ai] ${config.providerId} call failed transiently (${error.status ?? "no status"}); retrying once`
+      ),
+  });
 }
 
 /** Whether a real model is available. Used by capability reporting and by
