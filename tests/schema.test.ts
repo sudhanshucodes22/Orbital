@@ -135,6 +135,76 @@ describe("migrations match the adapter", () => {
     assert.match(sql(), /create unique index if not exists generation_runs_one_active_per_project/);
   });
 
+  it("grants table privileges to the roles that use them", () => {
+    // The regression this pins: every table and policy existed, but nothing
+    // was ever GRANTed, so the live database refused "permission denied for
+    // table projects" — even for the service role, which bypasses RLS.
+    //
+    // It does bypass RLS. Postgres checks GRANTs first, so a role with no
+    // privilege is rejected before any policy is consulted. The policies were
+    // never reached, and the failure looked like RLS while being its absence.
+    const all = sql();
+    const TABLES = [
+      "workspaces",
+      "workspace_members",
+      "projects",
+      "project_files",
+      "project_revisions",
+      "generation_runs",
+    ];
+
+    for (const role of ["authenticated", "service_role"]) {
+      for (const table of TABLES) {
+        const granted = new RegExp(
+          `grant[^;]*on\\s+public\\.${table}\\s+to[^;]*\\b${role}\\b`,
+          "i"
+        ).test(all);
+        assert.ok(granted, `${role} has no grant on ${table}; RLS would never be reached`);
+      }
+    }
+
+    // Schema usage, without which the table grants do nothing.
+    assert.match(all, /grant usage on schema public to[^;]*authenticated/i);
+    assert.match(all, /grant usage on schema public to[^;]*service_role/i);
+  });
+
+  it("grants anon no access to application tables", () => {
+    // Orbital has no anonymous surface: the anon key exists to sign in, not to
+    // read data. A grant here would be a second way in that no policy audit
+    // covers — so its absence is a security property, not an oversight.
+    const all = sql();
+    for (const table of ["projects", "project_files", "project_revisions", "generation_runs"]) {
+      const grantedToAnon = new RegExp(
+        `grant[^;]*on\\s+public\\.${table}\\s+to[^;]*\\banon\\b`,
+        "i"
+      ).test(all);
+      assert.equal(grantedToAnon, false, `anon must not be granted access to ${table}`);
+    }
+  });
+
+  it("keeps RLS enabled on every application table", () => {
+    // A grant permits an attempt; RLS decides which rows. Losing the second
+    // while adding the first would turn a privilege fix into a data leak.
+    const all = sql();
+    for (const table of [
+      "workspaces",
+      "workspace_members",
+      "projects",
+      "project_files",
+      "project_revisions",
+      "generation_runs",
+    ]) {
+      assert.match(
+        all,
+        // \s+ rather than a single space: the migrations align these
+        // statements into columns, and a stricter pattern reported a missing
+        // policy that was in fact present and merely indented.
+        new RegExp(`alter table public\\.${table}\\s+enable row level security`, "i"),
+        `${table} must have RLS enabled`
+      );
+    }
+  });
+
   it("keeps every migration idempotent", () => {
     // Re-running a migration must be safe: the README tells operators so, and
     // `db push` after a partial failure is the normal recovery path.
