@@ -101,6 +101,11 @@ GENERATION_MODEL=claude-opus-4-8
 Put the key in `.env.local` — **never** in source, and never in a committed
 file. `.env.local` is gitignored.
 
+**Backups are sensitive too.** `.gitignore` covers every `.env` variant, not
+just `.env.local`, because a copy like `.env.local.bak` or `.env.local.save`
+holds exactly the same credentials as the original and a narrower rule would
+leave it committable.
+
 `GENERATION_API_KEY` works for both providers; `GEMINI_API_KEY` is checked
 first when the provider is `google`, because that is the name Google's own
 documentation uses.

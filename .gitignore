@@ -34,9 +34,12 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env
+# Any .env variant, including backups and editor drafts. A narrower rule like
+# `.env*.local` matches .env.local but not .env.local.bak or .env.local.save —
+# and a backup of a credentials file is exactly as sensitive as the file.
 .env
-.env.local
-.env*.local
+.env.*
+!.env.example
 
 # vercel
 .vercel
