@@ -86,6 +86,18 @@ bypassed.
   short-lived signed URLs minted server-side after the request has been
   authorised.
 
+## Grants are separate from policies
+
+If a query fails with `42501 permission denied` — even using the service role,
+which bypasses RLS — the cause is a missing **GRANT**, not a policy problem.
+Postgres checks privileges first, so a role with no grant on a table is refused
+before any policy is consulted. The policies are then unreachable rather than
+wrong.
+
+`supabase/APPLY_0008_GRANTS.sql` contains only the grants and ends with a query
+listing what applied. `npm run verify` detects this state specifically and says
+so, rather than reporting it as a connection failure.
+
 ## Applying migrations needs a credential the app does not have
 
 `SUPABASE_URL` and the two API keys are PostgREST credentials. They can read

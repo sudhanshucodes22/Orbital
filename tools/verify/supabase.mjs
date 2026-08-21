@@ -91,6 +91,32 @@ async function main() {
   // actually need is to run the migrations.
   const schemaMissing = pingError?.code === "PGRST205" || /schema cache/i.test(pingError?.message ?? "");
 
+  // 42501 is Postgres refusing on privileges. It is a completely different
+  // problem from a missing table and has a completely different fix, but both
+  // surface here as "the first query failed" — so they are named apart.
+  const grantsMissing =
+    pingError?.code === "42501" || /permission denied/i.test(pingError?.message ?? "");
+
+  if (grantsMissing) {
+    ok("reachable", "(schema present, grants missing)");
+    console.log(`
+  Connected and the tables exist, but no role can read them.
+
+  Postgres checks GRANTs before Row Level Security, so a role with no privilege
+  is refused before any policy is consulted — which is why even the service
+  role, which bypasses RLS, is denied. The policies are fine; they are simply
+  unreachable.
+
+  Apply the grants, then re-run this command:
+
+    Paste supabase/APPLY_0008_GRANTS.sql into the SQL Editor and run it.
+
+  That file contains only GRANT statements — nothing that can fail on
+  ownership — and ends with a query listing what was applied. RLS is untouched.
+`);
+    process.exit(3);
+  }
+
   if (pingError && !schemaMissing) {
     bad("reachable", pingError.message);
     console.log(`
