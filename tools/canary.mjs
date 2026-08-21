@@ -27,6 +27,11 @@ const END = "# <<< orbital canary";
  *  cannot be mistaken for one if it somehow survives. */
 const CANARIES = {
   GENERATION_API_KEY: "sk-ant-ORBITALCANARY-must-never-reach-the-browser",
+  // The Gemini path prefers GEMINI_API_KEY and only falls back to
+  // GENERATION_API_KEY, so overriding the latter alone left the real key in
+  // charge — the canary silently tested nothing. Every variable a provider
+  // might read has to be covered or the isolation check has a hole in it.
+  GEMINI_API_KEY: "AIzaORBITALCANARY-must-never-reach-the-browser",
   SUPABASE_SERVICE_ROLE_KEY: "eyJORBITALCANARYserviceroleMUSTNEVERREACHTHEBROWSERxxxx",
   SUPABASE_ANON_KEY: "eyJORBITALCANARYanonkeyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 };
