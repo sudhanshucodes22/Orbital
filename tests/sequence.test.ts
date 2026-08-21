@@ -12,7 +12,7 @@
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { createSequencer, poll } from "../components/builder/sequence";
+import { createSequencer, poll, withRefresh } from "../components/builder/sequence";
 
 /** A promise resolvable from the outside, so a test controls the ordering. */
 function deferred<T>() {
@@ -192,5 +192,79 @@ describe("non-overlapping poll loop", () => {
 
     await new Promise((r) => setTimeout(r, 40));
     assert.equal(calls, atStop, "no tick may run after stop");
+  });
+});
+
+describe("restore and retry re-read shared state", () => {
+  /** A form action of the shape `useActionState` expects. */
+  const action = (result: { error: string | null }) => async () => result;
+
+  it("refreshes after a successful restore", async () => {
+    // The bug: restore moved the project's head on the server while the header
+    // kept showing the previous revision until a manual reload, because the
+    // form action had no connection back to the workspace's state read.
+    let refreshes = 0;
+    const wrapped = withRefresh(action({ error: null }), () => {
+      refreshes++;
+    });
+
+    const result = await wrapped({ error: null }, new FormData());
+
+    assert.equal(result.error, null);
+    assert.equal(refreshes, 1, "a successful restore must trigger a state read");
+  });
+
+  it("refreshes after a successful retry", async () => {
+    // Retry creates a queued run, so the read afterwards sees busy:true and
+    // the existing poll loop takes over. Without this the panel would sit on
+    // the stale failed turn.
+    let refreshes = 0;
+    const wrapped = withRefresh(action({ error: null }), () => {
+      refreshes++;
+    });
+
+    await wrapped({ error: null }, new FormData());
+    assert.equal(refreshes, 1);
+  });
+
+  it("does not refresh when the action failed", async () => {
+    // Nothing changed server-side, and the form renders its own error. A read
+    // here would be a request that can only return what is already on screen.
+    let refreshes = 0;
+    const wrapped = withRefresh(action({ error: "Only a failed run can be retried." }), () => {
+      refreshes++;
+    });
+
+    const result = await wrapped({ error: null }, new FormData());
+
+    assert.equal(result.error, "Only a failed run can be retried.");
+    assert.equal(refreshes, 0);
+  });
+
+  it("returns the action's result unchanged", async () => {
+    // The wrapper coordinates; it must not swallow or rewrite what the form
+    // needs to render.
+    const wrapped = withRefresh(action({ error: null }), () => {});
+    assert.deepEqual(await wrapped({ error: null }, new FormData()), { error: null });
+  });
+
+  it("waits for the refresh before returning", async () => {
+    // The form leaves its pending state when the action resolves. Returning
+    // early would clear "Restoring…" while the new state was still in flight,
+    // showing the old revision as though it were settled.
+    const order: string[] = [];
+    const wrapped = withRefresh(
+      async () => {
+        order.push("action");
+        return { error: null };
+      },
+      async () => {
+        await new Promise((r) => setTimeout(r, 10));
+        order.push("refresh");
+      }
+    );
+
+    await wrapped({ error: null }, new FormData());
+    assert.deepEqual(order, ["action", "refresh"]);
   });
 });

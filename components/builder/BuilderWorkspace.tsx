@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { createSequencer, poll } from "./sequence";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createSequencer, poll, withRefresh } from "./sequence";
 import type {
   getBuilderStateAction,
   readFileAction,
@@ -216,6 +216,19 @@ export function BuilderWorkspace({
     await refresh();
   };
 
+  // Restore and retry mutate the project the workspace is showing, but they
+  // are form actions several components down. Wrapping them here is what
+  // connects them to the same state read a generation uses — rather than
+  // giving those components a parallel data path that could disagree.
+  const restoreAndRefresh = useMemo(
+    () => withRefresh(restoreAction, refresh),
+    [restoreAction, refresh]
+  );
+  const retryFormAndRefresh = useMemo(
+    () => withRefresh(onRetryForm, refresh),
+    [onRetryForm, refresh]
+  );
+
   const openPath = async (path: string) => {
     setOpenFile({
       path,
@@ -384,8 +397,8 @@ export function BuilderWorkspace({
         currentRevisionId={state.currentRevisionId}
         initialRuns={initialRuns}
         loadPage={loadPage}
-        onRetry={onRetryForm}
-        restoreAction={restoreAction}
+        onRetry={retryFormAndRefresh}
+        restoreAction={restoreAndRefresh}
         compareAction={compareAction}
       />
     </div>

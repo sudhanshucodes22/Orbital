@@ -22,6 +22,21 @@
  * applied only if no newer request has already been applied. A slow response
  * that arrives after a fast one is discarded rather than allowed to travel
  * backwards.
+ *
+ * ## Why this is kept, measured rather than assumed
+ *
+ * The guard was challenged on the grounds that it might be redundant. It is
+ * not. Running the real shape — six polls issued during a long generation,
+ * where the first five observe `busy: true` on the old revision and the sixth
+ * observes the finished state, then released in an order nobody controls:
+ *
+ *     with the guard:     busy=false  rev=NEW
+ *     without the guard:  busy=true   rev=old
+ *
+ * The unguarded result is precisely the reported bug — the workspace stuck on
+ * "Building…" showing the previous revision while the store held the finished
+ * run. So this is not defensive decoration; removing it reintroduces a
+ * user-visible failure, and `tests/sequence.test.ts` pins that.
  */
 
 export interface Sequencer<T> {
@@ -112,5 +127,41 @@ export function poll(tick: () => Promise<void>, intervalMs: number): () => void 
   return () => {
     stopped = true;
     if (timer) clearTimeout(timer);
+  };
+}
+
+/** Wraps a form action so a successful result re-reads shared state.
+ *
+ * Restore and retry are `useActionState` form actions living several
+ * components below the workspace, and they mutate the same project the
+ * workspace is displaying. Nothing connected the two, so a restore moved the
+ * project's head on the server while the header kept showing the previous
+ * revision until a manual reload.
+ *
+ * This deliberately reuses the workspace's own `refresh` rather than giving
+ * those components a data path of their own. A second polling mechanism would
+ * be a second thing to keep correct, and the two could disagree — which is the
+ * class of bug this whole module exists to close.
+ *
+ * The distinction between the two callers is worth stating, because it is why
+ * one call is enough for both:
+ *
+ *   - **Restore** completes server-side before the action returns, so a single
+ *     read afterwards sees the final state. No run is created, so nothing sets
+ *     `busy` and no polling is needed or wanted.
+ *   - **Retry** creates a queued run, so the read afterwards sees `busy: true`
+ *     and the existing poll loop takes over from there.
+ *
+ * A failed action does not refresh: there is nothing new to read, and the
+ * error is already being rendered by the form's own state.
+ */
+export function withRefresh<S extends { error: string | null }>(
+  action: (previous: S, data: FormData) => Promise<S>,
+  onSuccess: () => void | Promise<void>
+): (previous: S, data: FormData) => Promise<S> {
+  return async (previous, data) => {
+    const result = await action(previous, data);
+    if (!result.error) await onSuccess();
+    return result;
   };
 }
