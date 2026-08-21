@@ -84,12 +84,40 @@ async function main() {
   /* ---- reachability --------------------------------------------------- */
   console.log("  Connection");
   const { error: pingError } = await admin.from("projects").select("id").limit(1);
-  if (pingError) {
+
+  // PGRST205 means PostgREST answered and does not know the table — the
+  // connection is fine and the schema is simply absent. Reporting that as
+  // "cannot connect" sends someone to check their URL and keys when what they
+  // actually need is to run the migrations.
+  const schemaMissing = pingError?.code === "PGRST205" || /schema cache/i.test(pingError?.message ?? "");
+
+  if (pingError && !schemaMissing) {
     bad("reachable", pingError.message);
-    console.log("\n  Cannot continue without a connection.\n");
+    console.log(`
+  Could not reach the database. Check SUPABASE_URL and
+  SUPABASE_SERVICE_ROLE_KEY — \`npm run preflight\` reports their shape without
+  printing them.
+`);
     process.exit(1);
   }
-  ok("reachable");
+
+  ok("reachable", schemaMissing ? "(schema not applied yet)" : "");
+
+  if (schemaMissing) {
+    console.log(`
+  Connected, but the schema has not been applied. This is not a credentials
+  problem — PostgREST answered and does not know the tables yet.
+
+  Apply the migrations once, then re-run this command:
+
+    1. Open the SQL Editor for this project.
+    2. Paste the whole of supabase/ALL_MIGRATIONS.sql and run it.
+       (Regenerate it with \`npm run migrations:bundle\` if the migrations change.)
+
+  Every statement is idempotent, so re-running after a partial failure is safe.
+`);
+    process.exit(2);
+  }
 
   /* ---- schema ---------------------------------------------------------- */
   console.log("\n  Schema");

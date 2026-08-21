@@ -10,7 +10,12 @@ your users.
 
 ## 2. Apply the migrations
 
-Paste the files into **SQL Editor** in order, or use the CLI:
+**Fastest path — one paste.** `supabase/ALL_MIGRATIONS.sql` is every migration
+concatenated in order, wrapped in a transaction. Paste the whole file into the
+**SQL Editor** and run it once. Regenerate it with `npm run migrations:bundle`
+whenever the migrations change.
+
+Or paste the files individually in order, or use the CLI:
 
 ```bash
 supabase link --project-ref <your-project-ref>
@@ -80,6 +85,17 @@ bypassed.
   so only the service role can reach it. Uploads and reads both go through
   short-lived signed URLs minted server-side after the request has been
   authorised.
+
+## Applying migrations needs a credential the app does not have
+
+`SUPABASE_URL` and the two API keys are PostgREST credentials. They can read
+and write rows; they cannot execute DDL. Creating tables needs either the SQL
+Editor (which runs as `postgres`) or the database password for
+`supabase db push`.
+
+That is a deliberate boundary rather than an inconvenience: an application that
+could rewrite its own schema with the key it ships to production would be a
+larger problem than a manual migration step.
 
 ## Verification status — read this before believing anything above
 
