@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createSequencer, poll } from "./sequence";
 import type {
   getBuilderStateAction,
   readFileAction,
@@ -115,32 +116,63 @@ export function BuilderWorkspace({
     initialState.preview.kind === "runtime" ? initialState.preview.version : null
   );
 
-  const refresh = useCallback(async () => {
-    const next = await actions.getState(projectId);
-    if ("error" in next) {
-      setError(next.error);
-      return;
-    }
-    setError(null);
-    setState(next);
+  /** Guards every state read against arriving out of order.
+   *
+   * Server Actions are serialised by Next, so polls issued while a long
+   * generation is in flight queue behind it and then release together. Without
+   * a ticket the last response to *resolve* wins, which is not necessarily the
+   * newest — and the workspace would sit on "generating" and the previous
+   * revision after the work had finished and been persisted correctly. */
+  const sequencer = useRef(createSequencer<BuilderState | { error: string }>());
 
-    // Reload the frame exactly when the served content changed. Reloading on
-    // every poll would flicker; never reloading would leave someone looking at
-    // the version before their change.
-    const version = next.preview.kind === "runtime" ? next.preview.version : null;
-    if (version !== shownPreview.current) {
-      shownPreview.current = version;
-      setPreviewToken((n) => n + 1);
-    }
+  const refresh = useCallback(async () => {
+    await sequencer.current.run(
+      () => actions.getState(projectId),
+      (next) => {
+        if ("error" in next) {
+          setError(next.error);
+          return;
+        }
+        setError(null);
+        setState(next);
+
+        // Reload the frame exactly when the served content changed. Reloading
+        // on every poll would flicker; never reloading would leave someone
+        // looking at the version before their change.
+        const version = next.preview.kind === "runtime" ? next.preview.version : null;
+        if (version !== shownPreview.current) {
+          shownPreview.current = version;
+          setPreviewToken((n) => n + 1);
+        }
+      }
+    );
   }, [actions, projectId]);
 
   // Poll only while work is in flight. `busy` comes from the persisted active
   // run, so this restarts correctly after a reload too.
+  //
+  // A self-rescheduling timeout, not an interval: the next delay is measured
+  // from when the previous read finished, so a slow response cannot cause a
+  // pile-up. Skipping a tick that would overlap is what keeps the queue short
+  // enough for the ticket guard to stay a safety net rather than the mechanism.
   useEffect(() => {
     if (!state.busy) return;
-    const timer = setInterval(refresh, POLL_MS);
-    return () => clearInterval(timer);
+    const stop = poll(async () => {
+      if (sequencer.current.busy) return;
+      await refresh();
+    }, POLL_MS);
+    return stop;
   }, [state.busy, refresh]);
+
+  // Nothing in flight may apply after unmount — but the guard must be re-armed
+  // on mount, because StrictMode mounts, unmounts and mounts again in
+  // development. Cancelling without resuming leaves the sequencer permanently
+  // closed and every poll result discarded.
+  useEffect(() => {
+    const current = sequencer.current;
+    current.resume();
+    return () => current.cancel();
+  }, []);
 
   const send = async (prompt: string) => {
     setError(null);
