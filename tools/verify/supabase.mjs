@@ -219,8 +219,46 @@ async function main() {
   const marker = `orbital-verify-${Date.now()}`;
   let workspaceId = null;
   let projectId = null;
+  /** Real auth users. `projects.owner_id` references auth.users(id), so an
+   *  invented UUID cannot satisfy it — an earlier version of this script used
+   *  a workspace id here and the foreign key correctly refused it. Two users,
+   *  because the second is what makes the RLS check below meaningful. */
+  const users = [];
+
+  /** Creates a confirmed user and returns { id, email, token }.
+   *
+   * `email_confirm: true` matters: without it the account exists but the
+   * password grant returns no session when a project has email confirmation
+   * enabled, and the RLS check needs a real authenticated JWT. */
+  async function createUser(label) {
+    const email = `${marker}-${label}@example.com`;
+    const password = `Verify-${marker}-${label}`;
+
+    const created = await fetch(`${URL_}/auth/v1/admin/users`, {
+      method: "POST",
+      headers: { apikey: SERVICE, Authorization: `Bearer ${SERVICE}`, "content-type": "application/json" },
+      body: JSON.stringify({ email, password, email_confirm: true }),
+    });
+    if (!created.ok) throw new Error(`create user ${label}: ${(await created.text()).slice(0, 120)}`);
+    const { id } = await created.json();
+
+    const session = await fetch(`${URL_}/auth/v1/token?grant_type=password`, {
+      method: "POST",
+      headers: { apikey: ANON, "content-type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const token = session.ok ? (await session.json()).access_token : null;
+
+    const user = { id, email, token };
+    users.push(user);
+    return user;
+  }
 
   try {
+    const userA = await createUser("a");
+    const userB = await createUser("b");
+    ok("create two auth users", userA.token && userB.token ? "both signed in" : "no session token");
+
     const { data: workspace, error: wsError } = await admin
       .from("workspaces")
       .insert({ name: marker, slug: marker })
@@ -230,12 +268,18 @@ async function main() {
     workspaceId = workspace.id;
     ok("create workspace");
 
+    // Membership is what the RLS policies join through.
+    const { error: memberError } = await admin
+      .from("workspace_members")
+      .insert({ workspace_id: workspaceId, user_id: userA.id, role: "owner" });
+    check(!memberError, "add owner to workspace", memberError?.message ?? "");
+
     const { data: project, error: pError } = await admin
       .from("projects")
       .insert({
         workspace_id: workspaceId,
-        // The service role bypasses RLS, so this stands in for a real owner.
-        owner_id: workspace.id,
+        // A real auth user. This is the line the foreign key rejected before.
+        owner_id: userA.id,
         name: marker,
         status: "draft",
       })
@@ -243,7 +287,7 @@ async function main() {
       .single();
     if (pError) throw new Error(`project insert: ${pError.message}`);
     projectId = project.id;
-    ok("create project");
+    ok("create project", "owned by a real auth user");
 
     const { error: fileError } = await admin.from("project_files").insert({
       project_id: projectId,
@@ -317,30 +361,81 @@ async function main() {
     });
     check(!retryError, "retry lineage", retryError?.message ?? "");
 
-    /* ---- RLS --------------------------------------------------------- */
-    console.log("\n  Row Level Security (anonymous client)");
+    /* ---- RLS, with two real users ------------------------------------ */
+    console.log("\n  Row Level Security (two real accounts)");
+
     const anon = createClient(URL_, ANON, { auth: { persistSession: false } });
 
+    /** A query as a specific signed-in user. The anon key is the apikey and
+     *  the user's JWT is the bearer, which is exactly what the browser client
+     *  does — so this exercises the same path the application uses. */
+    const asUser = async (user, path) =>
+      fetch(`${URL_}/rest/v1/${path}`, {
+        headers: { apikey: ANON, Authorization: `Bearer ${user.token}` },
+      });
+
+    if (!userA.token || !userB.token) {
+      bad("two-user isolation", "no session tokens — is email confirmation required?");
+    } else {
+      // The owner must still be able to work. An isolation check that passes
+      // because nobody can read anything is not a passing isolation check.
+      const ownRead = await asUser(userA, `projects?select=id&id=eq.${projectId}`);
+      const ownRows = ownRead.ok ? (await ownRead.json()).length : -1;
+      check(ownRows === 1, "owner can read their own project", ownRows === 1 ? "" : `got ${ownRows} row(s)`);
+
+      // The isolation itself, across every surface a client can reach.
+      const surfaces = [
+        ["projects", `projects?select=id&id=eq.${projectId}`],
+        ["project files", `project_files?select=path&project_id=eq.${projectId}`],
+        ["revisions", `project_revisions?select=id&project_id=eq.${projectId}`],
+        ["generation runs", `generation_runs?select=id&project_id=eq.${projectId}`],
+      ];
+      for (const [label, path] of surfaces) {
+        const response = await asUser(userB, path);
+        const rows = response.ok ? (await response.json()).length : -1;
+        check(rows === 0, `user B cannot read A's ${label}`, rows === 0 ? "" : `leaked ${rows} row(s)`);
+      }
+
+      // Writes, not just reads. A policy that hides a row but allows an update
+      // to it is not isolation.
+      const stolen = await fetch(`${URL_}/rest/v1/projects?id=eq.${projectId}`, {
+        method: "PATCH",
+        headers: {
+          apikey: ANON,
+          Authorization: `Bearer ${userB.token}`,
+          "content-type": "application/json",
+          Prefer: "return=representation",
+        },
+        body: JSON.stringify({ name: "stolen-by-user-b" }),
+      });
+      const changed = stolen.ok ? (await stolen.json()).length : 0;
+      check(changed === 0, "user B cannot rename A's project", changed === 0 ? "" : "the update applied");
+
+      const deleted = await fetch(`${URL_}/rest/v1/projects?id=eq.${projectId}`, {
+        method: "DELETE",
+        headers: { apikey: ANON, Authorization: `Bearer ${userB.token}`, Prefer: "return=representation" },
+      });
+      const removed = deleted.ok ? (await deleted.json()).length : 0;
+      check(removed === 0, "user B cannot delete A's project", removed === 0 ? "" : "the delete applied");
+
+      // And A's project survived B's attempts.
+      const { data: survivor } = await admin.from("projects").select("name").eq("id", projectId).maybeSingle();
+      check(survivor?.name === marker, "A's project is unchanged after B's attempts",
+        survivor?.name === marker ? "" : `name is now ${survivor?.name}`);
+    }
+
+    // Unauthenticated reads, for completeness.
     for (const [table, label] of [
       ["projects", "projects"],
       ["project_files", "project files"],
       ["project_revisions", "revisions"],
       ["generation_runs", "generation runs"],
     ]) {
-      const { data } = await anon.from(table).select("*").eq("project_id", projectId).limit(1);
-      // For `projects` the column is `id`, so an empty result is expected
-      // either way; what matters is that nothing leaks.
-      check(
-        (data ?? []).length === 0,
-        `unauthenticated cannot read ${label}`,
-        (data ?? []).length === 0 ? "" : `${data.length} row(s) returned`
-      );
+      const { data } = await anon.from(table).select("*").limit(1);
+      check((data ?? []).length === 0, `unauthenticated cannot read ${label}`,
+        (data ?? []).length === 0 ? "" : `${data.length} row(s) returned`);
     }
 
-    console.log(
-      "\n  Note: full cross-user isolation needs two signed-in accounts.\n" +
-        "  Sign up twice and repeat these reads with each user's JWT."
-    );
   } catch (error) {
     bad("lifecycle", error.message);
   } finally {
@@ -351,7 +446,15 @@ async function main() {
       await admin.from("projects").delete().eq("id", projectId);
     }
     if (workspaceId) await admin.from("workspaces").delete().eq("id", workspaceId);
-    console.log("\n  Cleaned up throwaway rows.");
+    // Auth users are not covered by the project cascade; they live in the auth
+    // schema and would accumulate on every run.
+    for (const user of users) {
+      await fetch(`${URL_}/auth/v1/admin/users/${user.id}`, {
+        method: "DELETE",
+        headers: { apikey: SERVICE, Authorization: `Bearer ${SERVICE}` },
+      }).catch(() => {});
+    }
+    console.log(`\n  Cleaned up throwaway rows and ${users.length} test user(s).`);
   }
 
   console.log(

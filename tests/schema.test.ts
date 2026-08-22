@@ -205,6 +205,26 @@ describe("migrations match the adapter", () => {
     }
   });
 
+  it("declares owner_id as a foreign key to auth.users", () => {
+    // The regression this pins: the live verifier invented an owner_id — it
+    // passed a workspace id where a user id belongs — and the foreign key
+    // correctly refused it with projects_owner_id_fkey. The constraint was
+    // right and the fixture was wrong, so the fix belonged in the fixture.
+    //
+    // Anything creating a project must use a real auth user. Asserting the
+    // reference here is what makes that a rule rather than a convention.
+    assert.match(
+      sql(),
+      /owner_id\s+uuid not null references auth\.users \(id\)/i,
+      "projects.owner_id must reference auth.users"
+    );
+    assert.match(
+      sql(),
+      /user_id\s+uuid not null references auth\.users \(id\)/i,
+      "workspace_members.user_id must reference auth.users"
+    );
+  });
+
   it("keeps every migration idempotent", () => {
     // Re-running a migration must be safe: the README tells operators so, and
     // `db push` after a partial failure is the normal recovery path.

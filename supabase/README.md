@@ -121,7 +121,23 @@ That is a deliberate boundary rather than an inconvenience: an application that
 could rewrite its own schema with the key it ships to production would be a
 larger problem than a manual migration step.
 
-## Verification status — read this before believing anything above
+## Verification status — LIVE VERIFIED
+
+`npm run verify` passes against the live project. It creates two real auth
+users, a workspace, a project, a file, a revision and a generation run;
+exercises the status constraint, the one-active-run index and retry lineage;
+then checks isolation with both users' real JWTs and removes everything it
+made, users included.
+
+Two-user isolation is now measured rather than asserted. User B cannot read A's
+projects, files, revisions or runs, cannot rename A's project and cannot delete
+it — and A's project is confirmed unchanged afterwards. The owner can still
+read their own project, which matters: an isolation check that passes because
+nobody can read anything is not a passing check.
+
+### The older caveat, kept because it explains the tooling
+
+## Historical: verification status before the live run
 
 **The SQL has still never been executed.** This machine has no `psql`, no
 Supabase CLI, no Docker, and no `SUPABASE_URL` / `SUPABASE_ANON_KEY` /
