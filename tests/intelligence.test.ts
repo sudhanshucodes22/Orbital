@@ -11,6 +11,7 @@ import {
   byteLength,
   checkReferences,
   classifyIntent,
+  describeRunEngine,
   hashContent,
   isQuestion,
   malformationOf,
@@ -439,5 +440,47 @@ describe("bounded repair loop", () => {
     assert.equal(result.status, "failed");
     assert.notEqual(result.failure?.stage, "validation");
     assert.match(result.error ?? "", /died mid-repair/);
+  });
+});
+
+describe("engine attribution", () => {
+  const run = (over: Partial<Parameters<typeof describeRunEngine>[0]>) =>
+    describeRunEngine({ mode: "model", model: null, status: "queued", ...over });
+
+  it("never calls a failed model run the template engine", () => {
+    // The bug: history read `mode === "model" && model` and fell through to
+    // "TEMPLATE ENGINE" whenever no model was recorded. A real Gemini run that
+    // died before the provider answered was therefore reported as the work of
+    // the demo engine — the one claim this system must never make, appearing
+    // exactly when attribution matters most: while diagnosing a failure.
+    const label = run({ status: "failed" });
+    assert.doesNotMatch(label, /TEMPLATE/i, "a model run must never be labelled TEMPLATE");
+    assert.match(label, /MODEL/);
+  });
+
+  it("distinguishes never answered from not answered yet", () => {
+    // A queued run has no model for an innocent reason. Saying "no response"
+    // there would be its own false claim.
+    assert.match(run({ status: "failed" }), /NO RESPONSE/);
+    assert.match(run({ status: "cancelled" }), /NO RESPONSE/);
+    assert.match(run({ status: "running" }), /AWAITING/);
+    assert.match(run({ status: "queued" }), /AWAITING/);
+  });
+
+  it("names the provider and model that actually answered", () => {
+    assert.equal(
+      run({
+        status: "succeeded",
+        model: { providerId: "google", modelId: "gemini-2.5-flash" },
+      }),
+      "google · gemini-2.5-flash"
+    );
+  });
+
+  it("still calls the template engine the template engine", () => {
+    // The demo path must stay honestly labelled; the fix must not overcorrect
+    // into implying a model was involved when none was.
+    assert.equal(run({ mode: "demo", status: "succeeded" }), "TEMPLATE ENGINE");
+    assert.equal(run({ mode: "demo", status: "failed" }), "TEMPLATE ENGINE");
   });
 });

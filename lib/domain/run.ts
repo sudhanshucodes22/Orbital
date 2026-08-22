@@ -270,6 +270,35 @@ export interface RunSummary {
   completedAt: Timestamp | null;
 }
 
+/** How to label which engine produced a run.
+ *
+ * `mode` is the authoritative fact: it is recorded when the run is created,
+ * from the producer that will execute it, and never changes. `model` is only
+ * populated once a provider has actually answered.
+ *
+ * Conflating the two mislabels a failed model run as a template one. The
+ * history panel read `mode === "model" && model` and fell through to "TEMPLATE
+ * ENGINE" otherwise — so a real Gemini run that died before the provider
+ * responded was reported as the work of the demo engine. That is the one claim
+ * this system must never make, and it appeared precisely when attribution
+ * mattered most: while diagnosing a failure.
+ *
+ * A model run with no model recorded is therefore described by *why* it has
+ * none — still waiting, or finished without an answer — rather than by
+ * pretending a different engine ran.
+ */
+export function describeRunEngine(
+  run: Pick<RunSummary, "mode" | "model" | "status">
+): string {
+  if (run.mode === "demo") return "TEMPLATE ENGINE";
+  if (run.model) return `${run.model.providerId} · ${run.model.modelId}`;
+
+  // A model run with nothing recorded. Terminal means the provider never
+  // answered; otherwise it simply has not answered yet.
+  const terminal = run.status === "failed" || run.status === "cancelled";
+  return terminal ? "MODEL · NO RESPONSE" : "MODEL · AWAITING RESPONSE";
+}
+
 /** Projects a run for display.
  *
  * Defensive throughout, because these fields are read back from a store that
