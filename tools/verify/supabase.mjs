@@ -99,6 +99,10 @@ async function main() {
 
   if (grantsMissing) {
     ok("reachable", "(schema present, grants missing)");
+    // Postgres names the exact statement it wants. Printing its own words
+    // beats paraphrasing them, and it proves the claim rather than asserting
+    // it — this is the database itself reporting the grant is absent.
+    if (pingError?.hint) console.log(`\n  Postgres says: ${pingError.hint}`);
     console.log(`
   Connected and the tables exist, but no role can read them.
 
