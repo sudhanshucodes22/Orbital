@@ -130,6 +130,16 @@ export const supabaseProjects: ProjectRepository = {
     const values: Record<string, unknown> = {};
     if (patch.name !== undefined) values.name = patch.name;
     if (patch.description !== undefined) values.description = patch.description;
+    // The generation pipeline patches these two. Omitting them left an empty
+    // PATCH body, which updates zero rows — so `.single()` failed with "Cannot
+    // coerce the result to a single JSON object". The demo adapter mapped all
+    // four fields, so the whole pipeline worked against the file store and
+    // broke on the first real Supabase generation. A whitelist that silently
+    // drops fields is the same trap as the run adapters' `validation`.
+    if (patch.status !== undefined) values.status = patch.status;
+    if (patch.currentRevisionId !== undefined) {
+      values.current_revision_id = patch.currentRevisionId;
+    }
     const { data, error } = await supabase
       .from("projects")
       .update(values)
