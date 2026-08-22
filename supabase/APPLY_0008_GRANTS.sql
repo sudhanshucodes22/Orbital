@@ -33,17 +33,46 @@ alter default privileges in schema public
   grant select, insert, update, delete on tables to authenticated, service_role;
 
 -- ---------------------------------------------------------------------------
--- Did it work?
+-- Did it work? (authoritative)
 -- ---------------------------------------------------------------------------
 --
--- Expect 12 rows: six tables × two roles. Anything missing is a grant that did
--- not apply.
+-- This block previously queried information_schema.role_table_grants, which
+-- returned twelve rows while has_table_privilege() reported false for every
+-- table and both roles. That is a false pass, and it cost several rounds of
+-- misdiagnosis: the catalog listing and the privilege the planner actually
+-- enforces are not the same question.
+--
+-- has_table_privilege() is what Postgres consults at query time, so it is the
+-- only answer that matters. This raises an exception rather than returning
+-- rows, so the run cannot appear to succeed while leaving the grants absent.
 
-select grantee, table_name, string_agg(privilege_type, ', ' order by privilege_type) as privileges
-  from information_schema.role_table_grants
- where table_schema = 'public'
-   and grantee in ('authenticated', 'service_role')
-   and table_name in ('workspaces','workspace_members','projects',
-                      'project_files','project_revisions','generation_runs')
- group by grantee, table_name
- order by grantee, table_name;
+do $$
+declare
+  t text;
+  missing text[] := '{}';
+begin
+  foreach t in array array['workspaces','workspace_members','projects',
+                           'project_files','project_revisions','generation_runs']
+  loop
+    if not has_table_privilege('service_role', 'public.' || t, 'SELECT') then
+      missing := missing || ('service_role -> ' || t);
+    end if;
+    if not has_table_privilege('authenticated', 'public.' || t, 'SELECT') then
+      missing := missing || ('authenticated -> ' || t);
+    end if;
+  end loop;
+
+  if array_length(missing, 1) is not null then
+    raise exception 'GRANTS DID NOT TAKE EFFECT: %', array_to_string(missing, ', ');
+  end if;
+
+  raise notice 'All grants verified with has_table_privilege(). Both roles can SELECT all six tables.';
+end $$;
+
+-- And the same check as a result set, so success is visible as well as silent.
+select t.table_name,
+       has_table_privilege('service_role',  'public.' || t.table_name, 'SELECT') as service_role,
+       has_table_privilege('authenticated', 'public.' || t.table_name, 'SELECT') as authenticated
+  from (values ('workspaces'),('workspace_members'),('projects'),
+               ('project_files'),('project_revisions'),('generation_runs')) as t(table_name)
+ order by t.table_name;
