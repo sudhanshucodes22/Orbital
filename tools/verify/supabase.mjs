@@ -106,17 +106,26 @@ async function main() {
     console.log(`
   Connected and the tables exist, but no role can read them.
 
-  Postgres checks GRANTs before Row Level Security, so a role with no privilege
-  is refused before any policy is consulted — which is why even the service
-  role, which bypasses RLS, is denied. The policies are fine; they are simply
-  unreachable.
+  Two different things produce this, and they have different fixes:
 
-  Apply the grants, then re-run this command:
+  1. The grants were never applied.
+     Paste supabase/APPLY_0008_GRANTS.sql into the SQL Editor. It contains only
+     GRANT statements and ends with a query listing what applied — expect 12
+     rows, six tables times two roles.
 
-    Paste supabase/APPLY_0008_GRANTS.sql into the SQL Editor and run it.
+  2. The grants ARE applied, but PostgREST has not noticed.
+     PostgREST answers from a cached view of the schema that includes
+     privileges, and a GRANT does not always prompt a reload. If the query
+     above returned 12 rows, this is your case. Reload the cache with either:
 
-  That file contains only GRANT statements — nothing that can fail on
-  ownership — and ends with a query listing what was applied. RLS is untouched.
+       NOTIFY pgrst, 'reload schema';
+
+     in the SQL Editor, or the "Reload schema cache" control in the project's
+     API settings. Neither re-applies anything.
+
+  Nothing about RLS is involved either way: Postgres checks privileges before
+  policies, so the policies here are simply unreachable until the grant is
+  both applied and visible to PostgREST.
 `);
     process.exit(3);
   }

@@ -98,6 +98,18 @@ wrong.
 listing what applied. `npm run verify` detects this state specifically and says
 so, rather than reporting it as a connection failure.
 
+**If that query returns 12 rows and the API still says permission denied**, the
+grants are applied and PostgREST simply has not noticed. It answers from a
+cached view of the schema that includes privileges, and a `GRANT` does not
+always prompt a reload. Fix it with
+
+```sql
+notify pgrst, 'reload schema';
+```
+
+or the *Reload schema cache* control in the project's API settings. Neither
+re-applies anything, and neither touches RLS.
+
 ## Applying migrations needs a credential the app does not have
 
 `SUPABASE_URL` and the two API keys are PostgREST credentials. They can read
