@@ -91,6 +91,18 @@ export function backendMode(): BackendMode {
   return e.supabaseUrl && e.supabaseAnonKey ? "supabase" : "demo";
 }
 
+/** The key that would actually be used for the configured provider.
+ *
+ * Kept beside `capabilities` and mirroring `KEY_SOURCES` in the AI registry.
+ * The two must agree: one reports what the product can do and the other
+ * decides it, and a disagreement shows up as /api/health claiming a capability
+ * is missing while the feature works, or the reverse. */
+function generationKeyFor(e: ServerEnv): string | undefined {
+  return e.generationProvider === "google"
+    ? (e.geminiApiKey ?? e.generationApiKey)
+    : e.generationApiKey;
+}
+
 export function capabilities(): CapabilityReport {
   const e = serverEnv();
   const mode = backendMode();
@@ -115,7 +127,12 @@ export function capabilities(): CapabilityReport {
     // All three are needed together: a key with no model, or a model with no
     // provider, cannot reach a vendor. Reported as one boolean because that
     // is the question the UI asks — "can this generate?"
-    generation: Boolean(e.generationApiKey && e.generationProvider && e.generationModel),
+    // Mirrors the registry's key resolution rather than checking one variable.
+    // The registry reads GEMINI_API_KEY first when the provider is google, so
+    // checking only GENERATION_API_KEY here reported generation unavailable
+    // while the app could in fact generate — health and behaviour disagreeing
+    // is worse than either being wrong alone.
+    generation: Boolean(generationKeyFor(e) && e.generationProvider && e.generationModel),
     publishing: false,
   };
 }
