@@ -94,7 +94,7 @@ export function ProjectCard({
               color: tokens.textFaint,
             }}
           >
-            <span>{formatRelative(project.updatedAt).toUpperCase()}</span>
+            <span suppressHydrationWarning>{formatRelative(project.updatedAt).toUpperCase()}</span>
             <span aria-hidden>·</span>
             <span>{formatDate(project.createdAt).toUpperCase()}</span>
             <span style={{ flex: 1 }} />

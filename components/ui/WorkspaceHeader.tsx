@@ -160,6 +160,7 @@ export function WorkspaceHeader({
                 letterSpacing: "-.01em",
                 color: tokens.text,
               }}
+              suppressHydrationWarning
             >
               {lastTouched ? formatRelative(lastTouched) : "—"}
             </div>

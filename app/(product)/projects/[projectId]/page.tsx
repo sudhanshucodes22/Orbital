@@ -26,7 +26,22 @@ export const metadata: Metadata = { title: "Project" };
 export const dynamic = "force-dynamic";
 
 /** A labelled fact in the header rail. */
-function Meta({ label, value }: { label: string; value: string }) {
+/** `relative` marks a value computed from `Date.now()`.
+ *
+ * Those disagree between the server render and hydration whenever the two
+ * straddle a boundary — "16 HOURS AGO" against "15" — which React reports as a
+ * hydration error and recovers from by re-rendering the tree. The client's
+ * value is the correct one, so the mismatch is suppressed rather than designed
+ * around. */
+function Meta({
+  label,
+  value,
+  relative = false,
+}: {
+  label: string;
+  value: string;
+  relative?: boolean;
+}) {
   return (
     <div style={{ minWidth: 0 }}>
       <div
@@ -48,6 +63,7 @@ function Meta({ label, value }: { label: string; value: string }) {
           textOverflow: "ellipsis",
           whiteSpace: "nowrap",
         }}
+        suppressHydrationWarning={relative}
       >
         {value}
       </div>
@@ -172,7 +188,7 @@ export default async function ProjectPage({
             }}
           >
             <Meta label="CREATED" value={formatDate(project.createdAt)} />
-            <Meta label="LAST CHANGE" value={formatRelative(project.updatedAt)} />
+            <Meta label="LAST CHANGE" value={formatRelative(project.updatedAt)} relative />
             <Meta
               label="REVISIONS"
               value={revisions.length === 0 ? "None yet" : String(revisions.length)}

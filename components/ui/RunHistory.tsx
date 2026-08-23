@@ -170,7 +170,15 @@ function RunRow({
           </span>
         )}
         <span style={{ flex: 1 }} />
-        <span style={mono}>{formatRelative(run.createdAt).toUpperCase()}</span>
+        {/* A relative time is computed from `Date.now()`, so the server and
+            the client disagree whenever the render straddles a boundary — the
+            server said "16 HOURS AGO", the browser said "15", and React threw
+            a hydration error and re-rendered the tree. Suppressed rather than
+            worked around: the client's value is the correct one, and this is
+            the case the attribute exists for. */}
+        <span style={mono} suppressHydrationWarning>
+          {formatRelative(run.createdAt).toUpperCase()}
+        </span>
       </div>
 
       {/* The prompt is the thing a person recognises a run by, so it leads. */}
