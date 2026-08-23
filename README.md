@@ -25,7 +25,8 @@ lib/
   domain/            Data models. Pure types, zero I/O.
   ports/             Interfaces a backend must satisfy.
   services/          Business logic. Depends on ports, not vendors.
-  server/            Adapters. SERVER ONLY. Currently unimplemented.
+  server/            Adapters. SERVER ONLY. Supabase, the model providers,
+                     the generation pipeline and the preview runtime.
   config/            Typed environment access.
 components/
   orbital/           The landing page. Guarded by the baselines.
@@ -135,9 +136,10 @@ Engineer.dc.html` is an earlier draft, retained for history only.
 | 5 | Responsive design (new design work, not a port) | **done** |
 | 6 | Product foundation: layering, routes, ports | **done** — see ARCHITECTURE.md |
 | 7 | Supabase: auth, database, storage, real /projects | **done** — needs credentials to run |
+| 7c | Builder: contextual editing, history, restore, retry | **done** |
 | 7b | Local demo backend so the app runs with no configuration | **done** |
-| 8 | Generation engine | not started |
-| 9 | Deployment | not started |
+| 8 | Generation engine | **done** — real Google Gemini, end to end |
+| 9 | Deployment | **done** — Vercel, see [SETUP.md](SETUP.md#deploying-to-vercel) |
 
 The governing constraint: **the visual design is final.** Baselines exist to
 prove that. Since Phase 4 they are captured from the application rather than

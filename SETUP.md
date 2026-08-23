@@ -180,6 +180,50 @@ See [`WORKER.md`](WORKER.md) for deployment, including the Vercel cron entry.
 
 ---
 
+## Deploying to Vercel
+
+Import the repository at [vercel.com/new](https://vercel.com/new). The defaults
+are correct — Next.js is detected, and `vercel.json` already carries the cron
+entry that drains the generation queue.
+
+Set these in **Settings → Environment Variables**, for Production and Preview:
+
+| Variable | Value |
+|---|---|
+| `SUPABASE_URL` | your project URL |
+| `SUPABASE_ANON_KEY` | the anon/publishable key |
+| `SUPABASE_SERVICE_ROLE_KEY` | the service role key |
+| `STORAGE_BUCKET` | `orbital-artifacts` |
+| `GENERATION_PROVIDER` | `google` |
+| `GENERATION_MODEL` | `gemini-2.5-flash` |
+| `GEMINI_API_KEY` | your Google AI Studio key |
+| `WORKER_SECRET` | `openssl rand -hex 32` |
+| `CRON_SECRET` | `openssl rand -hex 32` |
+| `NEXT_PUBLIC_SITE_URL` | the deployment's own origin |
+
+None of these are prefixed `NEXT_PUBLIC_` except the last, which is a URL. That
+is deliberate: auth runs entirely through Server Actions, so no key needs to
+reach a browser. `NEXT_PUBLIC_SITE_URL` only drives Open Graph and canonical
+tags.
+
+Then, in the Supabase dashboard under **Authentication → URL Configuration**,
+add the deployment origin to **Site URL** and **Redirect URLs**. Sign-in is a
+Server Action rather than an OAuth round trip, so there is no callback route to
+register — but Supabase still rejects sessions minted for an unknown origin.
+
+Confirm the deployment with `GET /api/health` on the live URL. It reports which
+capabilities resolved from the environment actually present:
+
+```json
+{"capabilities":{"mode":"supabase","auth":true,"database":true,
+                 "storage":true,"generation":true}}
+```
+
+`"mode":"demo"` there means the Supabase variables did not arrive — the app
+falls back rather than failing, so this is the check that catches it.
+
+---
+
 ## Demo mode is not going away
 
 The template engine and file-backed store are kept deliberately, for offline
@@ -204,6 +248,8 @@ The distinction is structural, not cosmetic:
   ARCHITECTURE.md.
 - **Single host.** Previews are in-process children and cannot outlive or
   migrate between application instances.
-- **No deployment, GitHub integration, or code editor.**
+- **No publishing, GitHub integration, or code editor** for the *generated*
+  sites. Orbital itself deploys to Vercel; what it builds for you stays in the
+  builder and its preview.
 - **Generated projects are static HTML and CSS by design** — no build step and
   no package installation, which is the contract the model is given.
