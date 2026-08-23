@@ -78,9 +78,18 @@ const SECURITY_HEADERS = {
   "referrer-policy": "no-referrer",
 };
 
+/** Must stay in step with `local-runtime.ts`, which serves the same trees when
+ *  the sandboxed tier is unavailable. Two copies of a policy is two chances to
+ *  fix only one — the `style-src 'self'` bug below was fixed there first and
+ *  went on rendering unstyled here. */
 function policy(extra = "") {
   return (
-    `default-src 'none'; style-src 'unsafe-inline'; img-src data: blob:; ` +
+    // 'self' is the preview's own ephemeral origin. Without it the page is
+    // denied its own <link rel=stylesheet>: the file is served with a 200 and
+    // the browser refuses to apply it, so every generated site renders as
+    // unstyled serif. Everything genuinely external stays denied by
+    // `default-src 'none'`.
+    `default-src 'none'; style-src 'self' 'unsafe-inline'; img-src data: blob:; ` +
     `font-src data:; media-src data:; form-action 'none'; base-uri 'none'; ` +
     `frame-ancestors ${frameAncestors}${extra}`
   );

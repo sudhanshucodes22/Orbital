@@ -255,8 +255,22 @@ export function createLocalPreviewRuntime(
             // Generated content is untrusted. It is self-contained by
             // contract, so denying every external source costs it nothing and
             // means a page that tries to phone home simply cannot.
+            //
+            // `style-src` needs 'self' as well as 'unsafe-inline'. Without it
+            // the policy denied the page its own stylesheet: the server
+            // returned style.css with a 200, and the browser refused to apply
+            // it, so every generated site rendered as unstyled serif. The
+            // template engine writes one file with a <style> block, which is
+            // why nothing caught this until a real model split the CSS out —
+            // which is what a model does by default.
+            //
+            // This is not a loosening. 'self' here is the preview's own
+            // ephemeral origin, serving one revision's frozen tree from a
+            // process with no secrets and no network egress. Every genuinely
+            // external source stays denied by `default-src 'none'`, and
+            // scripts stay denied by both that and the iframe's empty sandbox.
             "content-security-policy":
-              "default-src 'none'; style-src 'unsafe-inline'; img-src data: blob:; " +
+              "default-src 'none'; style-src 'self' 'unsafe-inline'; img-src data: blob:; " +
               "font-src data:; media-src data:; form-action 'none'; base-uri 'none'; " +
               `frame-ancestors ${frameAncestors}`,
           });

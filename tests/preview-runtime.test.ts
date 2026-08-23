@@ -280,6 +280,35 @@ describe("preview runtime isolation", () => {
     assert.match(home.headers.get("cache-control") ?? "", /no-store/);
   });
 
+  it("lets a page load its own stylesheet", async () => {
+    const session = await runtime.start(PROJECT, REVISION_A);
+    const csp = (await get(session.origin!, "/")).headers.get("content-security-policy") ?? "";
+
+    // `style-src 'unsafe-inline'` alone is the natural thing to write and is
+    // wrong in the same way `frame-ancestors 'self'` would be: it permits a
+    // <style> block but denies <link rel=stylesheet href=style.css>, because
+    // the page's own origin is not 'self' to a policy that never says 'self'.
+    //
+    // The server answered style.css with a 200 and the browser refused to
+    // apply it, so every generated site rendered as unstyled serif. The
+    // template engine emits a single file with an inline <style>, so only a
+    // real model run showed it — and splitting the CSS out is the default
+    // thing a model does.
+    const styleSrc = /style-src ([^;]*)/.exec(csp)?.[1] ?? "";
+    assert.match(styleSrc, /'self'/, `style-src must allow the preview's own files: ${csp}`);
+
+    // The stylesheet is genuinely reachable, not merely permitted.
+    const sheet = await get(session.origin!, "/styles.css");
+    assert.equal(sheet.status, 200);
+    assert.match(sheet.headers.get("content-type") ?? "", /text\/css/);
+
+    // And nothing external became reachable in the process. These are what
+    // make 'self' above a fix rather than a hole.
+    assert.match(csp, /default-src 'none'/);
+    assert.doesNotMatch(csp, /style-src [^;]*\*/);
+    assert.doesNotMatch(csp, /script-src/);
+  });
+
   it("lets the application frame it, and names who may", async () => {
     const session = await runtime.start(PROJECT, REVISION_A);
     const csp = (await get(session.origin!, "/")).headers.get("content-security-policy") ?? "";

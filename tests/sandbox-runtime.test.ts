@@ -27,6 +27,7 @@ const PROJECT_A = asProjectId("aaaaaaaa-1111-2222-3333-444444444444");
 const PROJECT_B = asProjectId("bbbbbbbb-1111-2222-3333-444444444444");
 const REVISION_A = asRevisionId("rev-a");
 const REVISION_B = asRevisionId("rev-b");
+const REVISION_STYLED = asRevisionId("rev-styled");
 
 function file(path: string, content: string): FileSnapshot {
   return {
@@ -50,6 +51,18 @@ const TREES = new Map<string, readonly FileSnapshot[]>([
     ],
   ],
   [`${PROJECT_A}:${REVISION_B}`, [file("index.html", "<!doctype html><title>A2</title><h1>A-V2</h1>")]],
+  [
+    // A page and its own stylesheet — the shape a real model produces, and the
+    // one the CSP used to break. See the style-src test below.
+    `${PROJECT_A}:${REVISION_STYLED}`,
+    [
+      file(
+        "index.html",
+        `<!doctype html><title>Styled</title><link rel="stylesheet" href="style.css"><h1>Styled</h1>`
+      ),
+      file("style.css", "h1{color:rebeccapurple}"),
+    ],
+  ],
   [
     `${PROJECT_B}:${REVISION_A}`,
     [file("index.html", "<!doctype html><title>B</title><h1>PROJECT-B-SECRET</h1>")],
@@ -105,6 +118,29 @@ describe("sandboxed runtime lifecycle", () => {
     const home = await get(session.origin!, "/");
     assert.equal(home.status, 200);
     assert.match(home.body, /PROJECT-A-SECRET/);
+  });
+
+  it("lets a page load its own stylesheet", async () => {
+    // The sandboxed child has its own copy of the policy, in
+    // tools/preview-server.mjs. `style-src 'unsafe-inline'` without 'self'
+    // denies the page its own <link rel=stylesheet>: the file is served with
+    // a 200 and the browser refuses to apply it, so every generated site
+    // rendered as unstyled serif. It was fixed in local-runtime.ts first and
+    // still broken here, which is exactly the drift this test is for.
+    const session = await runtime.start(PROJECT_A, REVISION_STYLED);
+
+    const sheet = await get(session.origin!, "/style.css");
+    assert.equal(sheet.status, 200, "the stylesheet must be served");
+
+    const csp = sheet.headers.get("content-security-policy") ?? "";
+    const styleSrc = /style-src ([^;]*)/.exec(csp)?.[1] ?? "";
+    assert.match(styleSrc, /'self'/, `style-src must allow the preview's own files: ${csp}`);
+
+    // What keeps 'self' a fix rather than a hole: nothing external, and no
+    // script execution.
+    assert.match(csp, /default-src 'none'/);
+    assert.doesNotMatch(csp, /style-src [^;]*\*/);
+    assert.doesNotMatch(csp, /script-src/);
   });
 
   it("reports the isolation tier actually in force", async () => {
