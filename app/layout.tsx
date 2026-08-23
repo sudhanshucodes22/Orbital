@@ -95,10 +95,15 @@ const fontVariables = [
 /* metadataBase drives absolute URLs for Open Graph and canonical. Read through
  * publicEnv rather than process.env directly, so lib/config/env.ts stays the
  * single audited place configuration enters the app. */
-const siteUrl = publicEnv.siteUrl;
+let safeMetadataUrl: URL;
+try {
+  safeMetadataUrl = new URL(publicEnv.siteUrl);
+} catch {
+  safeMetadataUrl = new URL("https://orbital.app");
+}
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: safeMetadataUrl,
   title: {
     default: "Orbital — multimodal AI website engineer",
     template: "%s · Orbital",

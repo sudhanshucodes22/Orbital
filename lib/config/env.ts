@@ -10,8 +10,11 @@
  *    default that silently half-works.
  */
 
+const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined;
+
 export const publicEnv = {
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  siteUrl: (rawSiteUrl && rawSiteUrl.length > 0 ? rawSiteUrl : (vercelUrl ?? "https://orbital.app")),
 } as const;
 
 /** Server-only variables. Add new ones here so the audit is in one place. */
