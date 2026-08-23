@@ -12,7 +12,7 @@
  * environment and never printed.
  */
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   asArtifactId,
@@ -230,7 +230,7 @@ async function main() {
       store.users = store.users.filter((u: { id: string }) => !doomed.has(u.id));
       store.members = store.members.filter((m: { userId: string }) => !doomed.has(m.userId));
       store.workspaces = store.workspaces.filter((w: { id: string }) => !workspaces.has(w.id));
-      require("node:fs").writeFileSync(path, JSON.stringify(store, null, 2));
+      writeFileSync(path, JSON.stringify(store, null, 2));
     }
   }
 }

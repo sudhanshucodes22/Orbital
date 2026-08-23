@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createSequencer, poll, withRefresh } from "./sequence";
 import type {
   getBuilderStateAction,
@@ -220,12 +220,18 @@ export function BuilderWorkspace({
   // are form actions several components down. Wrapping them here is what
   // connects them to the same state read a generation uses — rather than
   // giving those components a parallel data path that could disagree.
-  const restoreAndRefresh = useMemo(
-    () => withRefresh(restoreAction, refresh),
+  //
+  // The composition happens when the action runs, not while rendering.
+  // `refresh` reads `sequencer.current`, and a `withRefresh(...)` call in the
+  // render body is a call the compiler must assume could read it there.
+  const restoreAndRefresh = useCallback(
+    (prev: ProjectFormState, data: FormData) =>
+      withRefresh(restoreAction, refresh)(prev, data),
     [restoreAction, refresh]
   );
-  const retryFormAndRefresh = useMemo(
-    () => withRefresh(onRetryForm, refresh),
+  const retryFormAndRefresh = useCallback(
+    (prev: ProjectFormState, data: FormData) =>
+      withRefresh(onRetryForm, refresh)(prev, data),
     [onRetryForm, refresh]
   );
 
