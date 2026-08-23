@@ -20,73 +20,73 @@ export function Comparison({ v }: { v: Vals }) {
             {"One of them still has you typing."}
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: "22px" }} className="r-compare">
-            <div style={{ padding: "28px 26px 30px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.018)" }}>
+            <div style={{ padding: "30px 28px 32px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.1)", background: "rgba(18,12,18,.75)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 20px 50px rgba(0,0,0,.45)" }} className="orb-card-hover">
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(233,235,242,.4)" }}>
+                <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(233,235,242,.55)", fontWeight: "500" }}>
                   {"PROMPT-BASED TOOLS"}
                 </span>
-                <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", color: "rgba(255,150,140,.75)" }}>
+                <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", color: "rgba(255,150,140,.9)", padding: "4px 8px", borderRadius: "6px", background: "rgba(255,100,100,.1)" }}>
                   {"~7 LOOPS"}
                 </span>
               </div>
               <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", gap: "0" }}>
                 {v.oldFlow.map((of, i0) => (
                   <React.Fragment key={i0}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "14px", padding: "11px 0", borderBottom: "1px dashed rgba(255,255,255,.08)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "14px", padding: "12px 0", borderBottom: "1px dashed rgba(255,255,255,.08)" }}>
                       <span style={{ width: "7px", height: "7px", borderRadius: "2px", background: of.dot }} />
                       <span style={{ fontSize: "13.5px", color: of.color }}>
                         {of.t}
                       </span>
                       <span style={{ flex: "1" }} />
-                      <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.3)" }}>
+                      <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.35)" }}>
                         {of.k}
                       </span>
                     </div>
                   </React.Fragment>
                 ))}
               </div>
-              <div style={{ marginTop: "22px", fontSize: "13px", lineHeight: "1.6", color: "rgba(233,235,242,.45)" }}>
+              <div style={{ marginTop: "22px", fontSize: "13px", lineHeight: "1.6", color: "rgba(233,235,242,.55)" }}>
                 {"Every fix is a fresh generation. Your copy, images and manual tweaks get overwritten on the way past."}
               </div>
             </div>
-            <div style={{ padding: "28px 26px 30px", borderRadius: "20px", border: "1px solid rgba(124,230,255,.36)", background: "linear-gradient(160deg,rgba(124,230,255,.11),rgba(255,255,255,.02))" }}>
+            <div style={{ padding: "30px 28px 32px", borderRadius: "20px", border: "1px solid rgba(124,230,255,.45)", background: "linear-gradient(160deg,rgba(16,28,48,.85),rgba(8,12,22,.92))", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", boxShadow: "0 24px 70px rgba(0,0,0,.6), 0 0 30px rgba(124,230,255,.12)" }} className="orb-card-hover">
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(190,240,255,.9)" }}>
+                <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(190,240,255,.95)", fontWeight: "500" }}>
                   {"ORBITAL"}
                 </span>
-                <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", color: "rgba(150,255,200,.85)" }}>
+                <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", color: "rgba(150,255,200,.95)", padding: "4px 8px", borderRadius: "6px", background: "rgba(100,255,180,.12)" }}>
                   {"1 PASS"}
                 </span>
               </div>
               <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", gap: "0" }}>
                 {v.newFlow.map((nf, i0) => (
                   <React.Fragment key={i0}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "14px", padding: "11px 0", borderBottom: "1px solid rgba(255,255,255,.08)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "14px", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,.08)" }}>
                       <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#7ce6ff", boxShadow: "0 0 10px rgba(124,230,255,.7)" }} />
-                      <span style={{ fontSize: "13.5px", color: "rgba(233,235,242,.92)" }}>
+                      <span style={{ fontSize: "13.5px", color: "rgba(233,235,242,.95)", fontWeight: "500" }}>
                         {nf.t}
                       </span>
                       <span style={{ flex: "1" }} />
-                      <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(190,240,255,.7)" }}>
+                      <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(190,240,255,.8)" }}>
                         {nf.k}
                       </span>
                     </div>
                   </React.Fragment>
                 ))}
               </div>
-              <div style={{ marginTop: "22px", fontSize: "13px", lineHeight: "1.6", color: "rgba(233,235,242,.62)" }}>
+              <div style={{ marginTop: "22px", fontSize: "13px", lineHeight: "1.6", color: "rgba(233,235,242,.7)" }}>
                 {"Nothing regenerates. Every instruction is a patch on a live tree, so what you already liked stays exactly as it was."}
               </div>
             </div>
           </div>
-          <div style={{ marginTop: "22px", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: "0", borderTop: "1px solid rgba(255,255,255,.08)" }} className="r-caps">
+          <div style={{ marginTop: "24px", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: "12px" }} className="r-caps">
             {v.uniqueCaps.map((uc, i0) => (
               <React.Fragment key={i0}>
-                <div style={{ padding: "18px 18px 20px", borderRight: "1px solid rgba(255,255,255,.06)" }}>
-                  <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", letterSpacing: ".1em", color: "rgba(124,230,255,.75)" }}>
+                <div style={{ padding: "18px 20px", borderRadius: "14px", border: "1px solid rgba(255,255,255,.1)", background: "rgba(8,12,22,.7)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }} className="orb-card-hover">
+                  <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", letterSpacing: ".1em", color: "rgba(124,230,255,.8)", fontWeight: "500" }}>
                     {"ONLY HERE"}
                   </div>
-                  <div style={{ marginTop: "10px", fontSize: "13.5px", lineHeight: "1.4", color: "rgba(233,235,242,.8)" }}>
+                  <div style={{ marginTop: "8px", fontSize: "13.5px", lineHeight: "1.4", color: "rgba(233,235,242,.85)" }}>
                     {uc}
                   </div>
                 </div>

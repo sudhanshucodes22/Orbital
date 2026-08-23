@@ -119,14 +119,14 @@ export function Hero({ v, heroStageRef }: { v: Vals } & Pick<Refs, "heroStageRef
               <div style={{ position: "absolute", left: "0", right: "0", top: "50%", height: "1px", background: "repeating-linear-gradient(90deg,rgba(150,225,255,.55) 0 6px,transparent 6px 12px)", backgroundSize: "220px 1px", animation: "flowDash 3s linear infinite", opacity: "clamp(0,calc((var(--hp) - .1) * 4),1)" }} />
               {v.detections.map((d, i0) => (
                 <React.Fragment key={i0}>
-                  <div style={{ position: "relative", padding: "6px 8px", borderRadius: "6px", border: "1px solid rgba(124,230,255,.28)", background: "rgba(6,14,24,.82)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", lineHeight: "1.35", letterSpacing: ".02em", color: "rgba(196,236,255,.92)", opacity: d.o, transform: d.tr, transition: "opacity .35s ease,transform .35s ease" }}>
+                  <div style={{ position: "relative", padding: "7px 10px", borderRadius: "8px", border: "1px solid rgba(124,230,255,.38)", background: "rgba(6,14,26,.92)", backdropFilter: "blur(12px)", boxShadow: "0 4px 16px rgba(0,0,0,.5), 0 0 12px rgba(124,230,255,.12)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", lineHeight: "1.35", letterSpacing: ".02em", color: "rgba(196,236,255,.95)", opacity: d.o, transform: d.tr, transition: "opacity .35s ease,transform .35s ease" }}>
                     {d.t}
                   </div>
                 </React.Fragment>
               ))}
             </div>
             <div style={{ position: "relative", transform: "translateY(calc(var(--hp) * 18px))" }}>
-              <div style={{ position: "relative", borderRadius: "14px", border: "1px solid rgba(255,255,255,.1)", background: "linear-gradient(168deg,rgba(18,24,38,.96),rgba(8,11,18,.96))", boxShadow: "0 50px 120px rgba(0,0,0,.7)", overflow: "hidden" }}>
+              <div style={{ position: "relative", borderRadius: "16px", border: "1px solid rgba(255,255,255,.14)", background: "linear-gradient(168deg,rgba(18,24,38,.98),rgba(8,11,18,.98))", boxShadow: "0 50px 120px rgba(0,0,0,.75)", overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "11px 14px", borderBottom: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.02)" }}>
                   <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "rgba(255,255,255,.14)" }} />
                   <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "rgba(255,255,255,.14)" }} />
@@ -182,14 +182,14 @@ export function Hero({ v, heroStageRef }: { v: Vals } & Pick<Refs, "heroStageRef
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "12px", opacity: "clamp(.06,calc((var(--hp) - .42) * 5),1)", transform: "translateY(calc((1 - clamp(0,calc((var(--hp) - .42) * 5),1)) * 14px))" }}>
                     {v.heroCards.map((hc, i0) => (
                       <React.Fragment key={i0}>
-                        <div style={{ padding: "13px", borderRadius: "10px", border: "1px solid rgba(255,255,255,.08)", background: "rgba(255,255,255,.035)" }}>
-                          <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", color: "rgba(124,230,255,.75)", letterSpacing: ".08em" }}>
+                        <div style={{ padding: "14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,.14)", background: "rgba(255,255,255,.065)", backdropFilter: "blur(8px)" }}>
+                          <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", color: "rgba(124,230,255,.85)", letterSpacing: ".08em", fontWeight: "500" }}>
                             {hc.k}
                           </div>
-                          <div style={{ marginTop: "10px", fontSize: "12.5px", color: "rgba(233,235,242,.9)" }}>
+                          <div style={{ marginTop: "10px", fontSize: "12.5px", color: "rgba(233,235,242,.95)", fontWeight: "500" }}>
                             {hc.t}
                           </div>
-                          <div style={{ marginTop: "5px", fontSize: "11px", lineHeight: "1.5", color: "rgba(233,235,242,.45)" }}>
+                          <div style={{ marginTop: "5px", fontSize: "11px", lineHeight: "1.5", color: "rgba(233,235,242,.55)" }}>
                             {hc.d}
                           </div>
                         </div>
@@ -206,14 +206,16 @@ export function Hero({ v, heroStageRef }: { v: Vals } & Pick<Refs, "heroStageRef
               </div>
             </div>
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0", marginTop: "64px", borderTop: "1px solid rgba(255,255,255,.08)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: "16px", marginTop: "64px" }} className="r-telemetry-grid">
             {v.telemetry.map((tm, i0) => (
               <React.Fragment key={i0}>
-                <div style={{ flex: "1", minWidth: "170px", padding: "18px 20px 20px", borderRight: "1px solid rgba(255,255,255,.06)" }} className="r-telemetry">
-                  <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(233,235,242,.36)" }}>
+                <div style={{ padding: "20px 24px", borderRadius: "16px", border: "1px solid rgba(255,255,255,.12)", background: "rgba(8,13,24,.75)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", boxShadow: "0 12px 36px rgba(0,0,0,.45)", position: "relative", overflow: "hidden" }} className="orb-card-hover r-telemetry">
+                  <div style={{ position: "absolute", top: "0", left: "0", right: "0", height: "1px", background: "linear-gradient(90deg, transparent, rgba(124,230,255,.35), transparent)" }} />
+                  <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(124,230,255,.8)", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#7ce6ff", boxShadow: "0 0 6px rgba(124,230,255,.8)" }} />
                     {tm.k}
                   </div>
-                  <div style={{ marginTop: "9px", fontFamily: "'Space Grotesk',sans-serif", fontSize: "22px", letterSpacing: "-.02em" }}>
+                  <div style={{ marginTop: "10px", fontFamily: "'Space Grotesk',sans-serif", fontSize: "24px", fontWeight: "600", letterSpacing: "-.02em", color: "#f2f6ff" }}>
                     {tm.v}
                   </div>
                 </div>

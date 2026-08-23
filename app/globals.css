@@ -10,7 +10,7 @@
 :root{--hp:0;--sy:0}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:#03040 8;background:#030408;color:#e9ebf2;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{margin:0;background:#030408;color:#e9ebf2;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.035;background-image:radial-gradient(rgba(255,255,255,.9) .5px,transparent .5px);background-size:3px 3px;mix-blend-mode:overlay}
 a{color:#e9ebf2;text-decoration:none}
 a:hover{color:#8fe3ff}
@@ -45,6 +45,8 @@ summary::-webkit-details-marker{display:none}
 .orb-h10:hover { border-color:rgba(150,225,255,.4) !important; background:rgba(150,225,255,.08) !important; }
 .orb-h11:hover { color:#fff !important; }
 .orb-h12:hover { transform:translateY(-2px) !important; }
+.orb-card-hover { transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease !important; }
+.orb-card-hover:hover { border-color: rgba(150,225,255,.35) !important; transform: translateY(-3px) !important; box-shadow: 0 24px 60px rgba(0,0,0,.6), 0 0 24px rgba(124,230,255,.1) !important; }
 
 /* ---- accessibility additions -------------------------------------------
  * Not part of the export. Neither rule changes the page at rest.
@@ -72,16 +74,13 @@ summary::-webkit-details-marker{display:none}
  * The bar is position: fixed, so an anchor scrolled flush to the top of the
  * viewport lands underneath it and the section heading is hidden. Reserving
  * the bar's height plus a little air puts the heading just below it.
- *
- * scroll-margin only affects scrolling into view, so nothing about the page's
- * layout or rhythm changes.
  */
-section[id] {
-  scroll-margin-top: 96px;
+section[id], [id] {
+  scroll-margin-top: 100px;
 }
 
 @media (max-width: 768px) {
-  section[id] {
-    scroll-margin-top: 84px;
+  section[id], [id] {
+    scroll-margin-top: 86px;
   }
 }

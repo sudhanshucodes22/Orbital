@@ -10,8 +10,12 @@
 import React from "react";
 import { activateOnKey } from "../a11y";
 import type { Vals } from "../types";
+import { InteractiveStage } from "./InteractiveStage";
 
 export function HowItWorks({ v }: { v: Vals }) {
+  const activeIndex = v.steps.findIndex((s) => s.on);
+  const currentStepIndex = activeIndex >= 0 ? activeIndex : 0;
+
   return (
       <section className="r-section r-pad-lg" id="how" style={{ position: "relative", padding: "60px 28px 120px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
@@ -21,69 +25,60 @@ export function HowItWorks({ v }: { v: Vals }) {
               <br />
               {"are typing a prompt."}
             </h2>
-            <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", color: "rgba(233,235,242,.38)", textTransform: "uppercase" }}>
-              {"Scroll to advance · "}
+            <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", letterSpacing: ".14em", color: "rgba(124,230,255,.9)", textTransform: "uppercase", background: "rgba(124,230,255,.08)", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(124,230,255,.25)" }}>
+              {"Scroll / Click to test · "}
               {v.stepReadout}
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1.08fr)", gap: "56px", alignItems: "start" }} className="r-2col">
-            <div>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1.15fr)", gap: "52px", alignItems: "start" }} className="r-2col">
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {v.steps.map((s, i0) => (
                 <React.Fragment key={i0}>
-                  <div ref={s.ref} role="button" tabIndex={0} onKeyDown={activateOnKey(s.go)} aria-pressed={s.on} style={{ padding: "26px 0 28px", borderBottom: "1px solid rgba(255,255,255,.07)", cursor: "pointer", opacity: s.dim, transition: "opacity .4s ease" }} onClick={s.go}>
+                  <div
+                    ref={s.ref}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={activateOnKey(s.go)}
+                    aria-pressed={s.on}
+                    style={{
+                      padding: "20px 22px",
+                      borderRadius: "16px",
+                      border: s.on ? "1px solid rgba(124,230,255,.4)" : "1px solid rgba(255,255,255,.06)",
+                      background: s.on ? "linear-gradient(160deg,rgba(16,28,48,.85),rgba(8,12,22,.92))" : "rgba(255,255,255,.02)",
+                      backdropFilter: "blur(12px)",
+                      cursor: "pointer",
+                      opacity: s.dim,
+                      transition: "all .3s ease",
+                      boxShadow: s.on ? "0 12px 36px rgba(0,0,0,.5), 0 0 20px rgba(124,230,255,.1)" : "none"
+                    }}
+                    className="orb-card-hover"
+                    onClick={s.go}
+                  >
                     <div style={{ display: "flex", alignItems: "baseline", gap: "16px" }}>
-                      <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".14em", color: s.numColor }}>
+                      <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", letterSpacing: ".14em", color: s.numColor, fontWeight: "500" }}>
                         {s.n}
                       </span>
                       <div style={{ flex: "1" }}>
-                        <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(22px,2.6vw,30px)", letterSpacing: "-.025em", color: s.titleColor }}>
+                        <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: "600", fontSize: "clamp(20px,2.4vw,28px)", letterSpacing: "-.025em", color: s.titleColor }}>
                           {s.t}
                         </div>
-                        <div style={{ marginTop: "8px", fontSize: "13.5px", lineHeight: "1.6", color: "rgba(233,235,242,.5)", maxWidth: "340px" }}>
+                        <div style={{ marginTop: "6px", fontSize: "13px", lineHeight: "1.55", color: s.on ? "rgba(233,235,242,.75)" : "rgba(233,235,242,.5)", maxWidth: "340px" }}>
                           {s.d}
                         </div>
                       </div>
-                      <span style={{ width: "36px", height: "1px", background: s.rule }} />
+                      <span style={{ width: s.on ? "28px" : "12px", height: "2px", borderRadius: "1px", background: s.rule, transition: "width .3s ease" }} />
                     </div>
                   </div>
                 </React.Fragment>
               ))}
             </div>
             <div style={{ position: "sticky", top: "120px" }} className="r-sticky">
-              <div style={{ position: "relative", borderRadius: "18px", border: "1px solid rgba(255,255,255,.1)", background: "linear-gradient(170deg,rgba(16,22,34,.9),rgba(6,9,15,.94))", boxShadow: "0 40px 110px rgba(0,0,0,.62)", overflow: "hidden", minHeight: "430px", display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "13px 16px", borderBottom: "1px solid rgba(255,255,255,.07)", fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(233,235,242,.42)" }}>
-                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#7ce6ff" }} />
-                  {v.stageTitle}
-                  <span style={{ flex: "1" }} />
-                  <span style={{ color: "rgba(124,230,255,.8)" }}>
-                    {v.stageMeta}
-                  </span>
-                </div>
-                <div style={{ flex: "1", padding: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <div style={{ width: "100%", maxWidth: "420px", display: "flex", flexDirection: "column", gap: "14px" }}>
-                    <div style={{ aspectRatio: "16/10", borderRadius: "12px", border: `1px solid ${v.stageBorder}`, background: v.stageBg, position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "background .6s ease,border-color .6s ease" }}>
-                      <div style={{ position: "absolute", inset: "14px", borderRadius: "8px", border: "1.5px dashed rgba(233,235,242,.22)", opacity: v.stageSketch, transition: "opacity .5s ease" }} />
-                      <div style={{ position: "absolute", inset: "0", background: "linear-gradient(180deg,transparent,rgba(124,230,255,.2))", borderBottom: "1px solid rgba(150,240,255,.8)", height: "38%", animation: "scanY 2.6s ease-in-out infinite", opacity: v.stageScan, transition: "opacity .4s ease" }} />
-                      <div style={{ position: "absolute", inset: "16px", display: "flex", flexDirection: "column", gap: "8px", opacity: v.stageSite, transition: "opacity .6s ease" }}>
-                        <span style={{ height: "16px", borderRadius: "5px", background: "rgba(255,255,255,.1)" }} />
-                        <span style={{ flex: "1", borderRadius: "8px", background: "linear-gradient(150deg,rgba(143,230,255,.2),rgba(164,139,255,.12))" }} />
-                        <span style={{ height: "22px", width: "88px", borderRadius: "6px", background: "linear-gradient(180deg,#d6f4ff,#8ad9ff)" }} />
-                      </div>
-                      <div style={{ position: "relative", display: "flex", alignItems: "flex-end", gap: "3px", height: "44px", opacity: v.stageWave, transition: "opacity .4s ease" }}>
-                        <span style={{ width: "3px", height: "100%", borderRadius: "2px", background: "#7ce6ff", animation: "bar .9s ease-in-out infinite" }} />
-                        <span style={{ width: "3px", height: "100%", borderRadius: "2px", background: "#7ce6ff", animation: "bar .9s ease-in-out .1s infinite" }} />
-                        <span style={{ width: "3px", height: "100%", borderRadius: "2px", background: "#a48bff", animation: "bar .9s ease-in-out .2s infinite" }} />
-                        <span style={{ width: "3px", height: "100%", borderRadius: "2px", background: "#7ce6ff", animation: "bar .9s ease-in-out .3s infinite" }} />
-                        <span style={{ width: "3px", height: "100%", borderRadius: "2px", background: "#a48bff", animation: "bar .9s ease-in-out .4s infinite" }} />
-                        <span style={{ width: "3px", height: "100%", borderRadius: "2px", background: "#7ce6ff", animation: "bar .9s ease-in-out .5s infinite" }} />
-                      </div>
-                    </div>
-                    <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", lineHeight: "1.7", color: "rgba(196,236,255,.85)", minHeight: "74px" }}>
-                      {v.stageLog}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <InteractiveStage
+                stepIndex={currentStepIndex}
+                stageTitle={v.stageTitle}
+                stageMeta={v.stageMeta}
+                stageLog={v.stageLog}
+              />
             </div>
           </div>
         </div>

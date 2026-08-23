@@ -12,19 +12,22 @@ import type { Vals } from "../types";
 
 export function Triad({ v }: { v: Vals }) {
   return (
-      <section className="r-section" id="story" style={{ position: "relative", padding: "120px 28px 40px" }}>
-        <div style={{ maxWidth: "1180px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: "0", borderTop: "1px solid rgba(255,255,255,.09)" }} className="r-triad">
+      <section className="r-section" id="story" style={{ position: "relative", padding: "100px 28px 40px" }}>
+        <div style={{ maxWidth: "1180px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: "20px" }} className="r-triad">
           {v.triad.map((tr, i0) => (
             <React.Fragment key={i0}>
-              <div data-reveal="" style={{ padding: "34px 30px 40px", borderRight: "1px solid rgba(255,255,255,.06)", position: "relative" }}>
-                <div style={{ position: "absolute", top: "-5px", left: "0", width: "9px", height: "9px", borderRadius: "50%", background: tr.dot }} />
-                <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10.5px", letterSpacing: ".16em", color: tr.label }}>
-                  {tr.k}
+              <div data-reveal="" style={{ padding: "34px 28px 36px", borderRadius: "20px", border: "1px solid rgba(255,255,255,.12)", background: "rgba(8,13,24,.78)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", boxShadow: "0 20px 50px rgba(0,0,0,.5)", position: "relative", overflow: "hidden" }} className="orb-card-hover">
+                <div style={{ position: "absolute", top: "0", left: "0", right: "0", height: "2px", background: `linear-gradient(90deg, ${tr.dot}, transparent)` }} />
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: tr.dot, boxShadow: `0 0 10px ${tr.dot}` }} />
+                  <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "11px", letterSpacing: ".16em", color: tr.label, fontWeight: "500" }}>
+                    {tr.k}
+                  </span>
                 </div>
-                <h3 style={{ margin: "20px 0 0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "26px", letterSpacing: "-.025em", lineHeight: "1.08" }}>
+                <h3 style={{ margin: "18px 0 0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "600", fontSize: "26px", letterSpacing: "-.025em", lineHeight: "1.12", color: "#f3f6ff" }}>
                   {tr.t}
                 </h3>
-                <p style={{ margin: "12px 0 0", fontSize: "14px", lineHeight: "1.62", color: "rgba(233,235,242,.55)", maxWidth: "290px" }}>
+                <p style={{ margin: "14px 0 0", fontSize: "14.5px", lineHeight: "1.65", color: "rgba(233,235,242,.7)", maxWidth: "320px" }}>
                   {tr.d}
                 </p>
               </div>

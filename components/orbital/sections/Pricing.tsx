@@ -14,51 +14,51 @@ export function Pricing({ v }: { v: Vals }) {
   return (
       <section className="r-section r-pad-lg" id="pricing" style={{ position: "relative", padding: "0 28px 130px" }}>
         <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "24px", flexWrap: "wrap", paddingBottom: "22px", borderBottom: "1px solid rgba(255,255,255,.09)" }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "24px", flexWrap: "wrap", paddingBottom: "28px", borderBottom: "1px solid rgba(255,255,255,.09)" }}>
             <h2 style={{ margin: "0", fontFamily: "'Space Grotesk',sans-serif", fontWeight: "500", fontSize: "clamp(26px,3.2vw,40px)", letterSpacing: "-.03em" }}>
               {"Priced like a tool."}
               <br />
               {"Works like a team."}
             </h2>
-            <div style={{ fontSize: "13px", color: "rgba(233,235,242,.45)", maxWidth: "300px" }}>
+            <div style={{ fontSize: "13.5px", color: "rgba(233,235,242,.55)", maxWidth: "300px", lineHeight: "1.6" }}>
               {"Every plan ships real code. The difference is how much intelligence runs before you do."}
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)", gap: "0" }} className="r-pricing">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: "20px", marginTop: "32px" }} className="r-pricing">
             {v.plans.map((pl, i0) => (
               <React.Fragment key={i0}>
-                <div style={{ padding: "30px 26px 34px", borderRight: "1px solid rgba(255,255,255,.07)", background: pl.bg }}>
+                <div style={{ padding: "34px 28px 36px", borderRadius: "20px", border: i0 === 1 ? "1px solid rgba(124,230,255,.45)" : "1px solid rgba(255,255,255,.12)", background: i0 === 1 ? "linear-gradient(170deg,rgba(16,28,48,.85),rgba(8,12,22,.92))" : "rgba(8,12,22,.78)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", boxShadow: i0 === 1 ? "0 24px 70px rgba(0,0,0,.6), 0 0 30px rgba(124,230,255,.12)" : "0 20px 50px rgba(0,0,0,.45)", display: "flex", flexDirection: "column" }} className="orb-card-hover">
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-                    <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "17px" }}>
+                    <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "18px", fontWeight: "600", color: "#f3f6ff" }}>
                       {pl.name}
                     </span>
-                    <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "9.5px", letterSpacing: ".1em", color: pl.tagColor }}>
+                    <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", letterSpacing: ".1em", color: pl.tagColor, padding: "4px 9px", borderRadius: "6px", background: "rgba(255,255,255,.06)" }}>
                       {pl.tag}
                     </span>
                   </div>
-                  <div style={{ marginTop: "22px", display: "flex", alignItems: "baseline", gap: "7px" }}>
-                    <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "40px", letterSpacing: "-.035em" }}>
+                  <div style={{ marginTop: "24px", display: "flex", alignItems: "baseline", gap: "7px" }}>
+                    <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "42px", fontWeight: "600", letterSpacing: "-.035em", color: "#fff" }}>
                       {pl.price}
                     </span>
-                    <span style={{ fontSize: "12.5px", color: "rgba(233,235,242,.42)" }}>
+                    <span style={{ fontSize: "13px", color: "rgba(233,235,242,.5)" }}>
                       {pl.per}
                     </span>
                   </div>
-                  <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", gap: "11px" }}>
+                  <div style={{ marginTop: "28px", display: "flex", flexDirection: "column", gap: "13px", flex: "1" }}>
                     {pl.items.map((pi, i1) => (
                       <React.Fragment key={i1}>
-                        <div style={{ display: "grid", gridTemplateColumns: "74px 1fr", gap: "12px", fontSize: "12.5px", lineHeight: "1.45" }}>
-                          <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.35)", letterSpacing: ".06em" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "80px 1fr", gap: "12px", fontSize: "13px", lineHeight: "1.45" }}>
+                          <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: "10px", color: "rgba(233,235,242,.4)", letterSpacing: ".06em" }}>
                             {pi.k}
                           </span>
-                          <span style={{ color: "rgba(233,235,242,.7)" }}>
+                          <span style={{ color: "rgba(233,235,242,.8)" }}>
                             {pi.v}
                           </span>
                         </div>
                       </React.Fragment>
                     ))}
                   </div>
-                  <a href="#cta" style={{ display: "block", marginTop: "28px", textAlign: "center", padding: "11px", borderRadius: "999px", fontSize: "13.5px", border: `1px solid ${pl.ctaBorder}`, background: pl.ctaBg, color: pl.ctaColor }} className="orb-h1">
+                  <a href="#cta" style={{ display: "block", marginTop: "32px", textAlign: "center", padding: "13px", borderRadius: "999px", fontSize: "14px", fontWeight: "500", border: `1px solid ${pl.ctaBorder}`, background: pl.ctaBg, color: pl.ctaColor }} className="orb-h1">
                     {pl.cta}
                   </a>
                 </div>

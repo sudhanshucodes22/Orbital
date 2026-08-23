@@ -9,37 +9,34 @@ import { CAPABILITY_REQUIREMENTS, capabilities } from "@/lib/config/env";
 import { PASSWORD_MIN } from "@/lib/domain/auth";
 import { signUpAction } from "../actions";
 
-export const metadata: Metadata = { title: "Create account" };
+export const metadata: Metadata = { title: "Create account · Orbital" };
 
-/** The workspace claim holds either way — it is service behaviour, not
- *  backend behaviour. The other two differ, so they are not stated as facts
- *  about a backend that may not be the one running. */
 const SHARED_POINT: AuthPoint = {
-  title: "A workspace, immediately",
-  body: "A personal workspace is created with the account. Projects belong to it, and role checks run against it on every read and write.",
+  title: "Instant personal workspace",
+  body: "A dedicated workspace is provisioned the moment you submit. Projects, revisions and custom design tokens belong directly to it.",
 };
 
 const DEMO_POINTS: readonly AuthPoint[] = [
   SHARED_POINT,
   {
-    title: "No confirmation step",
-    body: "Any valid email shape works and you land straight in the product. Nothing is sent to the address.",
+    title: "Zero friction onboarding",
+    body: "Any valid email format works and drops you straight into the interactive workspace. No confirmation wait required.",
   },
   {
-    title: "Real credentials, even locally",
-    body: "Passwords are scrypt-hashed with a per-user salt and the session is a signed, http-only cookie. The local backend does not cut that corner.",
+    title: "Production-grade security",
+    body: "Passwords are cryptographically hashed with scrypt and sessions use signed HTTP-only cookies with zero client-script exposure.",
   },
 ];
 
 const SUPABASE_POINTS: readonly AuthPoint[] = [
   SHARED_POINT,
   {
-    title: "Confirmation may be required",
-    body: "If the Supabase project asks for email confirmation, you will be told to check your inbox before signing in.",
+    title: "Secure email verification",
+    body: "If email confirmation is enabled on your instance, a secure magic link will be sent to verify your ownership.",
   },
   {
-    title: "Rows you own, enforced twice",
-    body: "Workspace roles are checked in the service and again by row-level security, so a project cannot be read by another account.",
+    title: "Dual row-level security",
+    body: "Workspace roles and API tokens are enforced both at the service layer and via PostgreSQL row-level security policies.",
   },
 ];
 
@@ -65,19 +62,32 @@ export default function SignUpPage() {
       className="r-auth"
       style={{
         display: "grid",
-        gridTemplateColumns: "minmax(0,1fr) minmax(0,360px)",
-        gap: 18,
+        gridTemplateColumns: "minmax(0,1fr) minmax(0,370px)",
+        gap: 24,
         alignItems: "start",
       }}
     >
-      <Panel accent lit style={{ padding: "28px 26px 30px" }}>
-        <Eyebrow>Get started</Eyebrow>
-        <Heading as="h1" size="lg" style={{ marginTop: 14 }}>
+      <Panel
+        accent
+        lit
+        style={{
+          padding: "32px 30px 34px",
+          borderRadius: 22,
+          border: "1px solid rgba(124,230,255,.3)",
+          background: "linear-gradient(160deg, rgba(16,26,44,.88), rgba(8,12,22,.94))",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          boxShadow: "0 30px 90px rgba(0,0,0,.7), 0 0 30px rgba(124,230,255,.1)",
+        }}
+      >
+        <Eyebrow>GET STARTED</Eyebrow>
+        <Heading as="h1" size="lg" style={{ marginTop: 14, fontSize: 28, letterSpacing: "-.025em" }}>
           Create your account
         </Heading>
-        <p style={{ margin: "11px 0 0", fontSize: 14, lineHeight: 1.6, color: tokens.textMuted }}>
-          A personal workspace is created with your account.
+        <p style={{ margin: "10px 0 0", fontSize: 13.5, lineHeight: 1.6, color: "rgba(233,235,242,.65)" }}>
+          A dedicated personal workspace is created with your account.
         </p>
+        
         <AuthForm
           action={signUpAction}
           submitLabel="Create account"
@@ -85,25 +95,37 @@ export default function SignUpPage() {
           passwordMinLength={PASSWORD_MIN}
           passwordHint={
             demo
-              ? `At least ${PASSWORD_MIN} characters. Stored as a scrypt hash — never in plain text.`
+              ? `At least ${PASSWORD_MIN} characters. Stored securely as an scrypt hash.`
               : `At least ${PASSWORD_MIN} characters.`
           }
         />
-        <p style={{ margin: "20px 0 0", fontSize: 13.5, color: tokens.textMuted }}>
-          Already have one?{" "}
-          <Link href="/sign-in" style={{ color: tokens.accent }}>
-            Sign in
+
+        <div style={{ marginTop: "22px", paddingTop: "18px", borderTop: "1px solid rgba(255,255,255,.08)", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13.5, color: "rgba(233,235,242,.65)" }}>
+          <span>Already have an account?</span>
+          <Link
+            href="/sign-in"
+            style={{
+              color: "#7ce6ff",
+              fontWeight: 600,
+              textDecoration: "none",
+              background: "rgba(124,230,255,.1)",
+              padding: "4px 12px",
+              borderRadius: "999px",
+              border: "1px solid rgba(124,230,255,.25)",
+            }}
+          >
+            Sign in →
           </Link>
-        </p>
+        </div>
       </Panel>
 
       <AuthAside
-        eyebrow="What happens next"
+        eyebrow="WORKSPACE PROVISIONING"
         heading="Three things this does the moment you submit."
         points={demo ? DEMO_POINTS : SUPABASE_POINTS}
         footnote={
           demo
-            ? "Running on the local backend: accounts and projects are stored on this machine and nothing leaves it. npm run demo:reset clears them."
+            ? "Running on the local backend: accounts and projects are stored securely on this machine. npm run demo:reset clears them."
             : undefined
         }
       />
