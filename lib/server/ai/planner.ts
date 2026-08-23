@@ -17,7 +17,7 @@
  */
 import type { BuildPlan, FileOperation, ProjectContext } from "../../domain";
 import { renderContext } from "../../services/context";
-import { parseOperations, parsePlan, extractJson } from "../../ai/parse";
+import { parseOperations, parsePlan, plannedNoChanges, extractJson } from "../../ai/parse";
 import { OPERATIONS_SCHEMA, PLAN_SCHEMA } from "../../ai/schema";
 import type { ModelProvider, ModelUsage, ModelResponse } from "../../ai/types";
 import { textMessage } from "../../ai/types";
@@ -79,6 +79,18 @@ export async function plan(
 
   const parsed = parsePlan(json.value);
   if (!parsed.ok) {
+    // "Nothing to change" is an answer, not broken output. Reported with the
+    // model's own reason, because "A plan must contain at least one step" is a
+    // schema complaint about a response the user never sees and cannot act on
+    // — and asking for something the site already has produces it reliably.
+    //
+    // Still a failure: nothing was built, and reporting success for work no
+    // model did is the one outcome this system must not have. Only the
+    // message changes.
+    const reason = plannedNoChanges(json.value);
+    if (reason) {
+      throw new ValidationError(`Orbital planned no changes for that request. ${reason}`);
+    }
     throw new ValidationError(`The planner returned an invalid plan: ${parsed.error}`);
   }
 

@@ -132,6 +132,43 @@ describe("plan", () => {
     );
   });
 
+  it("says nothing needed changing, in the model's own words", async () => {
+    // Asking for something the site already has — "add a footer with a
+    // copyright line" against a page that has one — makes the model return a
+    // well-formed plan with a summary and no steps. That is an answer, and it
+    // used to surface as "The planner returned an invalid plan: A plan must
+    // contain at least one step", which describes a schema the user never
+    // sees. Reproduced three times in a row against real Gemini.
+    const noChanges = JSON.stringify({
+      ...JSON.parse(goodPlan),
+      steps: [],
+      summary: "The page already has a footer with a copyright line.",
+    });
+
+    await assert.rejects(
+      () => plan(mockProvider(noChanges), plannerInput),
+      (e: unknown) =>
+        e instanceof ValidationError &&
+        // Still a failure — nothing was built, and saying otherwise would
+        // report work no model did.
+        /planned no changes/.test((e as Error).message) &&
+        // Carrying the reason, and not the schema complaint.
+        /already has a footer/.test((e as Error).message) &&
+        !/at least one step/.test((e as Error).message)
+    );
+  });
+
+  it("still calls a plan with no steps and no summary malformed", async () => {
+    // The distinction is the summary. Without one there is nothing separating
+    // a considered "no change" from a model that returned an empty shell, and
+    // guessing in the model's favour would put words in its mouth.
+    const empty = JSON.stringify({ ...JSON.parse(goodPlan), steps: [], summary: "" });
+    await assert.rejects(
+      () => plan(mockProvider(empty), plannerInput),
+      (e: unknown) => e instanceof ValidationError && /invalid plan/.test((e as Error).message)
+    );
+  });
+
   it("propagates a provider failure", async () => {
     const boom = mockProvider(() => {
       throw new Error("upstream exploded");

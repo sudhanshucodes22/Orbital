@@ -118,6 +118,26 @@ function oneOf<T extends string>(
 
 export const MAX_PLAN_STEPS = 40;
 
+/** Did the model answer "nothing needs to change"?
+ *
+ * A plan carrying a real summary and an empty `steps` array is not malformed
+ * output — it is a considered answer, and the commonest way to get one is to
+ * ask for something the site already has. "Add a footer with a copyright line"
+ * against a page that already has exactly that reaches here every time.
+ *
+ * `parsePlan` still rejects it, because a `BuildPlan` with no steps is not a
+ * plan and nothing downstream could execute it. This exists so the caller can
+ * tell that rejection apart from genuinely broken output and say something the
+ * user can act on. It deliberately requires the summary: without one there is
+ * nothing to distinguish this from a model that returned an empty shell.
+ */
+export function plannedNoChanges(raw: unknown): string | null {
+  if (!isRecord(raw)) return null;
+  if (!Array.isArray(raw.steps) || raw.steps.length > 0) return null;
+  const summary = typeof raw.summary === "string" ? raw.summary.trim() : "";
+  return summary.length > 0 ? summary : null;
+}
+
 export function parsePlan(raw: unknown): ParseResult<BuildPlan> {
   if (!isRecord(raw)) return fail("Plan must be a JSON object.");
 
