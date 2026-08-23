@@ -181,7 +181,7 @@ export function createSandboxedPreviewRuntime(
    */
   function launch(root: string): Promise<{ child: ChildProcess; port: number }> {
     return new Promise((ok, fail) => {
-      if (!existsSync(script)) {
+      if (!existsSync(/*turbopackIgnore: true*/ script)) {
         fail(
           new MaterializeError({
             stage: "startup",

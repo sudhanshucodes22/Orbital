@@ -15,7 +15,7 @@ const KEY_PATH = path.join(DEMO_DIR, "session.key");
 /** Generated on first use and kept out of git, so sessions survive restarts
  *  without a secret ever being committed or asked for. */
 function sessionKey(): string {
-  if (existsSync(KEY_PATH)) return readFileSync(KEY_PATH, "utf8").trim();
+  if (existsSync(/*turbopackIgnore: true*/ KEY_PATH)) return readFileSync(KEY_PATH, "utf8").trim();
   mkdirSync(DEMO_DIR, { recursive: true });
   const key = randomBytes(32).toString("hex");
   writeFileSync(KEY_PATH, key, { mode: 0o600 });

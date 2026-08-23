@@ -44,7 +44,7 @@ let cached: IsolationCapability | null = null;
  * would appear as "previews never start" rather than "sandboxing unavailable".
  */
 function seatbeltWorks(): boolean {
-  if (process.platform !== "darwin" || !existsSync(SANDBOX_EXEC)) return false;
+  if (process.platform !== "darwin" || !existsSync(/*turbopackIgnore: true*/ SANDBOX_EXEC)) return false;
   try {
     const output = execFileSync(
       SANDBOX_EXEC,
