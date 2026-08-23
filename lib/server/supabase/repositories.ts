@@ -1,9 +1,14 @@
 /** WorkspaceRepository and ProjectRepository backed by Supabase. SERVER ONLY.
  *
- * Every query runs through the request-scoped cookie client, so Row Level
- * Security applies with the caller's identity. The service layer's role checks
- * and RLS are deliberately both present: the services give good error
- * messages, RLS is the boundary that actually holds if a service is bypassed.
+ * For a request, every query runs through the request-scoped cookie client, so
+ * Row Level Security applies with the caller's identity. The service layer's
+ * role checks and RLS are deliberately both present: the services give good
+ * error messages, RLS is the boundary that actually holds if a service is
+ * bypassed.
+ *
+ * The client is a parameter for the same reason it is one in `builder.ts`: run
+ * execution has no session to build a cookie client from. See
+ * `workerProjectRepositories` at the bottom.
  */
 import type {
   CreateProjectInput,
@@ -16,7 +21,8 @@ import type {
   WorkspaceMember,
 } from "../../domain";
 import type { ProjectRepository, WorkspaceRepository } from "../../ports";
-import { getSupabaseServerClient } from "./client";
+import { getSupabaseAdminClient, getSupabaseServerClient } from "./client";
+import type { ClientFactory } from "./builder";
 import {
   toMember,
   toProject,
@@ -33,9 +39,13 @@ const PROJECT_COLUMNS =
  *  maps to null rather than an exception. */
 const NO_ROWS = "PGRST116";
 
-export const supabaseWorkspaces: WorkspaceRepository = {
+export function createSupabaseProjectRepositories(getClient: ClientFactory): {
+  workspaces: WorkspaceRepository;
+  projects: ProjectRepository;
+} {
+const supabaseWorkspaces: WorkspaceRepository = {
   async listForUser(userId: UserId): Promise<Workspace[]> {
-    const supabase = await getSupabaseServerClient();
+    const supabase = await getClient();
     const { data, error } = await supabase
       .from("workspace_members")
       .select("workspaces(id, name, slug, created_at)")
@@ -55,7 +65,7 @@ export const supabaseWorkspaces: WorkspaceRepository = {
   },
 
   async get(id: WorkspaceId): Promise<Workspace | null> {
-    const supabase = await getSupabaseServerClient();
+    const supabase = await getClient();
     const { data, error } = await supabase
       .from("workspaces")
       .select("id, name, slug, created_at")
@@ -69,7 +79,7 @@ export const supabaseWorkspaces: WorkspaceRepository = {
   },
 
   async membership(workspaceId: WorkspaceId, userId: UserId): Promise<WorkspaceMember | null> {
-    const supabase = await getSupabaseServerClient();
+    const supabase = await getClient();
     const { data, error } = await supabase
       .from("workspace_members")
       .select("workspace_id, user_id, role, joined_at")
@@ -81,9 +91,9 @@ export const supabaseWorkspaces: WorkspaceRepository = {
   },
 };
 
-export const supabaseProjects: ProjectRepository = {
+const supabaseProjects: ProjectRepository = {
   async list(workspaceId: WorkspaceId): Promise<Project[]> {
-    const supabase = await getSupabaseServerClient();
+    const supabase = await getClient();
     const { data, error } = await supabase
       .from("projects")
       .select(PROJECT_COLUMNS)
@@ -94,7 +104,7 @@ export const supabaseProjects: ProjectRepository = {
   },
 
   async get(id: ProjectId): Promise<Project | null> {
-    const supabase = await getSupabaseServerClient();
+    const supabase = await getClient();
     const { data, error } = await supabase
       .from("projects")
       .select(PROJECT_COLUMNS)
@@ -110,7 +120,7 @@ export const supabaseProjects: ProjectRepository = {
   },
 
   async create(input: CreateProjectInput, ownerId: UserId): Promise<Project> {
-    const supabase = await getSupabaseServerClient();
+    const supabase = await getClient();
     const { data, error } = await supabase
       .from("projects")
       .insert({
@@ -126,7 +136,7 @@ export const supabaseProjects: ProjectRepository = {
   },
 
   async update(id: ProjectId, patch: UpdateProjectInput): Promise<Project> {
-    const supabase = await getSupabaseServerClient();
+    const supabase = await getClient();
     const values: Record<string, unknown> = {};
     if (patch.name !== undefined) values.name = patch.name;
     if (patch.description !== undefined) values.description = patch.description;
@@ -151,8 +161,26 @@ export const supabaseProjects: ProjectRepository = {
   },
 
   async delete(id: ProjectId): Promise<void> {
-    const supabase = await getSupabaseServerClient();
+    const supabase = await getClient();
     const { error } = await supabase.from("projects").delete().eq("id", id);
     if (error) throw new Error(`Failed to delete project: ${error.message}`);
   },
 };
+
+  return { workspaces: supabaseWorkspaces, projects: supabaseProjects };
+}
+
+/** For a request: the cookie client, so Row Level Security applies with the
+ *  caller's own identity. */
+const requestScoped = createSupabaseProjectRepositories(getSupabaseServerClient);
+
+export const supabaseWorkspaces = requestScoped.workspaces;
+export const supabaseProjects = requestScoped.projects;
+
+/** For run execution: the service role, because it has no session.
+ *
+ * Same confinement as `workerRepositories` in `builder.ts` — reachable only
+ * from the worker container, never from a route that renders for a user. */
+export const workerProjectRepositories = createSupabaseProjectRepositories(async () =>
+  getSupabaseAdminClient()
+);

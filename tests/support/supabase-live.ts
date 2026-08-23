@@ -48,6 +48,7 @@ async function main() {
   const db = createClient(URL_, SERVICE, { auth: { persistSession: false } });
 
   const { workerRepositories } = await import("../../lib/server/supabase/builder");
+  const { workerProjectRepositories } = await import("../../lib/server/supabase/repositories");
   const { __setContainer, getContainer } = await import("../../lib/server/container");
   const { resolveModelConfig } = await import("../../lib/server/ai/registry");
   const { modelProducer } = await import("../../lib/server/pipeline/producers/model");
@@ -90,23 +91,18 @@ async function main() {
     log("project in Supabase", projectId);
 
     /* ---- drive the real pipeline against the Supabase adapters -------- */
+    // `submit` runs under the request container, which a CLI cannot build a
+    // cookie client for, so it gets the service-role repositories. `advance`
+    // resolves the worker container itself and needs nothing from here — that
+    // is the seam this script exists to check.
     const base = getContainer();
     __setContainer({
       ...base,
+      projects: workerProjectRepositories.projects,
+      workspaces: workerProjectRepositories.workspaces,
       files: workerRepositories.files,
       revisions: workerRepositories.revisions,
       runs: workerRepositories.runs,
-      projects: {
-        ...base.projects,
-        get: async () => project as never,
-        update: async (id: string, patch: { currentRevisionId?: string | null; status?: string }) => {
-          await db.from("projects").update({
-            current_revision_id: patch.currentRevisionId ?? undefined,
-            status: patch.status ?? undefined,
-          }).eq("id", id);
-          return { ...project, ...patch } as never;
-        },
-      },
     } as never);
 
     const engine = createPipelineEngine(modelProducer, { autoStart: false });

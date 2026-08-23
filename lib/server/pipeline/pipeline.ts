@@ -53,7 +53,7 @@ import {
 } from "../../domain";
 import { ConflictError, isNotConfigured } from "../../errors";
 import { buildProjectContext } from "../../services/context";
-import { getContainer } from "../container";
+import { getContainer, getWorkerContainer } from "../container";
 import type { OperationProducer } from "./types";
 
 /** How long a worker may hold a run before it is considered abandoned.
@@ -160,9 +160,17 @@ function jobOf(run: GenerationRun): GenerationJob {
  *
  * Safe to call concurrently and safe to call on a run that is already
  * finished: the lease decides who does the work, and everyone else observes.
+ *
+ * Executes under the worker container, never the caller's. Three things call
+ * this — the worker process, a poll, and the unawaited kick in `submit` — and
+ * only one of them has a request scope, briefly. The kick outlives the request
+ * that made it by design, so resolving cookie-backed repositories here meant
+ * every Supabase generation died the moment that request returned. Identity is
+ * a property of the work, not of who happened to start it: authorisation
+ * already happened at submit.
  */
 export async function advance(runId: string, producer: OperationProducer): Promise<GenerationRun> {
-  const container = getContainer();
+  const container = getWorkerContainer();
 
   const claimed = await container.runs.claim(runId, LEASE_MS);
   if (!claimed) {

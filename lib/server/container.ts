@@ -28,7 +28,11 @@ import {
   demoStorage,
 } from "./demo";
 import { supabaseAuth } from "./supabase/auth";
-import { supabaseProjects, supabaseWorkspaces } from "./supabase/repositories";
+import {
+  supabaseProjects,
+  supabaseWorkspaces,
+  workerProjectRepositories,
+} from "./supabase/repositories";
 import {
   supabaseFiles,
   supabaseRevisions,
@@ -162,12 +166,24 @@ export function __setContainer(next: ServiceContainer | null) {
   cached = next;
 }
 
-/** The container the worker runs under.
+/** The container run execution happens under.
  *
- * The worker has no session, so in Supabase mode it needs repositories backed
+ * Execution has no session, so in Supabase mode it needs repositories backed
  * by the service role rather than the caller's cookie. Everything else is
  * identical — same pipeline, same producers, same validation — which is the
  * point: the worker is not a second code path, only a different identity.
+ *
+ * `projects` and `workspaces` are in here alongside the builder repositories,
+ * and their absence was a real bug. Executing a run reads the project and
+ * resolves the owner's workspace role to build context, so the cookie-backed
+ * adapters threw "`cookies` was called outside a request scope" — the request
+ * that kicked the run off had already returned. Every Supabase generation
+ * failed at that point, which demo mode could not show because its adapters
+ * need no request scope at all.
+ *
+ * This is not a widening: authorisation already happened at submit, under the
+ * caller's own identity, and execution only ever touches the claimed run's own
+ * project.
  *
  * Demo mode has no row-level security to satisfy, so it reuses the same
  * adapters unchanged.
@@ -177,6 +193,8 @@ export function getWorkerContainer(): ServiceContainer {
   if (backendMode() === "demo") return base;
   return {
     ...base,
+    projects: workerProjectRepositories.projects,
+    workspaces: workerProjectRepositories.workspaces,
     files: workerRepositories.files,
     revisions: workerRepositories.revisions,
     runs: workerRepositories.runs,
